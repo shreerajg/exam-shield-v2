@@ -181,7 +181,7 @@ class ExamShield:
         username_container = tk.Frame(form_section, bg=self.colors['white'])
         username_container.pack(fill=tk.X, pady=(0, 20))
         
-        username_label = tk.Label(username_container, text="Username", 
+        username_label = tk.Label(username_container, text="👤 Username", 
                                 font=("Segoe UI", 11, "bold"), bg=self.colors['white'], 
                                 fg=self.colors['text_secondary'])
         username_label.pack(anchor=tk.W, pady=(0, 5))
@@ -198,7 +198,7 @@ class ExamShield:
         password_container = tk.Frame(form_section, bg=self.colors['white'])
         password_container.pack(fill=tk.X, pady=(0, 25))
         
-        password_label = tk.Label(password_container, text="Password", 
+        password_label = tk.Label(password_container, text="🔑 Password", 
                                 font=("Segoe UI", 11, "bold"), bg=self.colors['white'], 
                                 fg=self.colors['text_secondary'])
         password_label.pack(anchor=tk.W, pady=(0, 5))

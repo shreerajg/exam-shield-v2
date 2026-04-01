@@ -16,6 +16,13 @@ from security_manager import SecurityManager
 from system_tray import SystemTray
 import threading
 
+# Import patches to fix missing or broken functionality
+import admin_panel_selective_patch
+import security_manager_toggles_patch
+import mouse_manager_pump_patch
+import mouse_manager_hook_diagnostics
+
+
 class ExamShield:
     def __init__(self):
         if not self.is_admin():

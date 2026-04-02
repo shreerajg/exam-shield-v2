@@ -22,74 +22,104 @@ def run_as_admin():
 class EmergencyRestoreApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("Exam Shield - Emergency Restore")
-        self.root.geometry("450x380")
+        self.root.title("Exam Shield Premium - System Restoration Tool")
+        self.root.geometry("520x450")
         self.root.resizable(False, False)
         
-        # Professional color scheme
-        self.bg_color = "#1e1e2f"
-        self.card_color = "#2a2a3e"
-        self.accent_color = "#f39c12"
-        self.danger_color = "#e74c3c"
-        self.success_color = "#2ecc71"
-        self.text_color = "#ecf0f1"
+        # Premium color scheme matching main.py
+        self.colors = {
+            'primary': '#1e3d59',      
+            'secondary': '#17223b',     
+            'accent': '#ffc947',       
+            'success': '#27ae60',      
+            'danger': '#e74c3c',       
+            'surface': '#f8f9fa',      
+            'text_primary': '#2c3e50', 
+            'text_secondary': '#7f8c8d', 
+            'white': '#ffffff',
+            'gradient_start': '#1e3d59',
+            'gradient_end': '#2980b9'
+        }
         
-        self.root.configure(bg=self.bg_color)
+        self.root.configure(bg=self.colors['surface'])
         self.setup_ui()
         self.center_window()
 
     def center_window(self):
         self.root.update_idletasks()
-        x = (self.root.winfo_screenwidth() // 2) - 225
-        y = (self.root.winfo_screenheight() // 2) - 190
-        self.root.geometry(f"450x380+{x}+{y}")
+        x = (self.root.winfo_screenwidth() // 2) - 260
+        y = (self.root.winfo_screenheight() // 2) - 225
+        self.root.geometry(f"520x450+{x}+{y}")
+
+    def create_gradient_frame(self, parent, width, height):
+        canvas = tk.Canvas(parent, width=width, height=height, highlightthickness=0)
+        for i in range(height):
+            ratio = i / height
+            r1, g1, b1 = int(self.colors['gradient_start'][1:3], 16), int(self.colors['gradient_start'][3:5], 16), int(self.colors['gradient_start'][5:7], 16)
+            r2, g2, b2 = int(self.colors['gradient_end'][1:3], 16), int(self.colors['gradient_end'][3:5], 16), int(self.colors['gradient_end'][5:7], 16)
+            
+            r = int(r1 + (r2 - r1) * ratio)
+            g = int(g1 + (g2 - g1) * ratio)
+            b = int(b1 + (b2 - b1) * ratio)
+            
+            color = f"#{r:02x}{g:02x}{b:02x}"
+            canvas.create_line(0, i, width, i, fill=color, width=1)
+        return canvas
 
     def setup_ui(self):
-        # Header banner
-        header = tk.Frame(self.root, bg=self.card_color, height=80)
-        header.pack(fill=tk.X)
-        header.pack_propagate(False)
-
-        tk.Label(header, text="⚠️", font=("Segoe UI", 30), bg=self.card_color, fg=self.accent_color).pack(side=tk.LEFT, padx=(20, 10))
-        tk.Label(header, text="EMERGENCY RESTORE", font=("Segoe UI", 16, "bold"), bg=self.card_color, fg=self.text_color).pack(side=tk.LEFT, anchor='center', pady=(15, 0))
-
-        # Main Content
-        content = tk.Frame(self.root, bg=self.bg_color)
-        content.pack(fill=tk.BOTH, expand=True, padx=30, pady=20)
-
+        # Header section with gradient
+        header_canvas = self.create_gradient_frame(self.root, 520, 120)
+        header_canvas.pack(fill=tk.X)
+        
+        header_canvas.create_text(260, 40, text="⚠️", font=("Segoe UI", 36), fill=self.colors['accent'])
+        header_canvas.create_text(260, 85, text="EMERGENCY RESTORE", font=("Segoe UI", 20, "bold"), fill=self.colors['white'])
+        
+        # Content Area
+        content = tk.Frame(self.root, bg=self.colors['surface'])
+        content.pack(fill=tk.BOTH, expand=True, padx=40, pady=20)
+        
+        # Advisory panel
+        advisory_frame = tk.Frame(content, bg='#fff8e1', bd=1, relief=tk.FLAT)
+        advisory_frame.pack(fill=tk.X, pady=(0, 20))
+        
+        accent_line = tk.Frame(advisory_frame, bg=self.colors['accent'], height=3)
+        accent_line.pack(fill=tk.X)
+        
         info_text = (
             "This tool will forcefully repair your system if Exam Shield "
-            "was interrupted or crashed and left your computer in a "
-            "restricted state."
+            "interrupted unexpectedly. It unlocks network access, kills "
+            "lingering processes, and restores the Windows hosts file."
         )
-        tk.Message(content, text=info_text, width=390, font=("Segoe UI", 10), bg=self.bg_color, fg="#bdc3c7").pack(pady=(0, 20))
+        tk.Message(advisory_frame, text=info_text, width=420, font=("Segoe UI", 10), 
+                   bg='#fff8e1', fg=self.colors['text_primary']).pack(padx=15, pady=15)
 
         # Status Label
-        self.status_var = tk.StringVar(value="Status: Ready.")
-        self.status_label = tk.Label(content, textvariable=self.status_var, font=("Segoe UI", 10), bg=self.bg_color, fg=self.accent_color)
+        self.status_var = tk.StringVar(value="Status: Ready to begin restoration.")
+        self.status_label = tk.Label(content, textvariable=self.status_var, font=("Segoe UI", 10, "bold"), 
+                                     bg=self.colors['surface'], fg=self.colors['secondary'])
         self.status_label.pack(pady=(0, 20))
 
-        # Action Button 
-        self.restore_btn = tk.Button(content, text="🚀 RESTORE SYSTEM NOW", font=("Segoe UI", 11, "bold"), 
-                                     bg=self.danger_color, fg="white", relief=tk.FLAT, bd=0, 
-                                     cursor="hand2", command=self.start_restore, padx=20, pady=10)
-        self.restore_btn.pack(fill=tk.X)
+        # Action Button Container
+        btn_container = tk.Frame(content, bg=self.colors['surface'])
+        btn_container.pack(fill=tk.X, pady=(10, 0))
 
-        # Hover effects
-        self.restore_btn.bind("<Enter>", lambda e: self.restore_btn.config(bg="#c0392b"))
-        self.restore_btn.bind("<Leave>", lambda e: self.restore_btn.config(bg=self.danger_color))
+        self.restore_btn = tk.Button(btn_container, text="🚀 INITIATE SYSTEM REPAIR", 
+                                     font=("Segoe UI", 12, "bold"), bg=self.colors['danger'], fg=self.colors['white'], 
+                                     relief=tk.FLAT, bd=0, cursor="hand2", command=self.start_restore, 
+                                     padx=20, pady=12, activebackground='#c0392b', activeforeground=self.colors['white'])
+        self.restore_btn.pack(fill=tk.X)
 
     def update_status(self, text, is_error=False, is_success=False):
         self.status_var.set(f"Status: {text}")
         if is_error:
-            self.status_label.config(fg=self.danger_color)
+            self.status_label.config(fg=self.colors['danger'])
         elif is_success:
-            self.status_label.config(fg=self.success_color)
+            self.status_label.config(fg=self.colors['success'])
         else:
-            self.status_label.config(fg=self.accent_color)
+            self.status_label.config(fg=self.colors['primary'])
 
     def start_restore(self):
-        self.restore_btn.config(state=tk.DISABLED, bg="#95a5a6", text="RESTORING...")
+        self.restore_btn.config(state=tk.DISABLED, bg="#95a5a6", text="REPAIR IN PROGRESS...")
         threading.Thread(target=self.run_repair_sequence, daemon=True).start()
 
     def run_repair_sequence(self):
@@ -135,7 +165,7 @@ class EmergencyRestoreApp:
 
         self.update_status("System restored successfully!", is_success=True)
         messagebox.showinfo("Success", "System repair completed successfully. Internet and OS functions should now be unlocked.")
-        self.root.after(0, lambda: self.restore_btn.config(state=tk.NORMAL, bg=self.success_color, text="RESTORE COMPLETED"))
+        self.root.after(0, lambda: self.restore_btn.config(state=tk.NORMAL, bg=self.colors['success'], text="RESTORE COMPLETED"))
 
 if __name__ == "__main__":
     if not is_admin():

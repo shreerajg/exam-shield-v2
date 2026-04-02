@@ -10,6 +10,7 @@ from config import Config
 from mouse_manager import MouseManager
 from network_manager import NetworkManager
 from window_manager import WindowManager
+from system_integrity import SystemIntegrityManager
 
 class SecurityManager:
     def __init__(self, db_manager):
@@ -22,6 +23,7 @@ class SecurityManager:
         self.mouse_manager = MouseManager(logger=db_manager)
         self.network_manager = NetworkManager(db_manager)
         self.window_manager = WindowManager(logger=db_manager)
+        self.integrity_manager = SystemIntegrityManager(logger=db_manager)
         self.admin_panel = None
         print("✅ Security Manager initialized with all components")
     
@@ -70,6 +72,18 @@ class SecurityManager:
                 print("✅ Window protection activated" if self.window_manager.start_window_protection() else "❌ Window protection failed")
             except Exception as e:
                 print(f"❌ Window protection error: {e}")
+                
+        # Integrity checks (VM Detection and initial clipboard wipe)
+        try:
+            is_vm, vm_reason = self.integrity_manager.is_running_in_vm()
+            if is_vm:
+                print(f"⚠️ SECURITY WARNING: Runtime environment appears to be a Virtual Machine ({vm_reason})")
+                self.db_manager.log_activity("INTEGRITY_ALERT", f"Virtual Machine detected: {vm_reason}")
+            self.integrity_manager.clear_clipboard()
+            print("📋 System clipboard wiped for security")
+        except Exception as e:
+            print(f"❌ Integrity check error: {e}")
+
         active_blocks = [k for k, v in self.selective_blocking.items() if v]
         self.db_manager.log_activity("EXAM_MODE_START", f"Selective restrictions: {', '.join(active_blocks)}")
         print(f"🔒 Selective exam mode activated - Active: {', '.join(active_blocks)}")
@@ -138,6 +152,10 @@ class SecurityManager:
                             except: pass
                     except (psutil.NoSuchProcess, psutil.AccessDenied):
                         continue
+                        
+                # Continuous clipboard clearing while in exam mode
+                self.integrity_manager.clear_clipboard()
+                
                 time.sleep(2)
             except Exception as e:
                 print(f"Process monitoring error: {e}"); time.sleep(5)

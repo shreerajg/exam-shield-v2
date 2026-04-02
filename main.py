@@ -215,7 +215,7 @@ class ExamShield:
         button_container = tk.Frame(form_section, bg=self.colors['white'])
         button_container.pack(fill=tk.X, pady=(10, 0))
         
-        # Login button with premium styling
+        # Login button 
         login_btn = tk.Button(button_container, text="🚀 AUTHENTICATE", command=self.login,
                             bg=self.colors['primary'], fg=self.colors['white'], 
                             font=("Segoe UI", 12, "bold"), relief=tk.FLAT, cursor='hand2', 

@@ -156,6 +156,10 @@ class SecurityManager:
                 # Continuous clipboard clearing while in exam mode
                 self.integrity_manager.clear_clipboard()
                 
+                if self.integrity_manager.is_debugger_present():
+                    self.db_manager.log_activity("DEBUGGER_DETECTED", "Debugger presence detected", blocked=True)
+                    print("⚠️ DEBUGGER DETECTED! Security risk.")
+                
                 time.sleep(2)
             except Exception as e:
                 print(f"Process monitoring error: {e}"); time.sleep(5)

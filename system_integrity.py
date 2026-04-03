@@ -46,3 +46,13 @@ class SystemIntegrityManager:
                     os.system("echo off | clip")
                 except:
                     pass
+
+    def is_debugger_present(self):
+        """Detect if the system is being debugged."""
+        if platform.system().lower() == "windows":
+            try:
+                if ctypes.windll.kernel32.IsDebuggerPresent():
+                    return True
+            except Exception:
+                pass
+        return False

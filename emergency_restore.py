@@ -26,7 +26,7 @@ class EmergencyRestoreApp:
         self.root.geometry("520x450")
         self.root.resizable(False, False)
         
-        # Premium color scheme matching main.py
+        # Premium color scheme 
         self.colors = {
             'primary': '#1e3d59',      
             'secondary': '#17223b',     

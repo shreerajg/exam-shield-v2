@@ -14,6 +14,8 @@ class ExamShieldTheme:
         """Initialize theme configuration"""
         if self.theme_mode == "dark":
             self.colors = self.get_dark_theme()
+        elif self.theme_mode == "pink":
+            self.colors = self.get_pink_theme()
         else:
             self.colors = self.get_light_theme()
         
@@ -130,6 +132,62 @@ class ExamShieldTheme:
             # Shadow colors
             'shadow': 'rgba(0, 0, 0, 0.3)',
             'shadow_dark': 'rgba(0, 0, 0, 0.5)',
+        }
+    
+    def get_pink_theme(self):
+        """Pink theme color palette"""
+        return {
+            # Primary colors
+            'primary': '#EC4899',
+            'primary_light': '#F472B6',
+            'primary_dark': '#BE185D',
+            'primary_hover': '#DB2777',
+            
+            # Secondary colors
+            'secondary': '#8B5CF6',
+            'secondary_light': '#A78BFA',
+            'secondary_dark': '#6D28D9',
+            
+            # Status colors
+            'success': '#10B981',
+            'warning': '#F59E0B',
+            'danger': '#EF4444',
+            'info': '#3B82F6',
+            
+            # Neutral colors
+            'white': '#FFFFFF',
+            'gray_50': '#FDF2F8',
+            'gray_100': '#FCE7F3',
+            'gray_200': '#FBCFE8',
+            'gray_300': '#F9A8D4',
+            'gray_400': '#F472B6',
+            'gray_500': '#EC4899',
+            'gray_600': '#DB2777',
+            'gray_700': '#BE185D',
+            'gray_800': '#9D174D',
+            'gray_900': '#831843',
+            
+            # Surface colors
+            'background': '#FDF2F8',
+            'surface': '#FFFFFF',
+            'card': '#FFFFFF',
+            'sidebar': '#831843',
+            'sidebar_hover': '#9D174D',
+            
+            # Text colors
+            'text_primary': '#831843',
+            'text_secondary': '#DB2777',
+            'text_muted': '#F472B6',
+            'text_inverse': '#FFFFFF',
+            
+            # Border colors
+            'border': '#FBCFE8',
+            'border_light': '#FCE7F3',
+            'border_focus': '#EC4899',
+            
+            # Shadow colors
+            'shadow': 'rgba(236, 72, 153, 0.1)',
+            'shadow_dark': 'rgba(236, 72, 153, 0.25)',
         }
     
     def get_font_system(self):
@@ -425,6 +483,7 @@ class ModernComponents:
 THEMES = {
     'light': ExamShieldTheme('light'),
     'dark': ExamShieldTheme('dark'),
+    'pink': ExamShieldTheme('pink'),
 }
 
 def get_theme(theme_name='light'):

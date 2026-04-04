@@ -10,6 +10,7 @@ import json
 from datetime import datetime
 import keyboard
 from pynput import mouse
+import theme
 
 class AdminPanel:
     def __init__(self, db_manager, security_manager, parent_window):
@@ -28,16 +29,36 @@ class AdminPanel:
         self.window.geometry("950x750")
         self.window.resizable(True, True)
 
-        self.colors = {
-            'primary': '#1e3d59','secondary': '#17223b','accent': '#ffc947','success': '#27ae60',
-            'warning': '#f39c12','danger': '#e74c3c','info': '#3498db','surface': '#f8f9fa',
-            'card': '#ffffff','text_primary': '#2c3e50','text_secondary': '#7f8c8d'
-        }
-        self.window.configure(bg=self.colors['surface'])
+        self.current_theme = "light"
+        self.load_theme(self.current_theme)
 
         self.setup_window()
         self.setup_ui()
         self.start_auto_refresh()
+
+    def load_theme(self, theme_name):
+        t = theme.get_theme(theme_name)
+        tc = t.colors
+        if theme_name == "light":
+            self.colors = {
+                'primary': '#1e3d59','secondary': '#17223b','accent': '#ffc947','success': '#27ae60',
+                'warning': '#f39c12','danger': '#e74c3c','info': '#3498db','surface': '#f8f9fa',
+                'card': '#ffffff','text_primary': '#2c3e50','text_secondary': '#7f8c8d'
+            }
+        else:
+            self.colors = {
+                'primary': tc['primary'],'secondary': tc['secondary'],'accent': tc['warning'],'success': tc['success'],
+                'warning': tc['warning'],'danger': tc['danger'],'info': tc['info'],'surface': tc['surface'],
+                'card': tc['card'],'text_primary': tc['text_primary'],'text_secondary': tc['text_secondary']
+            }
+        self.window.configure(bg=self.colors['surface'])
+
+    def change_theme(self, event=None):
+        self.current_theme = self.theme_var.get()
+        self.load_theme(self.current_theme)
+        for widget in self.window.winfo_children():
+            widget.destroy()
+        self.setup_ui()
 
     def setup_window(self):
         self.window.update_idletasks()
@@ -244,7 +265,21 @@ class AdminPanel:
         tk.Checkbutton(content, text="Enable aggressive window protection", variable=self.window_protection_var, font=("Segoe UI", 10), bg=self.colors['card'], fg=self.colors['text_primary'], selectcolor=self.colors['card'], activebackground=self.colors['card']).pack(anchor=tk.W)
         self.process_monitoring_var = tk.BooleanVar(value=True)
         tk.Checkbutton(content, text="Enable unauthorized process termination", variable=self.process_monitoring_var, font=("Segoe UI", 10), bg=self.colors['card'], fg=self.colors['text_primary'], selectcolor=self.colors['card'], activebackground=self.colors['card']).pack(anchor=tk.W)
-        tk.Button(content, text="💾 Save All Settings", command=self.save_settings, bg=self.colors['primary'], fg=self.colors['card'], font=("Segoe UI", 11, "bold"), relief=tk.FLAT, cursor='hand2', padx=20, pady=10).pack(pady=(15,0))
+        
+        # Theme Setting
+        theme_frame = tk.Frame(content, bg=self.colors['card'])
+        theme_frame.pack(anchor=tk.W, pady=(15, 0))
+        tk.Label(theme_frame, text="Admin Panel Theme:", bg=self.colors['card'], fg=self.colors['text_primary'], font=("Segoe UI", 10)).pack(side=tk.LEFT)
+        if hasattr(self, 'theme_var'):
+            current = self.theme_var.get()
+        else:
+            current = self.current_theme
+        self.theme_var = tk.StringVar(value=current)
+        theme_combo = ttk.Combobox(theme_frame, textvariable=self.theme_var, values=["light", "dark"], state="readonly", width=15)
+        theme_combo.pack(side=tk.LEFT, padx=10)
+        theme_combo.bind("<<ComboboxSelected>>", self.change_theme)
+
+        tk.Button(content, text="💾 Save All Settings", command=self.save_settings, bg=self.colors['primary'], fg=self.colors['card'], font=("Segoe UI", 11, "bold"), relief=tk.FLAT, cursor='hand2', padx=20, pady=10).pack(pady=(20,0))
         
         canvas.pack(side="left", fill="both", expand=True, padx=15, pady=15); scrollbar.pack(side="right", fill="y", padx=(0,15), pady=15)
 

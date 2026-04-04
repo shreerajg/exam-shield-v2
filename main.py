@@ -21,7 +21,7 @@ import admin_panel_selective_patch
 import security_manager_toggles_patch
 import mouse_manager_pump_patch
 import mouse_manager_hook_diagnostics
-
+import theme
 
 class ExamShield:
     def __init__(self):
@@ -34,23 +34,8 @@ class ExamShield:
         self.root.geometry("520x720")
         self.root.resizable(False, False)
         
-        # Premium color scheme
-        self.colors = {
-            'primary': '#1e3d59',      # Deep navy blue
-            'secondary': '#17223b',     # Darker navy
-            'accent': '#ffc947',       # Premium gold
-            'success': '#27ae60',      # Professional green
-            'danger': '#e74c3c',       # Professional red
-            'surface': '#f8f9fa',      # Light surface
-            'text_primary': '#2c3e50', # Dark text
-            'text_secondary': '#7f8c8d', # Gray text
-            'white': '#ffffff',
-            'light_blue': '#ecf4ff',
-            'gradient_start': '#1e3d59',
-            'gradient_end': '#2980b9'
-        }
-        
-        self.root.configure(bg=self.colors['surface'])
+        self.current_theme = "light"
+        self.load_theme(self.current_theme)
         
         self.db_manager = DatabaseManager()
         self.security_manager = None
@@ -58,6 +43,33 @@ class ExamShield:
         
         self.setup_ui()
         self.center_window()
+
+    def load_theme(self, theme_name):
+        t = theme.get_theme(theme_name)
+        tc = t.colors
+        if theme_name == "light":
+            self.colors = {
+                'primary': '#1e3d59', 'secondary': '#17223b', 'accent': '#ffc947',
+                'success': '#27ae60', 'danger': '#e74c3c', 'surface': '#f8f9fa',
+                'text_primary': '#2c3e50', 'text_secondary': '#7f8c8d', 'white': '#ffffff',
+                'light_blue': '#ecf4ff', 'gradient_start': '#1e3d59', 'gradient_end': '#2980b9'
+            }
+        else:
+            self.colors = {
+                'primary': tc['primary'], 'secondary': tc['secondary'], 'accent': tc['warning'],
+                'success': tc['success'], 'danger': tc['danger'], 'surface': tc['surface'],
+                'text_primary': tc['text_primary'], 'text_secondary': tc['text_secondary'],
+                'white': tc['card'], 'light_blue': tc['background'], 
+                'gradient_start': tc['primary_dark'], 'gradient_end': tc['primary_light']
+            }
+        self.root.configure(bg=self.colors['surface'])
+
+    def change_theme(self, event=None):
+        self.current_theme = self.theme_var.get()
+        self.load_theme(self.current_theme)
+        for widget in self.root.winfo_children():
+            widget.destroy()
+        self.setup_ui()
 
     def is_admin(self):
         try:
@@ -270,6 +282,16 @@ class ExamShield:
                                font=("Segoe UI", 9), bg=self.colors['surface'], 
                                fg=self.colors['text_secondary'])
         version_label.pack(pady=10)
+        
+        # Theme selector
+        theme_frame = tk.Frame(footer_frame, bg=self.colors['surface'])
+        theme_frame.pack(pady=5)
+        tk.Label(theme_frame, text="Theme:", bg=self.colors['surface'], fg=self.colors['text_secondary'], font=("Segoe UI", 9)).pack(side=tk.LEFT)
+        if not hasattr(self, 'theme_var'):
+            self.theme_var = tk.StringVar(value=self.current_theme)
+        theme_combo = ttk.Combobox(theme_frame, textvariable=self.theme_var, values=["light", "dark"], width=10, state="readonly", font=("Segoe UI", 9))
+        theme_combo.pack(side=tk.LEFT, padx=5)
+        theme_combo.bind("<<ComboboxSelected>>", self.change_theme)
         
         # Event bindings
         password_entry.bind("<Return>", lambda e: self.login())

@@ -275,7 +275,7 @@ class AdminPanel:
         else:
             current = self.current_theme
         self.theme_var = tk.StringVar(value=current)
-        theme_combo = ttk.Combobox(theme_frame, textvariable=self.theme_var, values=["light", "dark"], state="readonly", width=15)
+        theme_combo = ttk.Combobox(theme_frame, textvariable=self.theme_var, values=["light", "dark", "pink"], state="readonly", width=15)
         theme_combo.pack(side=tk.LEFT, padx=10)
         theme_combo.bind("<<ComboboxSelected>>", self.change_theme)
 

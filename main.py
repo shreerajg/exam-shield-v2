@@ -289,7 +289,7 @@ class ExamShield:
         tk.Label(theme_frame, text="Theme:", bg=self.colors['surface'], fg=self.colors['text_secondary'], font=("Segoe UI", 9)).pack(side=tk.LEFT)
         if not hasattr(self, 'theme_var'):
             self.theme_var = tk.StringVar(value=self.current_theme)
-        theme_combo = ttk.Combobox(theme_frame, textvariable=self.theme_var, values=["light", "dark"], width=10, state="readonly", font=("Segoe UI", 9))
+        theme_combo = ttk.Combobox(theme_frame, textvariable=self.theme_var, values=["light", "dark", "pink"], width=10, state="readonly", font=("Segoe UI", 9))
         theme_combo.pack(side=tk.LEFT, padx=5)
         theme_combo.bind("<<ComboboxSelected>>", self.change_theme)
         

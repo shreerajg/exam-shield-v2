@@ -643,11 +643,12 @@ class AdminPanel:
                        activebackground=self.darken_color(bg_color),
                        activeforeground=self.colors['card'], **kwargs)
         
-        if pack_side:
-            if pack_side == "right":
-                btn.pack(side=tk.RIGHT, padx=(10, 0))
-            elif pack_side == "left":
-                btn.pack(side=tk.LEFT, padx=(0, 10))
+        if not pack_side:
+            return btn
+        if pack_side == "right":
+            btn.pack(side=tk.RIGHT, padx=(10, 0))
+        elif pack_side == "left":
+            btn.pack(side=tk.LEFT, padx=(0, 10))
         
         return btn
 

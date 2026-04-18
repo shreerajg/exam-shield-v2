@@ -640,12 +640,12 @@ class AdminPanel:
                        bg=bg_color, fg=self.colors['card'],
                        font=("Segoe UI", 10, "bold"), relief=tk.FLAT, 
                        cursor='hand2', padx=15, pady=10,
-                       activebackground=self.darken_color(bg_color),
-                       activeforeground=self.colors['card'], **kwargs)
+activebackground=self.darken_color(bg_color),
+                        activeforeground=self.colors['card'], **kwargs)
         
-        if not pack_side:
-            return btn
-        if pack_side == "right":
+        if pack_side is None or pack_side == "grid":
+            pass
+        elif pack_side == "right":
             btn.pack(side=tk.RIGHT, padx=(10, 0))
         elif pack_side == "left":
             btn.pack(side=tk.LEFT, padx=(0, 10))

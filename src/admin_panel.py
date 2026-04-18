@@ -643,10 +643,11 @@ class AdminPanel:
                        activebackground=self.darken_color(bg_color),
                        activeforeground=self.colors['card'], **kwargs)
         
-        if pack_side == "right":
-            btn.pack(side=tk.RIGHT, padx=(10, 0))
-        elif pack_side == "left":
-            btn.pack(side=tk.LEFT, padx=(0, 10))
+        if pack_side:
+            if pack_side == "right":
+                btn.pack(side=tk.RIGHT, padx=(10, 0))
+            elif pack_side == "left":
+                btn.pack(side=tk.LEFT, padx=(0, 10))
         
         return btn
 
@@ -1472,7 +1473,7 @@ class AdminPanel:
         dialog.geometry("550x500")
         dialog.configure(bg=self.colors['surface'])
         dialog.transient(self.window)
-        dialog.grar_set()
+        dialog.grab_set()
         
         x = (dialog.winfo_screenwidth() // 2) - 275
         y = (dialog.winfo_screenheight() // 2) - 250

@@ -627,7 +627,7 @@ class AdminPanel:
             col = i % 3
             
             btn = self.create_premium_button(controls_grid, text, command, 
-                                           self.colors['info'], pack_side=None)
+                                           self.colors['info'], pack_side="grid")
             btn.grid(row=row, column=col, padx=5, pady=5, sticky="ew")
         
         # Configure grid weights

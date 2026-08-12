@@ -1,26 +1,25 @@
 """
 Configuration settings for Exam Shield
 """
-<<<<<<< HEAD
 
-=======
->>>>>>> 8516873 (Initial commit: Project version 1)
 import os
+
+# Resolve paths relative to the project root (this file's directory)
+_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 class Config:
     # Application settings
     APP_NAME = "Exam Shield"
-    VERSION = "1.1.0"
+    VERSION = "2.0.0"
     
-    # Database settings
+    # Database settings — stored in data/ subfolder
     DATABASE_NAME = "exam_shield.db"
-    DATABASE_PATH = os.path.join(os.path.dirname(__file__), DATABASE_NAME)
+    DATABASE_PATH = os.path.join(_ROOT, "data", DATABASE_NAME)
     
-<<<<<<< HEAD
-    # Security settings - KEEPING ORIGINAL NAMES
-=======
-    # Security settings
->>>>>>> 8516873 (Initial commit: Project version 1)
+    # Default admin credentials (used only on first launch)
+    DEFAULT_USERNAME = "admin"
+    DEFAULT_PASSWORD = "admin"
+    # Legacy aliases kept for backward compatibility
     DEFAULT_ADMIN_USERNAME = "admin"
     DEFAULT_ADMIN_PASSWORD = "admin"
     
@@ -36,17 +35,10 @@ class Config:
         'middle', 'x1', 'x2', 'side'
     ]
     
-<<<<<<< HEAD
     # Admin access key
     ADMIN_ACCESS_KEY = 'ctrl+shift+y'
     
     # Individual blocking control flags
-=======
-    # FIXED: Changed admin access key to Ctrl+Shift+Y
-    ADMIN_ACCESS_KEY = 'ctrl+shift+y'
-    
-    # NEW: Individual blocking control flags
->>>>>>> 8516873 (Initial commit: Project version 1)
     SELECTIVE_BLOCKING = {
         'keyboard': True,
         'mouse': True,
@@ -62,8 +54,7 @@ class Config:
         'instagram.com', 'tiktok.com', 'reddit.com', 'discord.com'
     ]
     
-<<<<<<< HEAD
-    # Premium UI Colors - UPDATED FOR PREMIUM LOOK
+    # Premium UI Colors
     COLORS = {
         'primary': '#1e3d59',      # Deep navy blue
         'secondary': '#17223b',     # Darker navy
@@ -81,18 +72,6 @@ class Config:
         'light_green': '#e8f5e8',  # Very light green
         'light_yellow': '#fff8e1', # Very light yellow
         'light_red': '#ffebee'     # Very light red
-=======
-    # UI Colors
-    COLORS = {
-        'primary': '#2196F3',
-        'secondary': '#FFC107',
-        'success': '#4CAF50',
-        'danger': '#F44336',
-        'warning': '#FF9800',
-        'info': '#00BCD4',
-        'light': '#F5F5F5',
-        'dark': '#212121'
->>>>>>> 8516873 (Initial commit: Project version 1)
     }
     
     # Logging settings

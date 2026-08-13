@@ -14,11 +14,8 @@ class ExamShieldTheme:
         """Initialize theme configuration"""
         if self.theme_mode == "dark":
             self.colors = self.get_dark_theme()
-<<<<<<< HEAD
         elif self.theme_mode == "pink":
             self.colors = self.get_pink_theme()
-=======
->>>>>>> de2d156 (Initial commit)
         else:
             self.colors = self.get_light_theme()
         
@@ -137,7 +134,6 @@ class ExamShieldTheme:
             'shadow_dark': 'rgba(0, 0, 0, 0.5)',
         }
     
-<<<<<<< HEAD
     def get_pink_theme(self):
         """Pink theme color palette"""
         return {
@@ -194,8 +190,6 @@ class ExamShieldTheme:
             'shadow_dark': 'rgba(236, 72, 153, 0.25)',
         }
     
-=======
->>>>>>> de2d156 (Initial commit)
     def get_font_system(self):
         """Professional font system"""
         # Detect system fonts
@@ -489,10 +483,7 @@ class ModernComponents:
 THEMES = {
     'light': ExamShieldTheme('light'),
     'dark': ExamShieldTheme('dark'),
-<<<<<<< HEAD
     'pink': ExamShieldTheme('pink'),
-=======
->>>>>>> de2d156 (Initial commit)
 }
 
 def get_theme(theme_name='light'):

@@ -10,7 +10,7 @@ from datetime import datetime
 # If AdminPanel is not imported here, this file should be merged into admin_panel.py. For stability,
 # we re-open the class using the same name and add methods.
 
-from admin_panel import AdminPanel as _AP
+from src.admin_panel import AdminPanel as _AP
 
 def _create_monitoring_tab(self):
     frame = ttk.Frame(self.notebook)

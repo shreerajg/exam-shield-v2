@@ -3,7 +3,7 @@ Security Manager for Exam Shield
 Adds missing toggle methods used by AdminPanel
 """
 
-from security_manager import SecurityManager as _SM
+from src.security_manager import SecurityManager as _SM
 
 # Add missing toggle methods if not present
 

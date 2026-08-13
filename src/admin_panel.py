@@ -10,7 +10,7 @@ import json
 from datetime import datetime
 import keyboard
 from pynput import mouse
-import theme
+from src import theme
 
 class AdminPanel:
     def __init__(self, db_manager, security_manager, parent_window):

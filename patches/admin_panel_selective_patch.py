@@ -5,7 +5,7 @@ Patch AdminPanel: ensure show_selective_lockdown_dialog exists and works
 import tkinter as tk
 from tkinter import messagebox
 
-from admin_panel import AdminPanel as _AP
+from src.admin_panel import AdminPanel as _AP
 
 
 def _show_selective_lockdown_dialog(self):

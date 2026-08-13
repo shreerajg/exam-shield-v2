@@ -6,11 +6,11 @@ import keyboard
 import threading
 import time
 import psutil
-from config import Config
-from mouse_manager import MouseManager
-from network_manager import NetworkManager
-from window_manager import WindowManager
-from system_integrity import SystemIntegrityManager
+from src.config import Config
+from src.mouse_manager import MouseManager
+from src.network_manager import NetworkManager
+from src.window_manager import WindowManager
+from src.system_integrity import SystemIntegrityManager
 
 class SecurityManager:
     def __init__(self, db_manager):

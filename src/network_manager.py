@@ -11,7 +11,7 @@ import socket
 import threading
 import time     
 from datetime import datetime
-from config import Config
+from src.config import Config
 
 class NetworkManager:
     def __init__(self, db_manager):

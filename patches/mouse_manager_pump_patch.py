@@ -2,7 +2,7 @@
 Mouse Manager: ensure low-level hook stays active with a message pump thread
 """
 
-from mouse_manager import MouseManager as _MM
+from src.mouse_manager import MouseManager as _MM
 import threading
 import time
 import ctypes

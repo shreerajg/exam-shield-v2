@@ -5,7 +5,7 @@ Enhanced logging system for Exam Shield
 import logging
 import os
 from datetime import datetime, timedelta
-from config import Config
+from src.config import Config
 
 class ExamShieldLogger:
     def __init__(self, db_manager):

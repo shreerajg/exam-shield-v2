@@ -9,7 +9,7 @@ from tkinter import messagebox
 import threading
 import time
 from tkinter import ttk
-import theme
+from src import theme
 
 def is_admin():
     try:

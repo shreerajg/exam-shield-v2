@@ -247,7 +247,7 @@ class SystemTray:
             
             if result['confirmed'] and result['password']:
                 import hashlib
-                from database_manager import DatabaseManager
+                from src.database_manager import DatabaseManager
                 
                 db_manager = DatabaseManager()
                 password_hash = hashlib.sha256(result['password'].encode()).hexdigest()
@@ -348,7 +348,7 @@ class SystemTray:
             
             if result['confirmed'] and result['password']:
                 import hashlib
-                from database_manager import DatabaseManager
+                from src.database_manager import DatabaseManager
                 
                 db_manager = DatabaseManager()
                 password_hash = hashlib.sha256(result['password'].encode()).hexdigest()
@@ -620,7 +620,7 @@ class SystemTray:
             
             if result['confirmed'] and result['password']:
                 import hashlib
-                from database_manager import DatabaseManager
+                from src.database_manager import DatabaseManager
                 
                 db_manager = DatabaseManager()
                 password_hash = hashlib.sha256(result['password'].encode()).hexdigest()
@@ -721,7 +721,7 @@ class SystemTray:
             
             if result['confirmed'] and result['password']:
                 import hashlib
-                from database_manager import DatabaseManager
+                from src.database_manager import DatabaseManager
                 
                 db_manager = DatabaseManager()
                 password_hash = hashlib.sha256(result['password'].encode()).hexdigest()

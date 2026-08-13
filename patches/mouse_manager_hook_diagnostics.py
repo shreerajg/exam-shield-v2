@@ -2,7 +2,7 @@
 Improve diagnostics for mouse hook installation failures
 """
 
-from mouse_manager import MouseManager as _MM
+from src.mouse_manager import MouseManager as _MM
 import ctypes
 from ctypes import windll
 

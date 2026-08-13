@@ -1,45 +1,24 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
 """
-<<<<<<< HEAD
 Admin Panel for Exam Shield - COMPLETE STABLE VERSION
 All methods properly defined to eliminate attribute errors
 """
 
 import tkinter as tk
 from tkinter import ttk, messagebox, scrolledtext, simpledialog, filedialog
-=======
-Admin Panel for Exam Shield - ENHANCED WITH SELECTIVE CONTROLS
-"""
-import tkinter as tk
-from tkinter import ttk, messagebox, scrolledtext, simpledialog
->>>>>>> 8516873 (Initial commit: Project version 1)
 import threading
 import json
 from datetime import datetime
 import keyboard
 from pynput import mouse
-<<<<<<< HEAD
 import theme
-=======
->>>>>>> 8516873 (Initial commit: Project version 1)
 
 class AdminPanel:
     def __init__(self, db_manager, security_manager, parent_window):
         self.db_manager = db_manager
         self.security_manager = security_manager
         self.parent_window = parent_window
-<<<<<<< HEAD
         self.security_manager.set_admin_panel(self)
 
-=======
-=======
-=======
-"""
-Admin Panel for Exam Shield Premium - Enhanced Professional Design
-"""
-
->>>>>>> 1543317 (adding elements in main page)
 import tkinter as tk
 from tkinter import ttk, messagebox, scrolledtext, simpledialog
 import threading
@@ -49,7 +28,6 @@ import keyboard
 from pynput import mouse
 
 class AdminPanel:
-<<<<<<< HEAD
     def __init__(self):
         if not self.is_admin():
             self.restart_as_admin()
@@ -59,13 +37,10 @@ class AdminPanel:
         self.root.title("Exam Shield Pro v2.0 - Modern Design")
         self.root.geometry("550x700")
         self.root.resizable(False, False)
->>>>>>> de2d156 (Initial commit)
-=======
     def __init__(self, db_manager, security_manager, parent_window):
         self.db_manager = db_manager
         self.security_manager = security_manager
         self.parent_window = parent_window
->>>>>>> 1543317 (adding elements in main page)
         
         # Premium color scheme
         self.colors = {
@@ -87,15 +62,11 @@ class AdminPanel:
             'light_red': '#ffebee'
         }
         
-<<<<<<< HEAD
-<<<<<<< HEAD
         # NEW: Key/Mouse detection variables
->>>>>>> 8516873 (Initial commit: Project version 1)
         self.detecting_key = False
         self.detecting_mouse = False
         self.detected_key = None
         self.mouse_listener = None
-<<<<<<< HEAD
 
         self.window = tk.Toplevel()
         self.window.title("Exam Shield Premium - Admin Panel v2.0")
@@ -105,22 +76,8 @@ class AdminPanel:
         self.current_theme = "light"
         self.load_theme(self.current_theme)
 
-=======
-=======
-        try:
-            self.db_manager = DatabaseManager()
-        except:
-            # Create a dummy database manager for UI testing
-            class DummyDB:
-                def admin_exists(self): return False
-                def verify_admin(self, u, p): return u == "admin" and hashlib.sha256("admin".encode()).hexdigest() == p
-                def log_activity(self, action, details): pass
-            self.db_manager = DummyDB()
->>>>>>> de2d156 (Initial commit)
-=======
         # Set admin panel reference in security manager
         self.security_manager.set_admin_panel(self)
->>>>>>> 1543317 (adding elements in main page)
         
         # Key/Mouse detection variables
         self.detecting_key = False
@@ -128,13 +85,7 @@ class AdminPanel:
         self.detected_key = None
         self.mouse_listener = None
         
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 8516873 (Initial commit: Project version 1)
         self.setup_window()
-=======
->>>>>>> de2d156 (Initial commit)
-=======
         self.window = tk.Toplevel()
         self.window.title("Exam Shield Premium - Administrative Control Center")
         self.window.geometry("1200x800")
@@ -142,13 +93,9 @@ class AdminPanel:
         self.window.configure(bg=self.colors['surface'])
         
         self.setup_window()
->>>>>>> 1543317 (adding elements in main page)
         self.setup_ui()
         self.start_auto_refresh()
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     def load_theme(self, theme_name):
         t = theme.get_theme(theme_name)
         tc = t.colors
@@ -257,27 +204,6 @@ class AdminPanel:
         dialog.transient(self.window)
         dialog.grab_set()
 
-=======
-    def setup_window(self):
-        self.window.update_idletasks()
-        x = (self.window.winfo_screenwidth() // 2) - (475)
-        y = (self.window.winfo_screenheight() // 2) - (375)
-        self.window.geometry(f"950x750+{x}+{y}")
-        self.window.protocol("WM_DELETE_WINDOW", self.on_close)
-=======
-    def is_admin(self):
-        try:
-            return ctypes.windll.shell32.IsUserAnAdmin()
-        except:
-            return True  # For testing purposes
-=======
-    def setup_window(self):
-        self.window.update_idletasks()
-        x = (self.window.winfo_screenwidth() // 2) - 600
-        y = (self.window.winfo_screenheight() // 2) - 400
-        self.window.geometry(f"1200x800+{x}+{y}")
-        self.window.protocol("WM_DELETE_WINDOW", self.on_close)
->>>>>>> 1543317 (adding elements in main page)
 
     def create_styled_frame(self, parent, bg_color=None):
         """Create a frame with premium styling"""
@@ -309,7 +235,6 @@ class AdminPanel:
             header.pack(fill=tk.X)
             header.pack_propagate(False)
             
-<<<<<<< HEAD
             if result:
                 ctypes.windll.shell32.ShellExecuteW(
                     None, "runas", sys.executable, f'"{os.path.abspath(__file__)}"', None, 1
@@ -324,8 +249,6 @@ class AdminPanel:
         x = (self.root.winfo_screenwidth() // 2) - 275
         y = (self.root.winfo_screenheight() // 2) - 350
         self.root.geometry(f"550x700+{x}+{y}")
->>>>>>> de2d156 (Initial commit)
-=======
             if icon:
                 icon_label = tk.Label(header, text=icon, font=("Segoe UI", 16),
                                     bg=self.colors['primary'], fg=self.colors['accent'])
@@ -342,7 +265,6 @@ class AdminPanel:
             return card_container, content
         
         return card_container, card
->>>>>>> 1543317 (adding elements in main page)
 
     def setup_ui(self):
         # Main header
@@ -372,8 +294,6 @@ class AdminPanel:
                           bg=self.colors['primary'], fg=self.colors['light_blue'])
         subtitle.pack(anchor=tk.W)
         
-<<<<<<< HEAD
-<<<<<<< HEAD
         indicators_frame = ttk.Frame(self.security_status_frame)
         indicators_frame.pack(anchor=tk.W, pady=(2, 0))
         
@@ -454,12 +374,10 @@ class AdminPanel:
         dialog.grab_set()
         
         # Center dialog
->>>>>>> 8516873 (Initial commit: Project version 1)
         dialog.update_idletasks()
         x = (dialog.winfo_screenwidth() // 2) - 250
         y = (dialog.winfo_screenheight() // 2) - 300
         dialog.geometry(f"500x600+{x}+{y}")
-<<<<<<< HEAD
 
         header = tk.Frame(dialog, bg=self.colors['primary'], height=60)
         header.pack(fill=tk.X)
@@ -472,17 +390,9 @@ class AdminPanel:
         options.pack(fill=tk.BOTH, expand=True, padx=40, pady=20)
 
         self.selective_vars = {}
-=======
-=======
-        # Card content
-        card_content = tk.Frame(login_card, bg=self.colors['white'])
-        card_content.pack(fill=tk.BOTH, expand=True, padx=30, pady=30)
->>>>>>> de2d156 (Initial commit)
-=======
         # Status indicator in header
         status_frame = tk.Frame(header_content, bg=self.colors['primary'])
         status_frame.pack(side=tk.RIGHT)
->>>>>>> 1543317 (adding elements in main page)
         
         self.header_status = tk.Label(status_frame, text="🔓 SYSTEM READY", 
                                     font=("Segoe UI", 11, "bold"),
@@ -501,9 +411,6 @@ class AdminPanel:
         notebook_container = tk.Frame(parent, bg=self.colors['surface'])
         notebook_container.pack(fill=tk.BOTH, expand=True, padx=15, pady=15)
         
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 8516873 (Initial commit: Project version 1)
         modules = [
             ("keyboard", "🔤 Keyboard Shortcuts Blocking", "Block Alt+Tab, Ctrl+Alt+Del, etc."),
             ("mouse", "🖱️ Mouse Button Restrictions", "Block middle, back, forward buttons"),
@@ -511,7 +418,6 @@ class AdminPanel:
             ("windows", "🪟 Window Protection", "Prevent closing/minimizing windows"),
             ("processes", "🔍 Process Monitoring", "Auto-terminate suspicious processes")
         ]
-<<<<<<< HEAD
 
         for key, title, desc in modules:
             card = tk.Frame(options, bg=self.colors['card'], relief=tk.FLAT, bd=1)
@@ -568,19 +474,10 @@ class AdminPanel:
         self.activity_tree.column("Time", width=120); self.activity_tree.column("Severity", width=80); self.activity_tree.column("Action", width=180); self.activity_tree.column("Details", width=300); self.activity_tree.column("Status", width=100)
         sb = ttk.Scrollbar(content, orient=tk.VERTICAL, command=self.activity_tree.yview); self.activity_tree.configure(yscrollcommand=sb.set)
         self.activity_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=20, pady=20); sb.pack(side=tk.RIGHT, fill=tk.Y, padx=(0,20), pady=20)
-=======
-=======
-        # Password  
-        tk.Label(card_content, text="Password:", 
-                font=('Arial', 11, 'bold'),
-                bg=self.colors['white'], fg=self.colors['dark']).pack(anchor='w')
->>>>>>> de2d156 (Initial commit)
-=======
         # Custom tab bar
         tab_bar = tk.Frame(notebook_container, bg=self.colors['card'], height=50)
         tab_bar.pack(fill=tk.X, pady=(0, 2))
         tab_bar.pack_propagate(False)
->>>>>>> 1543317 (adding elements in main page)
         
         # Tab buttons
         self.tab_buttons = {}
@@ -1009,8 +906,6 @@ class AdminPanel:
             self.header_status.config(text="🔓 SYSTEM READY", 
                                     fg=self.colors['accent'])
         
-<<<<<<< HEAD
-<<<<<<< HEAD
         if filename:
             try:
                 logs = self.db_manager.get_activity_logs(1000)
@@ -1049,55 +944,16 @@ class AdminPanel:
                         if hasattr(self, 'activity_tree'):
                             self.window.after(0, self.update_activity_feed)
                     threading.Event().wait(2)
-=======
-        # Update system information
-        try:
-            system_info = self.security_manager.get_system_info()
-            info_text = (f"CPU: {system_info.get('cpu_percent', 0):.1f}% | "
-                        f"RAM: {system_info.get('memory_percent', 0):.1f}% | "
-                        f"Processes: {system_info.get('active_processes', 0)}")
-            self.system_info_label.config(text=info_text)
-            
-            # Update module indicators
-            modules_status = {
-                'keyboard': system_info.get('hooks_active', False),
-                'mouse': system_info.get('mouse_blocking', False),
-                'network': system_info.get('internet_blocked', False),
-                'windows': system_info.get('window_protection', False)
-            }
-            
-            for module, active in modules_status.items():
-                if module in self.module_indicators:
-                    if active:
-                        self.module_indicators[module].config(text="🟢", 
-                                                            fg=self.colors['success'])
-                    else:
-                        self.module_indicators[module].config(text="⚫", 
-                                                            fg=self.colors['text_secondary'])
-        except Exception as e:
-            self.system_info_label.config(text=f"Status update error: {str(e)}")
-
-    def start_auto_refresh(self):
-        """Start automatic status refresh"""
-        def refresh_loop():
-            while True:
-                try:
-                    self.window.after(0, self.refresh_status)
-                    threading.Event().wait(2)  # Refresh every 2 seconds
->>>>>>> 1543317 (adding elements in main page)
                 except:
                     break
         
         refresh_thread = threading.Thread(target=refresh_loop, daemon=True)
         refresh_thread.start()
-<<<<<<< HEAD
->>>>>>> 8516873 (Initial commit: Project version 1)
 
     def update_activity_feed(self):
         try:
             for item in self.activity_tree.get_children():
                 self.activity_tree.delete(item)
-<<<<<<< HEAD
             logs = self.db_manager.get_activity_logs(20)
             for log in logs:
                 action, details, timestamp, blocked = log
@@ -1373,54 +1229,11 @@ class AdminPanel:
                 except:
                     break
         threading.Thread(target=loop, daemon=True).start()
-=======
-            
-            logs = self.db_manager.get_activity_logs(20)
-            
-            for log in logs:
-                action, details, timestamp, blocked = log
-                status = "🚫 BLOCKED" if blocked else "✅ ALLOWED"
-                
-                if blocked or "SUSPICIOUS" in action or "TERMINATED" in action:
-                    severity = "🔴 HIGH"
-                elif "BLOCKED" in action or "SECURITY" in action:
-                    severity = "🟡 MED"
-                else:
-                    severity = "🟢 LOW"
-                
-                try:
-                    dt = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
-                    time_str = dt.strftime("%H:%M:%S")
-                except:
-                    time_str = timestamp
-                
-                self.activity_tree.insert("", 0, values=(time_str, severity, action, details or "No details", status))
-        except Exception as e:
-            pass
-
-    def on_close(self):
-        result = messagebox.askyesno("⚠️ Confirm Exit",
-                                    "Close Admin Panel?\n\nThe system will continue running in the background.\n"
-                                    "Access it again from the system tray.")
-        if result:
-            self.window.withdraw()
-
-    def show(self):
-        self.window.deiconify()
-        self.window.lift()
-        self.refresh_status()
-        self.load_blocked_keys()
-        self.load_blocked_mouse_buttons()
-        self.load_blocked_websites()
->>>>>>> 8516873 (Initial commit: Project version 1)
-=======
         # Show basic error dialog
         root = tk.Tk()
         root.withdraw()
         messagebox.showerror("Startup Error", f"Failed to start application:\\n\\n{str(e)}")
         root.destroy()
->>>>>>> de2d156 (Initial commit)
-=======
 
     def on_close(self):
         """Handle window close event"""
@@ -1830,10 +1643,7 @@ class AdminPanel:
     
     def export_logs(self):
         """Export security logs"""
-<<<<<<< HEAD
         pass
->>>>>>> 1543317 (adding elements in main page)
-=======
         from tkinter import filedialog
         import csv
         from datetime import datetime
@@ -1867,4 +1677,3 @@ class AdminPanel:
                 messagebox.showinfo("Export Complete", f"Logs exported successfully!\n\nFile: {file_path}")
             except Exception as e:
                 messagebox.showerror("Export Error", f"Failed to export logs: {str(e)}")
->>>>>>> d38e2bb (adding elements in main page)

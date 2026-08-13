@@ -43,6 +43,7 @@ files_to_resolve = [
     'mouse_manager.py',
     'system_tray.py',
     'window_manager.py',
+    'theme.py',
 ]
 
 project_root = os.path.dirname(os.path.abspath(__file__))

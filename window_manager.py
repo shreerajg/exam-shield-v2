@@ -1,6 +1,4 @@
 """
-<<<<<<< HEAD
-<<<<<<< HEAD
 Window Manager for Exam Shield Premium
 Complete rewrite with aggressive window protection using Windows API
 FIXED: Improved stability and crash prevention
@@ -406,13 +404,6 @@ class WindowManager:
             'protection_level': 'CONSERVATIVE',
             'api_available': self.user32 is not None and self.kernel32 is not None
         }
-=======
-Window Manager for Exam Shield
-Handles window close blocking and fullscreen management
-=======
-Window Manager for Exam Shield Premium
-Enhanced window protection with premium design elements
->>>>>>> 1543317 (adding elements in main page)
 """
 
 import win32gui
@@ -529,10 +520,7 @@ class WindowManager:
                     self._disable_close_button(hwnd)
                     
         except Exception as e:
-<<<<<<< HEAD
             print(f"Error launching secure browser: {e}")
->>>>>>> 8516873 (Initial commit: Project version 1)
-=======
             pass  # Silently handle window protection errors
 
     def _is_protected_window(self, title):
@@ -563,4 +551,3 @@ class WindowManager:
             'configuration': self.config,
             'monitoring': not self.stop_monitoring
         }
->>>>>>> 1543317 (adding elements in main page)

@@ -1,6 +1,4 @@
 """
-<<<<<<< HEAD
-<<<<<<< HEAD
 Mouse Manager for Exam Shield Premium
 Complete rewrite with proper Windows API low-level hooks
 Fixed Windows constants issue
@@ -257,13 +255,6 @@ class MouseManager:
             'blocks_middle_click': self.WM_MBUTTONDOWN in self.blocked_buttons,
             'blocks_side_buttons': self.WM_XBUTTONDOWN in self.blocked_buttons
         }
-=======
-Mouse Manager for Exam Shield
-Handles mouse button blocking and restrictions
-=======
-Mouse Manager for Exam Shield Premium
-Enhanced with premium error handling and logging
->>>>>>> 1543317 (adding elements in main page)
 """
 
 import win32api
@@ -386,7 +377,6 @@ class MouseManager:
             'hook_installed': self.hook_installed,
             'total_blocked': len(self.blocked_buttons)
         }
-<<<<<<< HEAD
         if hasattr(button, 'name'):
             return button.name
         elif hasattr(button, 'value'):
@@ -403,6 +393,3 @@ class MouseManager:
     def remove_blocked_button(self, button_name):
         if button_name in self.blocked_buttons:
             self.blocked_buttons.remove(button_name)
->>>>>>> 8516873 (Initial commit: Project version 1)
-=======
->>>>>>> 1543317 (adding elements in main page)

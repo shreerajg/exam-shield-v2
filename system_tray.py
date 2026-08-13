@@ -1,27 +1,16 @@
 """
-<<<<<<< HEAD
-<<<<<<< HEAD
 System Tray functionality for Exam Shield Premium
 Enhanced with premium design and improved user experience
 """
 
 import pystray
 from PIL import Image, ImageDraw, ImageFont
-=======
-System Tray functionality for Exam Shield
-"""
-
-import pystray
-from PIL import Image, ImageDraw
->>>>>>> 8516873 (Initial commit: Project version 1)
-=======
 System Tray functionality for Exam Shield Premium
 Enhanced with premium design and improved user experience
 """
 
 import pystray
 from PIL import Image, ImageDraw, ImageFont
->>>>>>> 1543317 (adding elements in main page)
 import threading
 import tkinter as tk
 from tkinter import simpledialog, messagebox
@@ -32,10 +21,6 @@ class SystemTray:
         self.security_manager = security_manager
         self.icon = None
         self.running = False
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 1543317 (adding elements in main page)
         
         # Premium colors
         self.colors = {
@@ -46,7 +31,6 @@ class SystemTray:
             'white': (255, 255, 255),
             'dark': (44, 62, 80)
         }
-<<<<<<< HEAD
 
     def create_icon_image(self):
         """Create a premium system tray icon"""
@@ -420,9 +404,6 @@ class SystemTray:
 
     def stop(self):
         """Stop the system tray"""
-=======
-=======
->>>>>>> 1543317 (adding elements in main page)
 
     def create_icon_image(self):
         """Create a premium system tray icon"""
@@ -795,11 +776,7 @@ class SystemTray:
         self.icon.run()
 
     def stop(self):
-<<<<<<< HEAD
->>>>>>> 8516873 (Initial commit: Project version 1)
-=======
         """Stop the system tray"""
->>>>>>> 1543317 (adding elements in main page)
         self.running = False
         if self.icon:
             self.icon.stop()

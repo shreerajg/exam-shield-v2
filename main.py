@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from src.database_manager import DatabaseManager
 from src.security_manager import SecurityManager
 from src.system_tray import SystemTray
-import theme
+import src.theme as theme
 
 # Lazy import of admin panel (to avoid circular imports)
 _AdminPanel = None

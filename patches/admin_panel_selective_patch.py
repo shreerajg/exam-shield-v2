@@ -1,13 +1,11 @@
 """
 Patch AdminPanel: ensure show_selective_lockdown_dialog exists and works
-NOTE: This patch is superseded by the full AdminPanel implementation in src/admin_panel.py.
-Kept here for backward compatibility.
 """
 
 import tkinter as tk
 from tkinter import messagebox
 
-from src.admin_panel import AdminPanel as _AP
+from admin_panel import AdminPanel as _AP
 
 
 def _show_selective_lockdown_dialog(self):
@@ -18,6 +16,7 @@ def _show_selective_lockdown_dialog(self):
     dialog.transient(self.window)
     dialog.grab_set()
 
+    # Center dialog
     dialog.update_idletasks()
     x = (dialog.winfo_screenwidth() // 2) - 250
     y = (dialog.winfo_screenheight() // 2) - 300
@@ -45,17 +44,18 @@ def _show_selective_lockdown_dialog(self):
     for key, title, desc in modules:
         card = tk.Frame(options, bg=self.colors['card'], relief=tk.FLAT, bd=1)
         card.pack(fill=tk.X, pady=(0, 10))
-        content = tk.Frame(card, bg=self.colors['card'])
-        content.pack(fill=tk.X, padx=15, pady=12)
+        content = tk.Frame(card, bg=self.colors['card']); content.pack(fill=tk.X, padx=15, pady=12)
         var = tk.BooleanVar(value=True)
         self.selective_vars[key] = var
-        tk.Checkbutton(content, text=title, variable=var,
-                       font=("Segoe UI", 11, "bold"), bg=self.colors['card'],
-                       fg=self.colors['text_primary'], selectcolor=self.colors['card'],
-                       activebackground=self.colors['card']).pack(anchor=tk.W)
+        chk = tk.Checkbutton(content, text=title, variable=var,
+                             font=("Segoe UI", 11, "bold"), bg=self.colors['card'],
+                             fg=self.colors['text_primary'], selectcolor=self.colors['card'],
+                             activebackground=self.colors['card'])
+        chk.pack(anchor=tk.W)
         tk.Label(content, text=desc, font=("Segoe UI", 9), bg=self.colors['card'],
                  fg=self.colors['text_secondary']).pack(anchor=tk.W, padx=20, pady=(2, 0))
 
+    # Buttons
     btns = tk.Frame(dialog, bg=self.colors['surface'])
     btns.pack(fill=tk.X, padx=40, pady=20)
 
@@ -65,26 +65,21 @@ def _show_selective_lockdown_dialog(self):
             messagebox.showwarning("No Selection", "Please select at least one security module!")
             return
         names = [k.title() for k, s in selected.items() if s]
-        if messagebox.askyesno("Confirm Selective Lockdown",
-                               "Start lockdown with these modules?\n\n" +
-                               "\n".join(f"✓ {n}" for n in names)):
+        if messagebox.askyesno("Confirm Selective Lockdown", "Start lockdown with these modules?\n\n" + "\n".join(f"✓ {n}" for n in names)):
             dialog.destroy()
             try:
                 self.security_manager.start_exam_mode(selected)
-                self.start_btn.config(state=tk.DISABLED)
-                self.stop_btn.config(state=tk.NORMAL)
+                self.start_btn.config(state=tk.DISABLED); self.stop_btn.config(state=tk.NORMAL)
                 self.refresh_status()
-                messagebox.showinfo("🔒 SELECTIVE LOCKDOWN ACTIVE",
-                                    "Lockdown active with:\n" + "\n".join(f"✓ {n}" for n in names))
+                messagebox.showinfo("🔒 SELECTIVE LOCKDOWN ACTIVE", "Lockdown active with:\n" + "\n".join(f"✓ {n}" for n in names))
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to start lockdown: {e}")
 
     tk.Button(btns, text="🚀 START SELECTED LOCKDOWN", command=start,
               bg=self.colors['success'], fg=self.colors['card'], font=("Segoe UI", 11, "bold"),
-              relief=tk.FLAT, pady=10, cursor='hand2').pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 10))
+              relief=tk.FLAT, pady=10, cursor='hand2').pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0,10))
     tk.Button(btns, text="❌ CANCEL", command=dialog.destroy,
               bg=self.colors['danger'], fg=self.colors['card'], font=("Segoe UI", 11, "bold"),
-              relief=tk.FLAT, pady=10, cursor='hand2').pack(side=tk.RIGHT, fill=tk.X, expand=True, padx=(10, 0))
-
+              relief=tk.FLAT, pady=10, cursor='hand2').pack(side=tk.RIGHT, fill=tk.X, expand=True, padx=(10,0))
 
 _AP.show_selective_lockdown_dialog = _show_selective_lockdown_dialog

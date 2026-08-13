@@ -1,12 +1,11 @@
 """
 Security Manager for Exam Shield
-Adds missing toggle methods used by AdminPanel.
-NOTE: These methods are now built into src/security_manager.py directly.
-This patch is retained for legacy compatibility only.
+Adds missing toggle methods used by AdminPanel
 """
 
-from src.security_manager import SecurityManager as _SM
+from security_manager import SecurityManager as _SM
 
+# Add missing toggle methods if not present
 
 def _toggle_mouse_blocking(self, enable: bool):
     try:
@@ -33,15 +32,12 @@ def _toggle_window_protection(self, enable: bool):
 def _toggle_internet_blocking(self, enable: bool):
     try:
         if enable:
-            self.network_manager.start_blocking()
-            return True
+            self.network_manager.start_blocking(); return True
         else:
-            self.network_manager.stop_blocking()
-            return True
+            self.network_manager.stop_blocking(); return True
     except Exception as e:
         print(f"Network toggle error: {e}")
         return False
-
 
 # Only attach if attributes are missing
 if not hasattr(_SM, 'toggle_mouse_blocking'):

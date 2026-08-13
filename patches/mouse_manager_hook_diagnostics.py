@@ -2,7 +2,7 @@
 Improve diagnostics for mouse hook installation failures
 """
 
-from src.mouse_manager import MouseManager as _MM
+from mouse_manager import MouseManager as _MM
 import ctypes
 from ctypes import windll
 
@@ -26,6 +26,5 @@ def _install_with_error_logging(self):
             self.logger.log_activity("HOOK_INSTALL_ERROR", f"Exception during hook install: {e}")
         print(f"[MouseManager] Exception during hook install: {e}")
         return False
-
 
 _MM._install_low_level_hook = _install_with_error_logging

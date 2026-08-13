@@ -2,7 +2,7 @@
 Mouse Manager: ensure low-level hook stays active with a message pump thread
 """
 
-from src.mouse_manager import MouseManager as _MM
+from mouse_manager import MouseManager as _MM
 import threading
 import time
 import ctypes
@@ -25,7 +25,6 @@ def _install_low_level_hook_with_pump(self):
         self._pump_thread = threading.Thread(target=self._message_pump, daemon=True)
         self._pump_thread.start()
     return ok
-
 
 # Attach pump helpers if not present
 if not hasattr(_MM, '_message_pump'):

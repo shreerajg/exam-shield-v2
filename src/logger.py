@@ -14,7 +14,7 @@ class ExamShieldLogger:
 
     def setup_file_logging(self):
         """Setup file-based logging"""
-        logs_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs")
+        logs_dir = os.path.join(os.path.dirname(__file__), "logs")
         if not os.path.exists(logs_dir):
             os.makedirs(logs_dir)
         self.logger = logging.getLogger("ExamShield")
@@ -49,7 +49,7 @@ class ExamShieldLogger:
         self.logger.info(f"ADMIN: {action} - {details}")
 
     def cleanup_old_logs(self):
-        logs_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs")
+        logs_dir = os.path.join(os.path.dirname(__file__), "logs")
         if not os.path.exists(logs_dir):
             return
         cutoff_date = datetime.now() - timedelta(days=Config.LOG_RETENTION_DAYS)

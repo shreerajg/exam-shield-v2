@@ -643,7 +643,7 @@ class AdminPanel:
 activebackground=self.darken_color(bg_color),
                         activeforeground=self.colors['card'], **kwargs)
         
-        if pack_side is None or pack_side == "grid":
+        if not pack_side or pack_side == "grid":
             pass
         elif pack_side == "right":
             btn.pack(side=tk.RIGHT, padx=(10, 0))
@@ -726,12 +726,12 @@ activebackground=self.darken_color(bg_color),
         start_btn = self.create_premium_button(
             button_frame, "🚀 START SELECTED LOCKDOWN",
             lambda: self.start_selective_lockdown(dialog),
-            self.colors['success'], pack_side=None)
+            self.colors['success'], pack_side="")
         start_btn.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 10))
         
         cancel_btn = self.create_premium_button(
             button_frame, "❌ CANCEL",
-            dialog.destroy, self.colors['danger'], pack_side=None)
+            dialog.destroy, self.colors['danger'], pack_side="")
         cancel_btn.pack(side=tk.RIGHT, fill=tk.X, expand=True, padx=(10, 0))
 
     def create_module_option(self, parent, key, title, description):
@@ -1457,15 +1457,15 @@ activebackground=self.darken_color(bg_color),
         if status['active']:
             self.create_premium_button(btn_frame, "Disable Mouse Blocking",
                                     self.security_manager.mouse_manager.stop_blocking,
-                                    self.colors['danger'], pack_side=None).pack(side=tk.LEFT, padx=10)
+                                    self.colors['danger'], pack_side="").pack(side=tk.LEFT, padx=10)
         else:
             self.create_premium_button(btn_frame, "Enable Mouse Blocking",
                                     self.security_manager.mouse_manager.start_blocking,
-                                    self.colors['success'], pack_side=None).pack(side=tk.LEFT, padx=10)
+                                    self.colors['success'], pack_side="").pack(side=tk.LEFT, padx=10)
         
         self.create_premium_button(btn_frame, "Close",
                                 dialog.destroy,
-                                self.colors['primary'], pack_side=None).pack(side=tk.LEFT, padx=10)
+                                self.colors['primary'], pack_side="").pack(side=tk.LEFT, padx=10)
     
     def show_network_controls(self):
         """Show network controls dialog"""
@@ -1522,15 +1522,15 @@ activebackground=self.darken_color(bg_color),
         if blocked:
             self.create_premium_button(btn_frame, "Restore Internet Access",
                                     self.security_manager.network_manager.stop_blocking,
-                                    self.colors['success'], pack_side=None).pack(side=tk.LEFT, padx=10)
+                                    self.colors['success'], pack_side="").pack(side=tk.LEFT, padx=10)
         else:
             self.create_premium_button(btn_frame, "Block Internet Access",
                                     self.security_manager.network_manager.start_blocking,
-                                    self.colors['danger'], pack_side=None).pack(side=tk.LEFT, padx=10)
+                                    self.colors['danger'], pack_side="").pack(side=tk.LEFT, padx=10)
         
         self.create_premium_button(btn_frame, "Close",
                                 dialog.destroy,
-                                self.colors['primary'], pack_side=None).pack(side=tk.LEFT, padx=10)
+                                self.colors['primary'], pack_side="").pack(side=tk.LEFT, padx=10)
     
     def show_window_controls(self):
         """Show window controls dialog"""
@@ -1594,15 +1594,15 @@ activebackground=self.darken_color(bg_color),
         if active:
             self.create_premium_button(btn_frame, "Disable Window Guardian",
                                     self.security_manager.window_manager.stop_window_protection,
-                                    self.colors['danger'], pack_side=None).pack(side=tk.LEFT, padx=10)
+                                    self.colors['danger'], pack_side="").pack(side=tk.LEFT, padx=10)
         else:
             self.create_premium_button(btn_frame, "Enable Window Guardian",
                                     self.security_manager.window_manager.start_window_protection,
-                                    self.colors['success'], pack_side=None).pack(side=tk.LEFT, padx=10)
+                                    self.colors['success'], pack_side="").pack(side=tk.LEFT, padx=10)
         
         self.create_premium_button(btn_frame, "Close",
                                 dialog.destroy,
-                                self.colors['primary'], pack_side=None).pack(side=tk.LEFT, padx=10)
+                                self.colors['primary'], pack_side="").pack(side=tk.LEFT, padx=10)
     
     def apply_mouse_settings(self):
         """Apply mouse settings"""

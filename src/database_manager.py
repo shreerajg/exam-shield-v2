@@ -79,11 +79,11 @@ class DatabaseManager:
 
     def create_default_admin(self):
         try:
-            password_hash = hashlib.sha256(Config.DEFAULT_PASSWORD.encode()).hexdigest()
+            password_hash = hashlib.sha256(Config.DEFAULT_ADMIN_PASSWORD.encode()).hexdigest()
             with sqlite3.connect(self.db_path) as conn:
                 cursor = conn.cursor()
                 cursor.execute("INSERT INTO users (username, password_hash, role) VALUES (?, ?, 'admin')",
-                               (Config.DEFAULT_USERNAME, password_hash))
+                               (Config.DEFAULT_ADMIN_USERNAME, password_hash))
                 conn.commit()
             print("Default admin created successfully")
         except sqlite3.Error as e:
@@ -156,3 +156,40 @@ class DatabaseManager:
                 conn.commit()
         except sqlite3.Error as e:
             print(f"Log cleanup error: {e}")
+
+    def get_logs(self, limit=500):
+        """Get security logs with proper format for admin panel"""
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.cursor()
+                cursor.execute("""
+                    SELECT timestamp, action, details, blocked 
+                    FROM activity_logs 
+                    ORDER BY id DESC 
+                    LIMIT ?
+                """, (limit,))
+                rows = cursor.fetchall()
+                return [
+                    {
+                        'timestamp': row[0] or '',
+                        'event_type': row[1] or '',
+                        'message': row[2] or '',
+                        'blocked': bool(row[3])
+                    }
+                    for row in rows
+                ]
+        except sqlite3.Error as e:
+            print(f"Error fetching logs: {e}")
+            return []
+
+    def clear_logs(self):
+        """Clear all security logs"""
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.cursor()
+                cursor.execute("DELETE FROM activity_logs")
+                conn.commit()
+            return True
+        except sqlite3.Error as e:
+            print(f"Error clearing logs: {e}")
+            return False

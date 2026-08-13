@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 """
 <<<<<<< HEAD
 Admin Panel for Exam Shield - COMPLETE STABLE VERSION
@@ -33,23 +34,22 @@ class AdminPanel:
 
 =======
 =======
+=======
+"""
+Admin Panel for Exam Shield Premium - Enhanced Professional Design
+"""
+
+>>>>>>> 1543317 (adding elements in main page)
 import tkinter as tk
-from tkinter import messagebox
-import sys
-import os
-import hashlib
-import ctypes
-import subprocess
-from database_manager import DatabaseManager
-try:
-    from admin_panel import AdminPanel
-    from security_manager import SecurityManager
-    from system_tray import SystemTray
-    import threading
-except ImportError:
-    print("Note: Some modules may not be available, but main UI will work")
+from tkinter import ttk, messagebox, scrolledtext, simpledialog
+import threading
+import json
+from datetime import datetime
+import keyboard
+from pynput import mouse
 
 class AdminPanel:
+<<<<<<< HEAD
     def __init__(self):
         if not self.is_admin():
             self.restart_as_admin()
@@ -60,21 +60,34 @@ class AdminPanel:
         self.root.geometry("550x700")
         self.root.resizable(False, False)
 >>>>>>> de2d156 (Initial commit)
+=======
+    def __init__(self, db_manager, security_manager, parent_window):
+        self.db_manager = db_manager
+        self.security_manager = security_manager
+        self.parent_window = parent_window
+>>>>>>> 1543317 (adding elements in main page)
         
-        # Safe color palette - using only standard colors
+        # Premium color scheme
         self.colors = {
-            'primary': '#2563EB',      # Blue
-            'primary_dark': '#1E40AF',
-            'success': '#059669',       # Green
-            'danger': '#DC2626',        # Red
-            'warning': '#D97706',       # Orange
-            'white': '#FFFFFF',
-            'light': '#F8FAFC',        # Very light gray
-            'gray': '#6B7280',         # Medium gray
-            'dark': '#374151',         # Dark gray
-            'black': '#111827'         # Very dark
+            'primary': '#1e3d59',
+            'secondary': '#17223b', 
+            'accent': '#ffc947',
+            'success': '#27ae60',
+            'warning': '#f39c12',
+            'danger': '#e74c3c',
+            'info': '#3498db',
+            'surface': '#f8f9fa',
+            'card': '#ffffff',
+            'text_primary': '#2c3e50',
+            'text_secondary': '#7f8c8d',
+            'border': '#dee2e6',
+            'light_blue': '#ecf4ff',
+            'light_green': '#e8f5e8',
+            'light_yellow': '#fff8e1',
+            'light_red': '#ffebee'
         }
         
+<<<<<<< HEAD
 <<<<<<< HEAD
         # NEW: Key/Mouse detection variables
 >>>>>>> 8516873 (Initial commit: Project version 1)
@@ -104,18 +117,36 @@ class AdminPanel:
                 def log_activity(self, action, details): pass
             self.db_manager = DummyDB()
 >>>>>>> de2d156 (Initial commit)
+=======
+        # Set admin panel reference in security manager
+        self.security_manager.set_admin_panel(self)
+>>>>>>> 1543317 (adding elements in main page)
         
-        self.security_manager = None
-        self.system_tray = None
+        # Key/Mouse detection variables
+        self.detecting_key = False
+        self.detecting_mouse = False
+        self.detected_key = None
+        self.mouse_listener = None
         
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 8516873 (Initial commit: Project version 1)
         self.setup_window()
 =======
 >>>>>>> de2d156 (Initial commit)
+=======
+        self.window = tk.Toplevel()
+        self.window.title("Exam Shield Premium - Administrative Control Center")
+        self.window.geometry("1200x800")
+        self.window.resizable(True, True)
+        self.window.configure(bg=self.colors['surface'])
+        
+        self.setup_window()
+>>>>>>> 1543317 (adding elements in main page)
         self.setup_ui()
-        self.center_window()
+        self.start_auto_refresh()
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
     def load_theme(self, theme_name):
@@ -239,15 +270,46 @@ class AdminPanel:
             return ctypes.windll.shell32.IsUserAnAdmin()
         except:
             return True  # For testing purposes
+=======
+    def setup_window(self):
+        self.window.update_idletasks()
+        x = (self.window.winfo_screenwidth() // 2) - 600
+        y = (self.window.winfo_screenheight() // 2) - 400
+        self.window.geometry(f"1200x800+{x}+{y}")
+        self.window.protocol("WM_DELETE_WINDOW", self.on_close)
+>>>>>>> 1543317 (adding elements in main page)
 
-    def restart_as_admin(self):
-        try:
-            result = messagebox.askyesno(
-                "Administrator Required",
-                "Exam Shield requires administrator privileges.\\n\\n"
-                "Click 'Yes' to restart with admin privileges."
-            )
+    def create_styled_frame(self, parent, bg_color=None):
+        """Create a frame with premium styling"""
+        if bg_color is None:
+            bg_color = self.colors['card']
+        
+        frame = tk.Frame(parent, bg=bg_color, relief=tk.FLAT, bd=0)
+        
+        # Add subtle shadow effect
+        shadow = tk.Frame(parent, bg='#d0d3d4', height=1)
+        shadow.pack(fill=tk.X, pady=(0, 2))
+        
+        return frame
+
+    def create_card(self, parent, title=None, icon=None):
+        """Create a styled card container"""
+        card_container = tk.Frame(parent, bg=self.colors['surface'])
+        
+        # Card with shadow
+        shadow_frame = tk.Frame(card_container, bg='#dee2e6', height=2)
+        shadow_frame.pack(fill=tk.X, pady=(2, 0))
+        
+        card = tk.Frame(card_container, bg=self.colors['card'], relief=tk.FLAT, bd=0)
+        card.pack(fill=tk.BOTH, expand=True, pady=(0, 2))
+        
+        if title:
+            # Card header
+            header = tk.Frame(card, bg=self.colors['primary'], height=50)
+            header.pack(fill=tk.X)
+            header.pack_propagate(False)
             
+<<<<<<< HEAD
             if result:
                 ctypes.windll.shell32.ShellExecuteW(
                     None, "runas", sys.executable, f'"{os.path.abspath(__file__)}"', None, 1
@@ -263,37 +325,54 @@ class AdminPanel:
         y = (self.root.winfo_screenheight() // 2) - 350
         self.root.geometry(f"550x700+{x}+{y}")
 >>>>>>> de2d156 (Initial commit)
+=======
+            if icon:
+                icon_label = tk.Label(header, text=icon, font=("Segoe UI", 16),
+                                    bg=self.colors['primary'], fg=self.colors['accent'])
+                icon_label.pack(side=tk.LEFT, padx=(15, 10), pady=15)
+            
+            title_label = tk.Label(header, text=title, font=("Segoe UI", 14, "bold"),
+                                 bg=self.colors['primary'], fg=self.colors['card'])
+            title_label.pack(side=tk.LEFT, pady=15)
+            
+            # Content area
+            content = tk.Frame(card, bg=self.colors['card'])
+            content.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
+            
+            return card_container, content
+        
+        return card_container, card
+>>>>>>> 1543317 (adding elements in main page)
 
     def setup_ui(self):
-        # Main background
-        self.root.configure(bg=self.colors['light'])
-        
-        # Header
-        header_frame = tk.Frame(self.root, bg=self.colors['primary'], height=140)
+        # Main header
+        header_frame = tk.Frame(self.window, bg=self.colors['primary'], height=70)
         header_frame.pack(fill=tk.X)
         header_frame.pack_propagate(False)
         
-        # Shield icon and title
-        tk.Label(header_frame, text="🛡️", font=('Arial', 40), 
-                bg=self.colors['primary'], fg='white').pack(pady=(20, 5))
+        # Header content
+        header_content = tk.Frame(header_frame, bg=self.colors['primary'])
+        header_content.pack(fill=tk.BOTH, expand=True, padx=20, pady=15)
         
-        tk.Label(header_frame, text="EXAM SHIELD PRO", 
-                font=('Arial', 20, 'bold'),
-                bg=self.colors['primary'], fg='white').pack()
+        # Logo and title
+        logo_label = tk.Label(header_content, text="🛡️", font=("Segoe UI", 24),
+                            bg=self.colors['primary'], fg=self.colors['accent'])
+        logo_label.pack(side=tk.LEFT, padx=(0, 15))
         
-        tk.Label(header_frame, text="Modern Security Suite v2.0", 
-                font=('Arial', 10),
-                bg=self.colors['primary'], fg='white').pack(pady=(5, 20))
+        title_frame = tk.Frame(header_content, bg=self.colors['primary'])
+        title_frame.pack(side=tk.LEFT, fill=tk.Y)
         
-        # Main content
-        content_frame = tk.Frame(self.root, bg=self.colors['light'])
-        content_frame.pack(fill=tk.BOTH, expand=True, padx=30, pady=30)
+        main_title = tk.Label(title_frame, text="EXAM SHIELD PREMIUM", 
+                            font=("Segoe UI", 18, "bold"),
+                            bg=self.colors['primary'], fg=self.colors['card'])
+        main_title.pack(anchor=tk.W)
         
-        # Login card
-        login_card = tk.Frame(content_frame, bg=self.colors['white'], 
-                             relief=tk.RAISED, bd=2)
-        login_card.pack(fill=tk.X, pady=(0, 20))
+        subtitle = tk.Label(title_frame, text="Administrative Control Center", 
+                          font=("Segoe UI", 10),
+                          bg=self.colors['primary'], fg=self.colors['light_blue'])
+        subtitle.pack(anchor=tk.W)
         
+<<<<<<< HEAD
 <<<<<<< HEAD
         indicators_frame = ttk.Frame(self.security_status_frame)
         indicators_frame.pack(anchor=tk.W, pady=(2, 0))
@@ -399,22 +478,30 @@ class AdminPanel:
         card_content = tk.Frame(login_card, bg=self.colors['white'])
         card_content.pack(fill=tk.BOTH, expand=True, padx=30, pady=30)
 >>>>>>> de2d156 (Initial commit)
+=======
+        # Status indicator in header
+        status_frame = tk.Frame(header_content, bg=self.colors['primary'])
+        status_frame.pack(side=tk.RIGHT)
+>>>>>>> 1543317 (adding elements in main page)
         
-        # Title
-        tk.Label(card_content, text="🔐 Secure Login", 
-                font=('Arial', 16, 'bold'),
-                bg=self.colors['white'], fg=self.colors['black']).pack(pady=(0, 20))
+        self.header_status = tk.Label(status_frame, text="🔓 SYSTEM READY", 
+                                    font=("Segoe UI", 11, "bold"),
+                                    bg=self.colors['primary'], fg=self.colors['accent'])
+        self.header_status.pack()
         
-        # Username
-        tk.Label(card_content, text="Username:", 
-                font=('Arial', 11, 'bold'),
-                bg=self.colors['white'], fg=self.colors['dark']).pack(anchor='w')
+        # Main content area
+        content_area = tk.Frame(self.window, bg=self.colors['surface'])
+        content_area.pack(fill=tk.BOTH, expand=True)
         
-        self.username_var = tk.StringVar(value="admin")
-        username_entry = tk.Entry(card_content, textvariable=self.username_var,
-                                 font=('Arial', 12), width=35, relief=tk.SOLID, bd=1)
-        username_entry.pack(fill=tk.X, pady=(5, 15), ipady=8)
+        # Create notebook with custom styling
+        self.setup_notebook(content_area)
+
+    def setup_notebook(self, parent):
+        """Setup the main tabbed interface with premium styling"""
+        notebook_container = tk.Frame(parent, bg=self.colors['surface'])
+        notebook_container.pack(fill=tk.BOTH, expand=True, padx=15, pady=15)
         
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 8516873 (Initial commit: Project version 1)
         modules = [
@@ -488,168 +575,441 @@ class AdminPanel:
                 font=('Arial', 11, 'bold'),
                 bg=self.colors['white'], fg=self.colors['dark']).pack(anchor='w')
 >>>>>>> de2d156 (Initial commit)
+=======
+        # Custom tab bar
+        tab_bar = tk.Frame(notebook_container, bg=self.colors['card'], height=50)
+        tab_bar.pack(fill=tk.X, pady=(0, 2))
+        tab_bar.pack_propagate(False)
+>>>>>>> 1543317 (adding elements in main page)
         
-        self.password_var = tk.StringVar()
-        password_entry = tk.Entry(card_content, textvariable=self.password_var,
-                                 font=('Arial', 12), width=35, show="*", 
-                                 relief=tk.SOLID, bd=1)
-        password_entry.pack(fill=tk.X, pady=(5, 20), ipady=8)
-        
-        # Buttons
-        button_frame = tk.Frame(card_content, bg=self.colors['white'])
-        button_frame.pack(fill=tk.X)
-        
-        self.login_btn = tk.Button(button_frame, text="🔓 LOGIN", 
-                                  command=self.login,
-                                  bg=self.colors['primary'], fg='white',
-                                  font=('Arial', 12, 'bold'),
-                                  relief=tk.FLAT, cursor='hand2',
-                                  width=18, pady=10)
-        self.login_btn.pack(side=tk.LEFT, padx=(0, 10))
-        
-        exit_btn = tk.Button(button_frame, text="❌ EXIT", 
-                            command=self.exit_app,
-                            bg=self.colors['danger'], fg='white',
-                            font=('Arial', 12, 'bold'),
-                            relief=tk.FLAT, cursor='hand2',
-                            width=18, pady=10)
-        exit_btn.pack(side=tk.RIGHT)
-        
-        # Features section
-        features_card = tk.Frame(content_frame, bg=self.colors['white'], 
-                                relief=tk.RAISED, bd=2)
-        features_card.pack(fill=tk.X, pady=(0, 20))
-        
-        features_content = tk.Frame(features_card, bg=self.colors['white'])
-        features_content.pack(fill=tk.BOTH, expand=True, padx=30, pady=20)
-        
-        tk.Label(features_content, text="🔒 Security Features", 
-                font=('Arial', 14, 'bold'),
-                bg=self.colors['white'], fg=self.colors['black']).pack(pady=(0, 15))
-        
-        features = [
-            "🔤 Advanced Keyboard Protection",
-            "🖱️ Smart Mouse Control System", 
-            "🌐 Complete Network Blocking",
-            "🪟 Real-time Window Guardian",
-            "🔍 Intelligent Process Monitor",
-            "📊 Live Security Analytics"
+        # Tab buttons
+        self.tab_buttons = {}
+        tabs = [
+            ("control", "📊 Control Center", self.show_control_tab),
+            ("monitor", "📈 Live Monitor", self.show_monitor_tab),
+            ("settings", "⚙️ Settings", self.show_settings_tab),
+            ("logs", "📋 Security Logs", self.show_logs_tab)
         ]
         
-        for feature in features:
-            tk.Label(features_content, text=feature, 
-                    font=('Arial', 10),
-                    bg=self.colors['white'], fg=self.colors['gray'],
-                    anchor='w').pack(fill=tk.X, pady=2)
+        for i, (key, text, command) in enumerate(tabs):
+            btn = tk.Button(tab_bar, text=text, font=("Segoe UI", 10, "bold"),
+                          bg=self.colors['surface'], fg=self.colors['text_primary'],
+                          relief=tk.FLAT, padx=20, pady=15, cursor='hand2',
+                          command=lambda cmd=command, k=key: self.switch_tab(k, cmd))
+            btn.pack(side=tk.LEFT, padx=(2 if i > 0 else 0, 0))
+            self.tab_buttons[key] = btn
         
-        # Status section
-        status_card = tk.Frame(content_frame, bg=self.colors['success'], 
-                              relief=tk.FLAT, bd=0)
-        status_card.pack(fill=tk.X)
+        # Tab content area
+        self.tab_content = tk.Frame(notebook_container, bg=self.colors['surface'])
+        self.tab_content.pack(fill=tk.BOTH, expand=True)
         
-        status_content = tk.Frame(status_card, bg=self.colors['success'])
-        status_content.pack(fill=tk.X, padx=20, pady=15)
-        
-        tk.Label(status_content, text="✅ Administrator Mode Active", 
-                font=('Arial', 11, 'bold'),
-                bg=self.colors['success'], fg='white').pack(anchor='w')
-        
-        tk.Label(status_content, text="Emergency Access: Ctrl+Shift+Y", 
-                font=('Arial', 10),
-                bg=self.colors['success'], fg='white').pack(anchor='w', pady=(5, 0))
-        
-        # Bind events
-        password_entry.bind("<Return>", lambda e: self.login())
-        username_entry.bind("<Return>", lambda e: password_entry.focus())
-        self.root.bind("<Escape>", lambda e: self.exit_app())
-        
-        # Set focus
-        if self.username_var.get():
-            password_entry.focus()
-        else:
-            username_entry.focus()
+        # Initialize with control tab
+        self.current_tab = "control"
+        self.switch_tab("control", self.show_control_tab)
 
-    def login(self):
-        username = self.username_var.get().strip()
-        password = self.password_var.get().strip()
+    def switch_tab(self, tab_key, tab_function):
+        """Switch between tabs with visual feedback"""
+        # Update button styles
+        for key, btn in self.tab_buttons.items():
+            if key == tab_key:
+                btn.config(bg=self.colors['primary'], fg=self.colors['card'])
+            else:
+                btn.config(bg=self.colors['surface'], fg=self.colors['text_primary'])
         
-        if not username or not password:
-            messagebox.showerror("Input Error", "Please enter both username and password")
+        # Clear current content
+        for widget in self.tab_content.winfo_children():
+            widget.destroy()
+        
+        # Load new content
+        self.current_tab = tab_key
+        tab_function()
+
+    def show_control_tab(self):
+        """Create the main control tab with premium design"""
+        main_frame = tk.Frame(self.tab_content, bg=self.colors['surface'])
+        main_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # Top row - Status cards
+        status_row = tk.Frame(main_frame, bg=self.colors['surface'])
+        status_row.pack(fill=tk.X, pady=(0, 15))
+        
+        # System status card
+        status_card, status_content = self.create_card(status_row, "System Status", "📊")
+        status_card.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 8))
+        
+        self.status_label = tk.Label(status_content, text="🔓 Lockdown Mode: INACTIVE", 
+                                   font=("Segoe UI", 14, "bold"), bg=self.colors['card'], 
+                                   fg=self.colors['success'])
+        self.status_label.pack(anchor=tk.W, pady=(0, 10))
+        
+        self.system_info_label = tk.Label(status_content, text="Loading system information...",
+                                        font=("Segoe UI", 10), bg=self.colors['card'], 
+                                        fg=self.colors['text_secondary'])
+        self.system_info_label.pack(anchor=tk.W)
+        
+        # Security modules card
+        modules_card, modules_content = self.create_card(status_row, "Security Modules", "🔒")
+        modules_card.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=(8, 0))
+        
+        # Security module indicators
+        modules_grid = tk.Frame(modules_content, bg=self.colors['card'])
+        modules_grid.pack(fill=tk.BOTH, expand=True)
+        
+        # Create module status indicators
+        modules = [
+            ("keyboard", "Keyboard Protection"),
+            ("mouse", "Mouse Control"),
+            ("network", "Network Security"),
+            ("windows", "Window Guardian")
+        ]
+        
+        self.module_indicators = {}
+        for i, (key, name) in enumerate(modules):
+            row = i // 2
+            col = i % 2
+            
+            module_frame = tk.Frame(modules_grid, bg=self.colors['card'])
+            module_frame.grid(row=row, column=col, sticky="w", padx=(0, 20), pady=5)
+            
+            indicator = tk.Label(module_frame, text="⚫", font=("Segoe UI", 12),
+                               bg=self.colors['card'], fg=self.colors['text_secondary'])
+            indicator.pack(side=tk.LEFT, padx=(0, 8))
+            
+            label = tk.Label(module_frame, text=name, font=("Segoe UI", 10),
+                           bg=self.colors['card'], fg=self.colors['text_primary'])
+            label.pack(side=tk.LEFT)
+            
+            self.module_indicators[key] = indicator
+        
+        # Control buttons section
+        control_section = tk.Frame(main_frame, bg=self.colors['surface'])
+        control_section.pack(fill=tk.X, pady=(0, 15))
+        
+        control_card, control_content = self.create_card(control_section, "Lockdown Controls", "🎯")
+        control_card.pack(fill=tk.X)
+        
+        button_frame = tk.Frame(control_content, bg=self.colors['card'])
+        button_frame.pack(fill=tk.X, pady=10)
+        
+        # Premium styled buttons
+        self.start_btn = self.create_premium_button(
+            button_frame, "🚀 START SELECTIVE LOCKDOWN", 
+            self.show_selective_lockdown_dialog, self.colors['primary'], "left")
+        
+        self.stop_btn = self.create_premium_button(
+            button_frame, "🔓 END LOCKDOWN MODE", 
+            self.stop_exam_mode, self.colors['warning'], "left", state=tk.DISABLED)
+        
+        self.emergency_btn = self.create_premium_button(
+            button_frame, "🚨 EMERGENCY STOP", 
+            self.emergency_stop, self.colors['danger'], "right")
+        
+        # Individual controls section
+        individual_section = tk.Frame(main_frame, bg=self.colors['surface'])
+        individual_section.pack(fill=tk.BOTH, expand=True)
+        
+        individual_card, individual_content = self.create_card(individual_section, 
+                                                             "Individual Security Controls", "🛠️")
+        individual_card.pack(fill=tk.BOTH, expand=True)
+        
+        # Control grid
+        controls_grid = tk.Frame(individual_content, bg=self.colors['card'])
+        controls_grid.pack(fill=tk.X, pady=10)
+        
+        controls = [
+            ("🖱️ Mouse Security", self.show_mouse_controls),
+            ("🌐 Network Control", self.show_network_controls),
+            ("🪟 Window Guardian", self.show_window_controls),
+            ("📊 Live Monitor", lambda: self.switch_tab("monitor", self.show_monitor_tab)),
+            ("⚙️ Settings Panel", lambda: self.switch_tab("settings", self.show_settings_tab)),
+            ("🔄 Refresh Status", self.refresh_status)
+        ]
+        
+        for i, (text, command) in enumerate(controls):
+            row = i // 3
+            col = i % 3
+            
+            btn = self.create_premium_button(controls_grid, text, command, 
+                                           self.colors['info'], pack_side=None)
+            btn.grid(row=row, column=col, padx=5, pady=5, sticky="ew")
+        
+        # Configure grid weights
+        for i in range(3):
+            controls_grid.columnconfigure(i, weight=1)
+
+    def create_premium_button(self, parent, text, command, bg_color, pack_side="left", **kwargs):
+        """Create a premium styled button"""
+        btn = tk.Button(parent, text=text, command=command,
+                       bg=bg_color, fg=self.colors['card'],
+                       font=("Segoe UI", 10, "bold"), relief=tk.FLAT, 
+                       cursor='hand2', padx=15, pady=10,
+                       activebackground=self.darken_color(bg_color),
+                       activeforeground=self.colors['card'], **kwargs)
+        
+        if pack_side:
+            if pack_side == "right":
+                btn.pack(side=tk.RIGHT, padx=(10, 0))
+            else:
+                btn.pack(side=tk.LEFT, padx=(0, 10))
+        
+        return btn
+
+    def darken_color(self, color):
+        """Darken a hex color for hover effects"""
+        color = color.lstrip('#')
+        rgb = tuple(int(color[i:i+2], 16) for i in (0, 2, 4))
+        darkened = tuple(max(0, int(c * 0.8)) for c in rgb)
+        return f"#{darkened[0]:02x}{darkened[1]:02x}{darkened[2]:02x}"
+
+    def show_selective_lockdown_dialog(self):
+        """Enhanced selective lockdown dialog with premium design"""
+        dialog = tk.Toplevel(self.window)
+        dialog.title("🔒 Selective Lockdown Configuration")
+        dialog.geometry("600x700")
+        dialog.configure(bg=self.colors['surface'])
+        dialog.transient(self.window)
+        dialog.grab_set()
+        
+        # Center dialog
+        dialog.update_idletasks()
+        x = (dialog.winfo_screenwidth() // 2) - 300
+        y = (dialog.winfo_screenheight() // 2) - 350
+        dialog.geometry(f"600x700+{x}+{y}")
+        
+        # Header
+        header = tk.Frame(dialog, bg=self.colors['primary'], height=80)
+        header.pack(fill=tk.X)
+        header.pack_propagate(False)
+        
+        header_content = tk.Frame(header, bg=self.colors['primary'])
+        header_content.pack(expand=True, pady=20)
+        
+        tk.Label(header_content, text="🔒", font=("Segoe UI", 24),
+                bg=self.colors['primary'], fg=self.colors['accent']).pack()
+        
+        tk.Label(header_content, text="Configure Security Modules",
+                font=("Segoe UI", 16, "bold"), bg=self.colors['primary'], 
+                fg=self.colors['card']).pack()
+        
+        # Content area
+        content = tk.Frame(dialog, bg=self.colors['surface'])
+        content.pack(fill=tk.BOTH, expand=True, padx=30, pady=30)
+        
+        # Instructions
+        instruction_text = ("Select which security modules to activate during lockdown. "
+                          "Each module provides specific protection features.")
+        tk.Label(content, text=instruction_text, font=("Segoe UI", 10),
+                bg=self.colors['surface'], fg=self.colors['text_secondary'],
+                wraplength=540, justify=tk.LEFT).pack(pady=(0, 20))
+        
+        # Module selection
+        self.selective_vars = {}
+        modules = [
+            ("keyboard", "🔤 Keyboard Protection", 
+             "Blocks dangerous keyboard shortcuts (Alt+Tab, Ctrl+Alt+Del, etc.)"),
+            ("mouse", "🖱️ Mouse Control", 
+             "Restricts mouse buttons and prevents unauthorized interactions"),
+            ("internet", "🌐 Network Security", 
+             "Completely blocks internet access and network communications"),
+            ("windows", "🪟 Window Guardian", 
+             "Prevents window manipulation, closing, and switching"),
+            ("processes", "🔍 Process Monitor", 
+             "Automatically detects and terminates unauthorized processes")
+        ]
+        
+        for key, title, description in modules:
+            module_card = self.create_module_option(content, key, title, description)
+            module_card.pack(fill=tk.X, pady=(0, 12))
+        
+        # Action buttons
+        button_frame = tk.Frame(content, bg=self.colors['surface'])
+        button_frame.pack(fill=tk.X, pady=(20, 0))
+        
+        start_btn = self.create_premium_button(
+            button_frame, "🚀 START SELECTED LOCKDOWN",
+            lambda: self.start_selective_lockdown(dialog),
+            self.colors['success'], pack_side=None)
+        start_btn.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 10))
+        
+        cancel_btn = self.create_premium_button(
+            button_frame, "❌ CANCEL",
+            dialog.destroy, self.colors['danger'], pack_side=None)
+        cancel_btn.pack(side=tk.RIGHT, fill=tk.X, expand=True, padx=(10, 0))
+
+    def create_module_option(self, parent, key, title, description):
+        """Create a module selection option with premium styling"""
+        card = tk.Frame(parent, bg=self.colors['card'], relief=tk.FLAT, bd=0)
+        
+        # Add border
+        border = tk.Frame(card, bg=self.colors['border'], height=1)
+        border.pack(fill=tk.X)
+        
+        content = tk.Frame(card, bg=self.colors['card'])
+        content.pack(fill=tk.X, padx=20, pady=15)
+        
+        # Checkbox and title
+        header_frame = tk.Frame(content, bg=self.colors['card'])
+        header_frame.pack(fill=tk.X, pady=(0, 5))
+        
+        var = tk.BooleanVar(value=True)
+        self.selective_vars[key] = var
+        
+        check = tk.Checkbutton(header_frame, text=title, variable=var,
+                             font=("Segoe UI", 12, "bold"), bg=self.colors['card'],
+                             fg=self.colors['text_primary'], selectcolor=self.colors['card'],
+                             activebackground=self.colors['card'])
+        check.pack(side=tk.LEFT)
+        
+        # Description
+        desc_label = tk.Label(content, text=description, font=("Segoe UI", 9),
+                            bg=self.colors['card'], fg=self.colors['text_secondary'],
+                            wraplength=520, justify=tk.LEFT)
+        desc_label.pack(anchor=tk.W)
+        
+        return card
+
+    # Continue with other methods (monitoring, settings, logs tabs)
+    def show_monitor_tab(self):
+        """Create the monitoring tab"""
+        main_frame = tk.Frame(self.tab_content, bg=self.colors['surface'])
+        main_frame.pack(fill=tk.BOTH, expand=True)
+        
+        monitor_card, monitor_content = self.create_card(main_frame, 
+                                                       "Real-time Security Monitor", "📈")
+        monitor_card.pack(fill=tk.BOTH, expand=True)
+        
+        # Create treeview for activity monitoring
+        columns = ("Time", "Severity", "Module", "Event", "Details", "Status")
+        self.activity_tree = ttk.Treeview(monitor_content, columns=columns, 
+                                        show="headings", height=25)
+        
+        # Configure columns
+        column_widths = {"Time": 120, "Severity": 80, "Module": 100, 
+                        "Event": 150, "Details": 300, "Status": 100}
+        
+        for col in columns:
+            self.activity_tree.heading(col, text=col)
+            self.activity_tree.column(col, width=column_widths.get(col, 100))
+        
+        # Scrollbar
+        scrollbar = ttk.Scrollbar(monitor_content, orient=tk.VERTICAL, 
+                                command=self.activity_tree.yview)
+        self.activity_tree.configure(yscrollcommand=scrollbar.set)
+        
+        # Pack treeview and scrollbar
+        self.activity_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+    def show_settings_tab(self):
+        """Create the settings tab with premium design"""
+        main_frame = tk.Frame(self.tab_content, bg=self.colors['surface'])
+        main_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # Scrollable settings area
+        canvas = tk.Canvas(main_frame, bg=self.colors['surface'], highlightthickness=0)
+        scrollbar = ttk.Scrollbar(main_frame, orient="vertical", command=canvas.yview)
+        scrollable_frame = tk.Frame(canvas, bg=self.colors['surface'])
+        
+        scrollable_frame.bind("<Configure>", 
+                            lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+        
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+        
+        # Settings sections
+        self.create_keyboard_settings(scrollable_frame)
+        self.create_mouse_settings(scrollable_frame)
+        self.create_network_settings(scrollable_frame)
+        self.create_advanced_settings(scrollable_frame)
+        
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+
+    def show_logs_tab(self):
+        """Create the logs tab"""
+        main_frame = tk.Frame(self.tab_content, bg=self.colors['surface'])
+        main_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # Controls
+        controls_frame = tk.Frame(main_frame, bg=self.colors['surface'], height=60)
+        controls_frame.pack(fill=tk.X, pady=(0, 10))
+        controls_frame.pack_propagate(False)
+        
+        control_card = tk.Frame(controls_frame, bg=self.colors['card'])
+        control_card.pack(fill=tk.BOTH, padx=0, pady=5)
+        
+        # Control buttons
+        btn_frame = tk.Frame(control_card, bg=self.colors['card'])
+        btn_frame.pack(fill=tk.X, padx=20, pady=10)
+        
+        self.create_premium_button(btn_frame, "🔄 Refresh", self.refresh_logs,
+                                 self.colors['info'], pack_side="left")
+        self.create_premium_button(btn_frame, "🗑️ Clear All", self.clear_logs,
+                                 self.colors['warning'], pack_side="left")
+        self.create_premium_button(btn_frame, "💾 Export", self.export_logs,
+                                 self.colors['success'], pack_side="left")
+        
+        # Logs display
+        logs_card, logs_content = self.create_card(main_frame, "Security Event History", "📋")
+        logs_card.pack(fill=tk.BOTH, expand=True)
+        
+        self.logs_text = scrolledtext.ScrolledText(logs_content, wrap=tk.WORD, 
+                                                 height=30, font=("Consolas", 9),
+                                                 bg=self.colors['surface'], 
+                                                 fg=self.colors['text_primary'])
+        self.logs_text.pack(fill=tk.BOTH, expand=True)
+
+    # Implement remaining methods with premium styling...
+    # (This includes all the settings creation, detection methods, and control functions)
+    # The methods follow the same premium design pattern established above
+
+    def start_selective_lockdown(self, dialog):
+        """Start lockdown with selected options"""
+        selected_options = {key: var.get() for key, var in self.selective_vars.items()}
+        
+        if not any(selected_options.values()):
+            messagebox.showwarning("No Selection", 
+                                 "Please select at least one security module to activate!")
             return
         
-        # Show loading
-        self.login_btn.configure(text="🔄 Logging in...", state=tk.DISABLED)
-        self.root.update()
+        # Confirm selection
+        selected_names = [key.title() for key, selected in selected_options.items() if selected]
+        result = messagebox.askyesno("Confirm Selective Lockdown",
+                                   f"Activate lockdown with these modules?\n\n" +
+                                   "\n".join(f"✓ {name}" for name in selected_names))
         
-        try:
-            password_hash = hashlib.sha256(password.encode()).hexdigest()
-            if self.db_manager.verify_admin(username, password_hash):
-                self.start_admin_session()
-            else:
-                messagebox.showerror("Login Failed", "Invalid credentials!")
-                self.password_var.set("")
-        except Exception as e:
-            messagebox.showerror("Error", f"Login error: {str(e)}")
-        finally:
-            self.login_btn.configure(text="🔓 LOGIN", state=tk.NORMAL)
-
-    def start_admin_session(self):
-        try:
-            self.root.withdraw()
-            
-            # Try to start full system
+        if result:
+            dialog.destroy()
             try:
-                self.security_manager = SecurityManager(self.db_manager)
-                self.db_manager.log_activity("ADMIN_LOGIN", "Admin session started")
+                self.security_manager.start_exam_mode(selected_options)
+                self.start_btn.config(state=tk.DISABLED)
+                self.stop_btn.config(state=tk.NORMAL)
+                self.refresh_status()
                 
-                admin_panel = AdminPanel(self.db_manager, self.security_manager, self.root)
-                
-                self.system_tray = SystemTray(admin_panel, self.security_manager)
-                tray_thread = threading.Thread(target=self.system_tray.run, daemon=True)
-                tray_thread.start()
-                
-            except Exception as module_error:
-                # If modules aren't available, show a demo message
-                messagebox.showinfo("Demo Mode", 
-                                   f"Login successful!\\n\\n"
-                                   f"Note: Full admin panel not available\\n"
-                                   f"Reason: {str(module_error)[:100]}\\n\\n"
-                                   f"This is a UI demo version.")
-                self.root.deiconify()
-                return
-            
-            messagebox.showinfo("Success", 
-                               "🔒 Exam Shield Pro Activated!\\n\\n"
-                               "✅ Admin panel loaded\\n"
-                               "✅ Security systems ready\\n"
-                               "✅ System tray active\\n\\n"
-                               "Emergency access: Ctrl+Shift+Y")
-            
-        except Exception as e:
-            messagebox.showerror("Startup Error", f"Failed to start admin session:\\n{str(e)}")
-            self.root.deiconify()
+                messagebox.showinfo("🔒 SELECTIVE LOCKDOWN ACTIVE",
+                                  f"Premium lockdown activated with:\n\n" +
+                                  "\n".join(f"✅ {name} Protection" for name in selected_names))
+            except Exception as e:
+                messagebox.showerror("Lockdown Error", 
+                                   f"Failed to activate lockdown: {str(e)}")
 
-    def exit_app(self):
-        if messagebox.askyesno("Exit", "Close Exam Shield Pro?"):
-            try:
-                self.db_manager.log_activity("APP_EXIT", "Application closed")
-            except:
-                pass
-            self.root.quit()
+    # Add all the remaining methods here following the same premium styling pattern
+    # ... (continuing with the rest of the AdminPanel class methods)
 
-    def run(self):
-        self.root.mainloop()
-
-if __name__ == "__main__":
-    try:
-        app = ExamShieldModern()
-        if hasattr(app, 'root'):
-            app.run()
-    except Exception as e:
-        print(f"Startup error: {e}")
-        import traceback
-        traceback.print_exc()
+    def refresh_status(self):
+        """Update status indicators with premium styling"""
+        if self.security_manager.is_exam_mode:
+            self.status_label.config(text="🔒 LOCKDOWN MODE: ACTIVE", 
+                                   fg=self.colors['danger'])
+            self.header_status.config(text="🔒 LOCKDOWN ACTIVE", 
+                                    fg=self.colors['accent'])
+        else:
+            self.status_label.config(text="🔓 LOCKDOWN MODE: INACTIVE", 
+                                   fg=self.colors['success'])
+            self.header_status.config(text="🔓 SYSTEM READY", 
+                                    fg=self.colors['accent'])
         
+<<<<<<< HEAD
 <<<<<<< HEAD
         if filename:
             try:
@@ -689,11 +1049,48 @@ if __name__ == "__main__":
                         if hasattr(self, 'activity_tree'):
                             self.window.after(0, self.update_activity_feed)
                     threading.Event().wait(2)
+=======
+        # Update system information
+        try:
+            system_info = self.security_manager.get_system_info()
+            info_text = (f"CPU: {system_info.get('cpu_percent', 0):.1f}% | "
+                        f"RAM: {system_info.get('memory_percent', 0):.1f}% | "
+                        f"Processes: {system_info.get('active_processes', 0)}")
+            self.system_info_label.config(text=info_text)
+            
+            # Update module indicators
+            modules_status = {
+                'keyboard': system_info.get('hooks_active', False),
+                'mouse': system_info.get('mouse_blocking', False),
+                'network': system_info.get('internet_blocked', False),
+                'windows': system_info.get('window_protection', False)
+            }
+            
+            for module, active in modules_status.items():
+                if module in self.module_indicators:
+                    if active:
+                        self.module_indicators[module].config(text="🟢", 
+                                                            fg=self.colors['success'])
+                    else:
+                        self.module_indicators[module].config(text="⚫", 
+                                                            fg=self.colors['text_secondary'])
+        except Exception as e:
+            self.system_info_label.config(text=f"Status update error: {str(e)}")
+
+    def start_auto_refresh(self):
+        """Start automatic status refresh"""
+        def refresh_loop():
+            while True:
+                try:
+                    self.window.after(0, self.refresh_status)
+                    threading.Event().wait(2)  # Refresh every 2 seconds
+>>>>>>> 1543317 (adding elements in main page)
                 except:
                     break
         
         refresh_thread = threading.Thread(target=refresh_loop, daemon=True)
         refresh_thread.start()
+<<<<<<< HEAD
 >>>>>>> 8516873 (Initial commit: Project version 1)
 
     def update_activity_feed(self):
@@ -1023,3 +1420,63 @@ if __name__ == "__main__":
         messagebox.showerror("Startup Error", f"Failed to start application:\\n\\n{str(e)}")
         root.destroy()
 >>>>>>> de2d156 (Initial commit)
+=======
+
+    def on_close(self):
+        """Handle window close event"""
+        if messagebox.askyesno("Close Admin Panel", 
+                              "Close the administrative control center?\n\n"
+                              "The system will continue running in the background."):
+            self.window.withdraw()
+
+    # Add placeholder methods for the remaining functionality
+    # These would be implemented following the same premium design patterns
+    
+    def create_keyboard_settings(self, parent):
+        """Create keyboard settings section"""
+        pass
+    
+    def create_mouse_settings(self, parent):
+        """Create mouse settings section"""
+        pass
+    
+    def create_network_settings(self, parent):
+        """Create network settings section"""
+        pass
+    
+    def create_advanced_settings(self, parent):
+        """Create advanced settings section"""
+        pass
+    
+    def stop_exam_mode(self):
+        """Stop exam mode with authentication"""
+        pass
+    
+    def emergency_stop(self):
+        """Emergency stop procedure"""
+        pass
+    
+    def show_mouse_controls(self):
+        """Show mouse controls dialog"""
+        pass
+    
+    def show_network_controls(self):
+        """Show network controls dialog"""
+        pass
+    
+    def show_window_controls(self):
+        """Show window controls dialog"""
+        pass
+    
+    def refresh_logs(self):
+        """Refresh security logs"""
+        pass
+    
+    def clear_logs(self):
+        """Clear security logs"""
+        pass
+    
+    def export_logs(self):
+        """Export security logs"""
+        pass
+>>>>>>> 1543317 (adding elements in main page)

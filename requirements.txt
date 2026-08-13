@@ -1,29 +1,8 @@
-<<<<<<< HEAD
-tkinter
-pystray>=0.19.4
-Pillow>=9.0.0
-keyboard>=1.13.0
-pynput>=1.7.6
-psutil>=5.8.0
-pywin32>=304
-sqlite3
-hashlib
-threading
-json
-datetime
-subprocess
-ctypes
-os
-sys
-=======
 keyboard==0.13.5
 mouse==0.7.1
 pystray==0.19.4
 psutil==5.9.5
 pywin32==306
-<<<<<<< HEAD
->>>>>>> 8516873 (Initial commit: Project version 1)
-=======
 
 Pillow==10.0.0
 ttkthemes==3.2.2
@@ -41,4 +20,3 @@ cryptography==41.0.3
 
 colorlog==6.7.0
 python-dateutil==2.8.2
->>>>>>> de2d156 (Initial commit)

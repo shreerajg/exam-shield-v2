@@ -69,24 +69,31 @@ class AdminPanel:
         self.mouse_listener = None
 
         self.window = tk.Toplevel()
-        self.window.title("Exam Shield Premium - Administrative Control Center")
-        self.window.geometry("1200x800")
+        self.window.title("Exam Shield Premium - Admin Panel v2.0")
+        self.window.geometry("950x750")
         self.window.resizable(True, True)
 
         self.current_theme = "light"
         self.load_theme(self.current_theme)
-        self.window.configure(bg=self.colors['surface'])
 
         # Set admin panel reference in security manager
         self.security_manager.set_admin_panel(self)
         
+        # Key/Mouse detection variables
+        self.detecting_key = False
+        self.detecting_mouse = False
+        self.detected_key = None
+        self.mouse_listener = None
+        
+        self.setup_window()
+        self.window = tk.Toplevel()
+        self.window.title("Exam Shield Premium - Administrative Control Center")
+        self.window.geometry("1200x800")
+        self.window.resizable(True, True)
+        self.window.configure(bg=self.colors['surface'])
+        
         self.setup_window()
         self.setup_ui()
-        
-        # Apply fade-in animation
-        anim = theme.AnimationManager(self.window)
-        anim.fade_in(self.window, duration=400)
-        
         self.start_auto_refresh()
 
     def load_theme(self, theme_name):
@@ -228,6 +235,20 @@ class AdminPanel:
             header.pack(fill=tk.X)
             header.pack_propagate(False)
             
+            if result:
+                ctypes.windll.shell32.ShellExecuteW(
+                    None, "runas", sys.executable, f'"{os.path.abspath(__file__)}"', None, 1
+                )
+                sys.exit(0)
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to get admin privileges: {e}")
+            sys.exit(1)
+
+    def center_window(self):
+        self.root.update_idletasks()
+        x = (self.root.winfo_screenwidth() // 2) - 275
+        y = (self.root.winfo_screenheight() // 2) - 350
+        self.root.geometry(f"550x700+{x}+{y}")
             if icon:
                 icon_label = tk.Label(header, text=icon, font=("Segoe UI", 16),
                                     bg=self.colors['primary'], fg=self.colors['accent'])

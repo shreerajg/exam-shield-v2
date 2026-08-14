@@ -11,6 +11,8 @@ import hashlib
 import ctypes
 import subprocess
 import threading
+import atexit
+import traceback
 
 # Ensure project root is on the path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -316,6 +318,23 @@ def main():
     os.makedirs(data_dir, exist_ok=True)
 
     app = ExamShield()
+    
+    def cleanup():
+        if app.security_manager and app.security_manager.is_exam_mode:
+            print("🚨 Emergency cleanup: Stopping exam mode...")
+            try:
+                app.security_manager.stop_exam_mode()
+            except Exception as e:
+                print(f"Cleanup error: {e}")
+            
+    def global_excepthook(exc_type, exc_value, exc_traceback):
+        print("💥 CRITICAL ERROR OCCURRED!", file=sys.stderr)
+        traceback.print_exception(exc_type, exc_value, exc_traceback)
+        cleanup()
+        
+    sys.excepthook = global_excepthook
+    atexit.register(cleanup)
+    
     app.run()
 
 

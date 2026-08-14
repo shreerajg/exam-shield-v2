@@ -84,20 +84,58 @@ class SystemIntegrityManager:
                 self.logger.log_activity("SYSTEM_ERROR", f"Failed to get USB drives: {e}")
         return []
 
-    def set_task_manager_disabled(self, disable: bool):
-        """Enable or disable Task Manager via Windows Registry."""
+    def set_system_policies(self, disable: bool):
+        """Enable or disable various Windows system policies."""
         if platform.system().lower() == "windows":
             try:
-                key_path = r"Software\Microsoft\Windows\CurrentVersion\Policies\System"
-                # Open or create the key
-                key = winreg.CreateKeyEx(winreg.HKEY_CURRENT_USER, key_path, 0, winreg.KEY_SET_VALUE | winreg.KEY_WOW64_64KEY)
                 value = 1 if disable else 0
-                winreg.SetValueEx(key, "DisableTaskMgr", 0, winreg.REG_DWORD, value)
-                winreg.CloseKey(key)
+                # Policies\System
+                sys_key_path = r"Software\Microsoft\Windows\CurrentVersion\Policies\System"
+                sys_key = winreg.CreateKeyEx(winreg.HKEY_CURRENT_USER, sys_key_path, 0, winreg.KEY_SET_VALUE | winreg.KEY_WOW64_64KEY)
+                winreg.SetValueEx(sys_key, "DisableTaskMgr", 0, winreg.REG_DWORD, value)
+                winreg.SetValueEx(sys_key, "DisableRegistryTools", 0, winreg.REG_DWORD, value)
+                winreg.SetValueEx(sys_key, "DisableLockWorkstation", 0, winreg.REG_DWORD, value)
+                winreg.CloseKey(sys_key)
+                
+                # Policies\Explorer
+                exp_key_path = r"Software\Microsoft\Windows\CurrentVersion\Policies\Explorer"
+                exp_key = winreg.CreateKeyEx(winreg.HKEY_CURRENT_USER, exp_key_path, 0, winreg.KEY_SET_VALUE | winreg.KEY_WOW64_64KEY)
+                winreg.SetValueEx(exp_key, "NoControlPanel", 0, winreg.REG_DWORD, value)
+                winreg.CloseKey(exp_key)
+
+                # Policies\Microsoft\Windows\System for CMD
+                cmd_key_path = r"Software\Policies\Microsoft\Windows\System"
+                cmd_key = winreg.CreateKeyEx(winreg.HKEY_CURRENT_USER, cmd_key_path, 0, winreg.KEY_SET_VALUE | winreg.KEY_WOW64_64KEY)
+                # 1 blocks cmd and batch
+                winreg.SetValueEx(cmd_key, "DisableCMD", 0, winreg.REG_DWORD, value)
+                winreg.CloseKey(cmd_key)
+
                 action = "Disabled" if disable else "Enabled"
-                self.logger.log_activity("SYSTEM_LOCKDOWN", f"Task Manager {action} via Registry")
+                self.logger.log_activity("SYSTEM_LOCKDOWN", f"System Policies {action} via Registry")
                 return True
             except Exception as e:
-                self.logger.log_activity("SYSTEM_ERROR", f"Failed to modify Task Manager policy: {e}")
+                self.logger.log_activity("SYSTEM_ERROR", f"Failed to modify system policies: {e}")
+                return False
+        return False
+
+    def prevent_system_sleep(self, prevent: bool):
+        """Prevent or allow the system to sleep/turn off display."""
+        if platform.system().lower() == "windows":
+            try:
+                ES_CONTINUOUS = 0x80000000
+                ES_SYSTEM_REQUIRED = 0x00000001
+                ES_DISPLAY_REQUIRED = 0x00000002
+                
+                if prevent:
+                    # Prevent sleep and display turn off
+                    ctypes.windll.kernel32.SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED)
+                    self.logger.log_activity("SYSTEM_LOCKDOWN", "Preventing system sleep and display off")
+                else:
+                    # Allow sleep
+                    ctypes.windll.kernel32.SetThreadExecutionState(ES_CONTINUOUS)
+                    self.logger.log_activity("SYSTEM_LOCKDOWN", "Allowed system sleep")
+                return True
+            except Exception as e:
+                self.logger.log_activity("SYSTEM_ERROR", f"Failed to set thread execution state: {e}")
                 return False
         return False

@@ -81,6 +81,11 @@ class SecurityManager:
                 self.db_manager.log_activity("INTEGRITY_ALERT", f"Virtual Machine detected: {vm_reason}")
             self.integrity_manager.clear_clipboard()
             print("📋 System clipboard wiped for security")
+            
+            # Disable Task Manager
+            if self.selective_blocking.get('processes', True):
+                if self.integrity_manager.set_task_manager_disabled(True):
+                    print("✅ Task Manager disabled via Registry")
         except Exception as e:
             print(f"❌ Integrity check error: {e}")
 
@@ -103,6 +108,12 @@ class SecurityManager:
         except Exception as e: print(f"Error stopping network blocking: {e}")
         try: self.window_manager.stop_window_protection()
         except Exception as e: print(f"Error stopping window protection: {e}")
+        
+        try:
+            if self.integrity_manager.set_task_manager_disabled(False):
+                print("✅ Task Manager re-enabled")
+        except Exception as e: print(f"Error restoring Task Manager: {e}")
+        
         self.db_manager.log_activity("EXAM_MODE_STOP", "All security restrictions deactivated")
         print("🔓 Full exam mode deactivated - All restrictions removed")
 
@@ -142,6 +153,9 @@ class SecurityManager:
     def _monitor_processes(self):
         suspicious_processes = ['taskmgr.exe', 'cmd.exe', 'powershell.exe', 'regedit.exe', 'msconfig.exe', 'discord.exe', 'obs64.exe', 'teamviewer.exe', 'anydesk.exe', 'cheatengine-x86_64.exe']
         print("🔍 Process monitoring active")
+        
+        initial_usb_drives = self.integrity_manager.get_connected_usb_drives()
+        
         while self.is_exam_mode and self.monitoring_thread:
             try:
                 for process in psutil.process_iter(['pid', 'name']):
@@ -159,6 +173,21 @@ class SecurityManager:
                 if self.integrity_manager.is_debugger_present():
                     self.db_manager.log_activity("DEBUGGER_DETECTED", "Debugger presence detected", blocked=True)
                     print("⚠️ DEBUGGER DETECTED! Security risk.")
+                
+                # Multi-Monitor Detection
+                monitor_count = self.integrity_manager.get_monitor_count()
+                if monitor_count > 1:
+                    self.db_manager.log_activity("MULTI_MONITOR_DETECTED", f"Detected {monitor_count} monitors", blocked=True)
+                    print(f"⚠️ MULTI-MONITOR DETECTED ({monitor_count} displays)! Security risk.")
+                
+                # USB Drive Detection
+                current_usb_drives = self.integrity_manager.get_connected_usb_drives()
+                new_drives = set(current_usb_drives) - set(initial_usb_drives)
+                if new_drives:
+                    self.db_manager.log_activity("USB_DETECTED", f"New USB drive(s) detected: {', '.join(new_drives)}", blocked=True)
+                    print(f"⚠️ UNAUTHORIZED USB DETECTED ({', '.join(new_drives)})! Security risk.")
+                    # Update baseline so we don't spam
+                    initial_usb_drives = current_usb_drives
                 
                 time.sleep(2)
             except Exception as e:

@@ -172,12 +172,12 @@ class NetworkManager:
                 subprocess.run([
                     'netsh', 'interface', 'ip', 'set', 'dns', 
                     'name="Local Area Connection"', 'source=static', 'addr=127.0.0.1'
-                ], capture_output=True, text=True)
+                ], capture_output=True, text=True, creationflags=subprocess.CREATE_NO_WINDOW)
                 
                 subprocess.run([
                     'netsh', 'interface', 'ip', 'set', 'dns', 
                     'name="Wi-Fi"', 'source=static', 'addr=127.0.0.1'
-                ], capture_output=True, text=True)
+                ], capture_output=True, text=True, creationflags=subprocess.CREATE_NO_WINDOW)
                 
             print("✅ DNS blocking applied")
         except Exception as e:
@@ -191,12 +191,12 @@ class NetworkManager:
                 subprocess.run([
                     'netsh', 'interface', 'ip', 'set', 'dns', 
                     'name="Local Area Connection"', 'source=dhcp'
-                ], capture_output=True, text=True)
+                ], capture_output=True, text=True, creationflags=subprocess.CREATE_NO_WINDOW)
                 
                 subprocess.run([
                     'netsh', 'interface', 'ip', 'set', 'dns', 
                     'name="Wi-Fi"', 'source=dhcp'
-                ], capture_output=True, text=True)
+                ], capture_output=True, text=True, creationflags=subprocess.CREATE_NO_WINDOW)
                 
             print("✅ DNS settings restored")
         except Exception as e:
@@ -206,7 +206,7 @@ class NetworkManager:
         """Flush DNS cache to ensure changes take effect"""
         try:
             if platform.system().lower() == "windows":
-                subprocess.run(['ipconfig', '/flushdns'], capture_output=True, text=True)
+                subprocess.run(['ipconfig', '/flushdns'], capture_output=True, text=True, creationflags=subprocess.CREATE_NO_WINDOW)
             elif platform.system().lower() == "linux":
                 subprocess.run(['sudo', 'systemctl', 'restart', 'systemd-resolved'], capture_output=True, text=True)
             elif platform.system().lower() == "darwin":

@@ -385,6 +385,41 @@ class AnimationManager:
         """Slide in animation"""
         # Implementation for slide animations
         pass
+        
+    def pulse_text_color(self, canvas, item_id, color1, color2, duration=1500):
+        """Pulse text color between two hex colors on a canvas"""
+        def hex_to_rgb(h):
+            h = h.lstrip('#')
+            return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
+        def rgb_to_hex(r, g, b):
+            return f'#{int(r):02x}{int(g):02x}{int(b):02x}'
+            
+        try:
+            c1 = hex_to_rgb(color1)
+            c2 = hex_to_rgb(color2)
+        except Exception:
+            return # fallback if invalid color
+            
+        steps = 30
+        step_time = duration // steps
+        
+        def animate(forward=True, current_step=0):
+            if current_step <= steps:
+                ratio = current_step / steps
+                if not forward:
+                    ratio = 1 - ratio
+                r = c1[0] + (c2[0] - c1[0]) * ratio
+                g = c1[1] + (c2[1] - c1[1]) * ratio
+                b = c1[2] + (c2[2] - c1[2]) * ratio
+                try:
+                    canvas.itemconfig(item_id, fill=rgb_to_hex(r, g, b))
+                    self.root.after(step_time, lambda: animate(forward, current_step + 1))
+                except tk.TclError:
+                    pass # Canvas destroyed
+            else:
+                self.root.after(step_time, lambda: animate(not forward, 0))
+                
+        animate(True, 0)
     
     def button_press_effect(self, button):
         """Button press visual effect"""
@@ -397,6 +432,17 @@ class ModernComponents:
     
     def __init__(self, theme):
         self.theme = theme
+        
+    def bind_hover(self, widget, normal_bg, hover_bg):
+        """Bind modern hover effects to a widget"""
+        def on_enter(e):
+            if widget.cget('state') != 'disabled':
+                widget.config(bg=hover_bg)
+        def on_leave(e):
+            if widget.cget('state') != 'disabled':
+                widget.config(bg=normal_bg)
+        widget.bind('<Enter>', on_enter, add='+')
+        widget.bind('<Leave>', on_leave, add='+')
     
     def create_card(self, parent, title=None, **kwargs):
         """Create a modern card component"""

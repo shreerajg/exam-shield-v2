@@ -82,10 +82,12 @@ class SecurityManager:
             self.integrity_manager.clear_clipboard()
             print("📋 System clipboard wiped for security")
             
-            # Disable Task Manager
+            # Extended System Policies Lockdown & Sleep Prevention
             if self.selective_blocking.get('processes', True):
-                if self.integrity_manager.set_task_manager_disabled(True):
-                    print("✅ Task Manager disabled via Registry")
+                if self.integrity_manager.set_system_policies(True):
+                    print("✅ System Policies (TaskMgr, CMD, RegEdit, etc.) disabled via Registry")
+                if self.integrity_manager.prevent_system_sleep(True):
+                    print("✅ System sleep and display off prevented")
         except Exception as e:
             print(f"❌ Integrity check error: {e}")
 
@@ -110,9 +112,11 @@ class SecurityManager:
         except Exception as e: print(f"Error stopping window protection: {e}")
         
         try:
-            if self.integrity_manager.set_task_manager_disabled(False):
-                print("✅ Task Manager re-enabled")
-        except Exception as e: print(f"Error restoring Task Manager: {e}")
+            if self.integrity_manager.set_system_policies(False):
+                print("✅ System Policies restored")
+            if self.integrity_manager.prevent_system_sleep(False):
+                print("✅ System sleep restored")
+        except Exception as e: print(f"Error restoring System Policies/Sleep: {e}")
         
         self.db_manager.log_activity("EXAM_MODE_STOP", "All security restrictions deactivated")
         print("🔓 Full exam mode deactivated - All restrictions removed")

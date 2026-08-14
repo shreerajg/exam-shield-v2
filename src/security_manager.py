@@ -155,7 +155,7 @@ class SecurityManager:
         if self.monitoring_thread: self.monitoring_thread = None; print("✅ Process monitoring stopped")
 
     def _monitor_processes(self):
-        suspicious_processes = ['taskmgr.exe', 'cmd.exe', 'powershell.exe', 'regedit.exe', 'msconfig.exe', 'discord.exe', 'obs64.exe', 'teamviewer.exe', 'anydesk.exe', 'cheatengine-x86_64.exe']
+        suspicious_processes = ['taskmgr.exe', 'cmd.exe', 'powershell.exe', 'regedit.exe', 'msconfig.exe', 'discord.exe', 'obs64.exe', 'teamviewer.exe', 'anydesk.exe', 'cheatengine-x86_64.exe', 'chrome.exe', 'msedge.exe', 'firefox.exe', 'brave.exe', 'opera.exe']
         print("🔍 Process monitoring active")
         
         initial_usb_drives = self.integrity_manager.get_connected_usb_drives()

@@ -112,9 +112,13 @@ class ExamShield:
         header_canvas = self.create_gradient_frame(self.root, 520, 180)
         header_canvas.pack(fill=tk.X)
 
-        header_canvas.create_text(260, 55, text="🛡️", font=("Segoe UI", 40), fill=self.colors['accent'])
+        shield_icon = header_canvas.create_text(260, 55, text="🛡️", font=("Segoe UI", 40), fill=self.colors['accent'])
         header_canvas.create_text(260, 110, text="EXAM SHIELD PREMIUM", font=("Segoe UI", 22, "bold"), fill=self.colors['white'])
         header_canvas.create_text(260, 140, text="v2.0 | Secure Examination System", font=("Segoe UI", 11), fill="#a8c8e8")
+        
+        # Start Pulse Animation
+        anim_manager = theme.AnimationManager(self.root)
+        anim_manager.pulse_text_color(header_canvas, shield_icon, self.colors['accent'], '#ffffff', duration=1500)
 
         # Card container
         card = tk.Frame(self.root, bg=self.colors['surface'])
@@ -150,14 +154,19 @@ class ExamShield:
                               font=("Segoe UI", 12, "bold"), relief=tk.FLAT,
                               cursor='hand2', padx=20, pady=12,
                               activebackground='#17223b', activeforeground='white')
-        login_btn.pack(fill=tk.X, pady=(0, 10))
+        login_btn.pack(fill=tk.X, pady=(10, 10))
+        
+        mod_components = theme.ModernComponents(theme.get_theme(self.current_theme))
+        mod_components.bind_hover(login_btn, self.colors['primary'], self.colors.get('gradient_start', '#17223b'))
 
         # Change password button
-        tk.Button(card, text="🔄 Change Password",
+        cp_btn = tk.Button(card, text="🔄 Change Password",
                   command=self.show_change_password,
                   bg=self.colors['secondary'] if 'secondary' in self.colors else '#17223b',
                   fg=self.colors['white'], font=("Segoe UI", 10), relief=tk.FLAT,
-                  cursor='hand2', pady=6).pack(fill=tk.X, pady=(0, 15))
+                  cursor='hand2', pady=6)
+        cp_btn.pack(fill=tk.X, pady=(0, 15))
+        mod_components.bind_hover(cp_btn, self.colors['secondary'] if 'secondary' in self.colors else '#17223b', '#2c3e50')
 
         # Status label
         self.login_status = tk.Label(card, text="", font=("Segoe UI", 10),

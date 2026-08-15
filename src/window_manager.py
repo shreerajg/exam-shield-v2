@@ -531,23 +531,3 @@ class WindowManager:
         ]
         
         title_lower = title.lower()
-        return any(keyword in title_lower for keyword in protected_keywords)
-
-    def _disable_close_button(self, hwnd):
-        """Disable window close button"""
-        try:
-            menu = win32gui.GetSystemMenu(hwnd, False)
-            if menu:
-                win32gui.EnableMenuItem(menu, win32con.SC_CLOSE, 
-                                      win32con.MF_BYCOMMAND | win32con.MF_GRAYED)
-        except:
-            pass
-
-    def get_status(self):
-        """Get window manager status"""
-        return {
-            'active': self.is_active,
-            'protected_windows': len(self.protected_windows),
-            'configuration': self.config,
-            'monitoring': not self.stop_monitoring
-        }

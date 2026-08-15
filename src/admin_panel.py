@@ -17,30 +17,6 @@ class AdminPanel:
         self.db_manager = db_manager
         self.security_manager = security_manager
         self.parent_window = parent_window
-        self.security_manager.set_admin_panel(self)
-
-import tkinter as tk
-from tkinter import ttk, messagebox, scrolledtext, simpledialog
-import threading
-import json
-from datetime import datetime
-import keyboard
-from pynput import mouse
-
-class AdminPanel:
-    def __init__(self):
-        if not self.is_admin():
-            self.restart_as_admin()
-            return
-            
-        self.root = tk.Tk()
-        self.root.title("Exam Shield Pro v2.0 - Modern Design")
-        self.root.geometry("550x700")
-        self.root.resizable(False, False)
-    def __init__(self, db_manager, security_manager, parent_window):
-        self.db_manager = db_manager
-        self.security_manager = security_manager
-        self.parent_window = parent_window
         
         # Premium color scheme
         self.colors = {

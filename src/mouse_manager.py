@@ -377,19 +377,3 @@ class MouseManager:
             'hook_installed': self.hook_installed,
             'total_blocked': len(self.blocked_buttons)
         }
-        if hasattr(button, 'name'):
-            return button.name
-        elif hasattr(button, 'value'):
-            if button.value == 8:
-                return 'x1'
-            elif button.value == 9:
-                return 'x2'
-        return button_map.get(button, 'unknown')
-
-    def add_blocked_button(self, button_name):
-        if button_name not in self.blocked_buttons:
-            self.blocked_buttons.append(button_name)
-
-    def remove_blocked_button(self, button_name):
-        if button_name in self.blocked_buttons:
-            self.blocked_buttons.remove(button_name)

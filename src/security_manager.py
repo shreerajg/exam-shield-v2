@@ -78,9 +78,27 @@ class SecurityManager:
                     messagebox.showerror("Security Risk", f"Cannot start Exam Mode!\n\nVirtual Machine detected: {vm_reason}.\nPlease run the exam on a native machine.")
                 return
 
+        if self.selective_blocking.get('usb_blocking', False):
+            usb_drives = self.integrity_manager.get_connected_usb_drives()
+            if usb_drives:
+                print(f"❌ Cannot start exam: Unauthorized USB drives detected ({', '.join(usb_drives)})")
+                self.db_manager.log_activity("USB_DETECTED", f"Blocked exam start due to USB drives: {', '.join(usb_drives)}", blocked=True)
+                if self.admin_panel:
+                    import tkinter.messagebox as messagebox
+                    messagebox.showerror("Security Risk", f"Cannot start Exam Mode!\n\nUnauthorized USB drive(s) detected: {', '.join(usb_drives)}.\nPlease remove them and try again.")
+                return
+
+        if not self.selective_blocking.get('keyboard', True):
+            self.blocked_keys = []
+            
+        if self.selective_blocking.get('screen_capture', False):
+            for k in ['print screen', 'win+shift+s', 'alt+print screen', 'win+print screen']:
+                if k not in self.blocked_keys:
+                    self.blocked_keys.append(k)
+
         self.is_exam_mode = True
         print(f"🔒 Starting selective exam mode with options: {selective_options}")
-        if self.selective_blocking.get('keyboard', True):
+        if self.selective_blocking.get('keyboard', True) or self.selective_blocking.get('screen_capture', False):
             print("🔤 Activating keyboard blocking..."); self.setup_keyboard_hooks()
         if self.selective_blocking.get('processes', True):
             print("🔍 Activating process monitoring..."); self.start_process_monitoring()
@@ -178,6 +196,8 @@ class SecurityManager:
 
     def _monitor_processes(self):
         suspicious_processes = ['taskmgr.exe', 'cmd.exe', 'powershell.exe', 'regedit.exe', 'msconfig.exe', 'discord.exe', 'obs64.exe', 'teamviewer.exe', 'anydesk.exe', 'cheatengine-x86_64.exe', 'chrome.exe', 'msedge.exe', 'firefox.exe', 'brave.exe', 'opera.exe']
+        if self.selective_blocking.get('screen_capture', False):
+            suspicious_processes.extend(['snippingtool.exe', 'screenclippinghost.exe'])
         print("🔍 Process monitoring active")
         
         initial_usb_drives = self.integrity_manager.get_connected_usb_drives()
@@ -193,8 +213,8 @@ class SecurityManager:
                     except (psutil.NoSuchProcess, psutil.AccessDenied):
                         continue
                         
-                # Continuous clipboard clearing while in exam mode
-                self.integrity_manager.clear_clipboard()
+                        
+                # Ensure no old clear_clipboard runs here (we moved it below to respect the clipboard toggle)
                 
                 if self.integrity_manager.is_debugger_present():
                     self.db_manager.log_activity("DEBUGGER_DETECTED", "Debugger presence detected", blocked=True)
@@ -222,6 +242,15 @@ class SecurityManager:
                 if new_drives:
                     self.db_manager.log_activity("USB_DETECTED", f"New USB drive(s) detected: {', '.join(new_drives)}", blocked=True)
                     print(f"⚠️ UNAUTHORIZED USB DETECTED ({', '.join(new_drives)})! Security risk.")
+                    if self.selective_blocking.get('usb_blocking', False):
+                        print("🚫 Terminating exam mode due to unauthorized USB drive")
+                        if self.admin_panel:
+                            import tkinter.messagebox as messagebox
+                            self.admin_panel.window.after(0, lambda: messagebox.showerror("Security Breach", "Unauthorized USB drive inserted during the exam!\nExam mode will be terminated."))
+                        if self.admin_panel:
+                            self.admin_panel.window.after(0, self.stop_exam_mode)
+                        else:
+                            self.stop_exam_mode()
                     # Update baseline so we don't spam
                     initial_usb_drives = current_usb_drives
                 

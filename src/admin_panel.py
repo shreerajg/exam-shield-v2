@@ -485,12 +485,19 @@ class AdminPanel:
 
     def switch_tab(self, tab_key, tab_function):
         """Switch between tabs with visual feedback"""
+        mod_components = theme.ModernComponents(theme.get_theme(self.current_theme))
         # Update button styles
         for key, btn in self.tab_buttons.items():
+            try:
+                btn.unbind('<Enter>')
+                btn.unbind('<Leave>')
+            except:
+                pass
             if key == tab_key:
                 btn.config(bg=self.colors['primary'], fg=self.colors['card'])
             else:
                 btn.config(bg=self.colors['surface'], fg=self.colors['text_primary'])
+                mod_components.bind_hover(btn, self.colors['surface'], self.colors.get('light_blue', '#ecf4ff'))
         
         # Clear current content
         for widget in self.tab_content.winfo_children():
@@ -618,9 +625,10 @@ class AdminPanel:
         btn = tk.Button(parent, text=text, command=command,
                        bg=bg_color, fg=self.colors['card'],
                        font=("Segoe UI", 10, "bold"), relief=tk.FLAT, 
-                       cursor='hand2', padx=15, pady=10,
-activebackground=self.darken_color(bg_color),
-                        activeforeground=self.colors['card'], **kwargs)
+                       cursor='hand2', padx=15, pady=10, **kwargs)
+        
+        mod_components = theme.ModernComponents(theme.get_theme(self.current_theme))
+        mod_components.bind_hover(btn, bg_color, self.darken_color(bg_color))
         
         if not pack_side or pack_side == "grid":
             pass
@@ -1140,9 +1148,16 @@ activebackground=self.darken_color(bg_color),
     # ===== STATUS & TOGGLES =====
     def refresh_status(self):
         info = self.security_manager.get_system_info() or {}
+        anim_manager = theme.AnimationManager(self.window)
         if self.security_manager.is_exam_mode:
-            self.status_label.config(text="🔒 LOCKDOWN MODE: ACTIVE", fg=self.colors['danger'])
+            self.status_label.config(text="🔒 LOCKDOWN MODE: ACTIVE")
+            anim_manager.pulse_label_color(self.status_label, self.colors['danger'], '#ff8a80', duration=1200)
         else:
+            if hasattr(self.status_label, '_pulse_after_id'):
+                try:
+                    self.status_label.after_cancel(self.status_label._pulse_after_id)
+                except:
+                    pass
             self.status_label.config(text="🔓 LOCKDOWN MODE: INACTIVE", fg=self.colors['success'])
         cpu = info.get('cpu_percent', 0.0); mem = info.get('memory_percent', 0.0); procs = info.get('active_processes', 0)
         self.system_info_label.config(text=f"CPU: {cpu:.1f}% | RAM: {mem:.1f}% | Processes: {procs}")

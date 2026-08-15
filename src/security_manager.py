@@ -68,6 +68,16 @@ class SecurityManager:
                     messagebox.showerror("Security Risk", f"Cannot start Exam Mode!\n\nMultiple monitors detected ({monitor_count}).\nPlease disconnect extra monitors and try again.")
                 return
 
+        if self.selective_blocking.get('vm_blocking', False):
+            is_vm, vm_reason = self.integrity_manager.is_running_in_vm()
+            if is_vm:
+                print(f"❌ Cannot start exam: Virtual Machine detected ({vm_reason})")
+                self.db_manager.log_activity("VM_DETECTED", f"Blocked exam start due to VM: {vm_reason}", blocked=True)
+                if self.admin_panel:
+                    import tkinter.messagebox as messagebox
+                    messagebox.showerror("Security Risk", f"Cannot start Exam Mode!\n\nVirtual Machine detected: {vm_reason}.\nPlease run the exam on a native machine.")
+                return
+
         self.is_exam_mode = True
         print(f"🔒 Starting selective exam mode with options: {selective_options}")
         if self.selective_blocking.get('keyboard', True):
@@ -214,6 +224,10 @@ class SecurityManager:
                     print(f"⚠️ UNAUTHORIZED USB DETECTED ({', '.join(new_drives)})! Security risk.")
                     # Update baseline so we don't spam
                     initial_usb_drives = current_usb_drives
+                
+                # Continuous Clipboard Wiping
+                if self.selective_blocking.get('clipboard', False):
+                    self.integrity_manager.clear_clipboard()
                 
                 time.sleep(2)
             except Exception as e:

@@ -699,7 +699,9 @@ class AdminPanel:
             ("windows", "🪟 Window Guardian", 
              "Prevents window manipulation, closing, and switching"),
             ("processes", "🔍 Process Monitor", 
-             "Automatically detects and terminates unauthorized processes")
+             "Automatically detects and terminates unauthorized processes"),
+            ("monitors", "🖥️ Multi-Monitor Blocking", 
+             "Prevents exam mode if more than one monitor is connected")
         ]
         
         for key, title, description in modules:
@@ -1638,37 +1640,61 @@ class AdminPanel:
     
     def export_logs(self):
         """Export security logs"""
-        pass
         from tkinter import filedialog
         import csv
         from datetime import datetime
-        
+        try:
+            from fpdf import FPDF
+            has_pdf = True
+        except ImportError:
+            has_pdf = False
+            
+        filetypes = [("CSV files", "*.csv"), ("Text files", "*.txt")]
+        if has_pdf:
+            filetypes.insert(0, ("PDF files", "*.pdf"))
+            
         file_path = filedialog.asksaveasfilename(
-            defaultextension=".csv",
-            filetypes=[("CSV files", "*.csv"), ("Text files", "*.txt")],
+            defaultextension=".pdf" if has_pdf else ".csv",
+            filetypes=filetypes,
             initialfile=f"exam_shield_logs_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         )
         
-        if file_path:
-            try:
-                logs = self.db_manager.get_logs(limit=10000)
-                
-                if file_path.endswith('.csv'):
-                    with open(file_path, 'w', newline='', encoding='utf-8') as f:
-                        writer = csv.writer(f)
-                        writer.writerow(['Timestamp', 'Event Type', 'Message', 'Blocked'])
-                        for log in logs:
-                            writer.writerow([
-                                log.get('timestamp', ''),
-                                log.get('event_type', ''),
-                                log.get('message', ''),
-                                log.get('blocked', False)
-                            ])
-                else:
-                    with open(file_path, 'w', encoding='utf-8') as f:
-                        for log in logs:
-                            f.write(f"[{log.get('timestamp', '')}] {log.get('event_type', '')}: {log.get('message', '')}\n")
-                
-                messagebox.showinfo("Export Complete", f"Logs exported successfully!\n\nFile: {file_path}")
-            except Exception as e:
-                messagebox.showerror("Export Error", f"Failed to export logs: {str(e)}")
+        if not file_path:
+            return
+            
+        try:
+            logs = self.db_manager.get_logs(limit=10000)
+            
+            if file_path.endswith('.pdf') and has_pdf:
+                pdf = FPDF()
+                pdf.add_page()
+                pdf.set_font("Arial", size=12)
+                pdf.cell(200, 10, txt="Exam Shield Security Logs", ln=True, align='C')
+                pdf.set_font("Arial", size=10)
+                for log in logs:
+                    ts = log.get('timestamp', '')
+                    ev = log.get('event_type', '')
+                    msg = log.get('message', '')
+                    status = "BLOCKED" if log.get('blocked') else "ALLOWED"
+                    text = f"[{ts}] {ev}: {msg} - {status}"
+                    pdf.multi_cell(0, 10, txt=text)
+                pdf.output(file_path)
+            elif file_path.endswith('.csv'):
+                with open(file_path, 'w', newline='', encoding='utf-8') as f:
+                    writer = csv.writer(f)
+                    writer.writerow(['Timestamp', 'Event Type', 'Message', 'Blocked'])
+                    for log in logs:
+                        writer.writerow([
+                            log.get('timestamp', ''),
+                            log.get('event_type', ''),
+                            log.get('message', ''),
+                            log.get('blocked', False)
+                        ])
+            else:
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    for log in logs:
+                        f.write(f"[{log.get('timestamp', '')}] {log.get('event_type', '')}: {log.get('message', '')}\n")
+            
+            messagebox.showinfo("Export Complete", f"Logs exported successfully!\n\nFile: {file_path}")
+        except Exception as e:
+            messagebox.showerror("Export Error", f"Failed to export logs: {str(e)}")

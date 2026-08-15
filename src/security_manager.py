@@ -195,6 +195,16 @@ class SecurityManager:
                 if monitor_count > 1:
                     self.db_manager.log_activity("MULTI_MONITOR_DETECTED", f"Detected {monitor_count} monitors", blocked=True)
                     print(f"⚠️ MULTI-MONITOR DETECTED ({monitor_count} displays)! Security risk.")
+                    if self.selective_blocking.get('monitors', False):
+                        print("🚫 Terminating exam mode due to multi-monitor violation")
+                        if self.admin_panel:
+                            import tkinter.messagebox as messagebox
+                            self.admin_panel.window.after(0, lambda: messagebox.showerror("Security Breach", "Multiple monitors detected during the exam!\nExam mode will be terminated."))
+                        # Schedule stopping exam mode safely
+                        if self.admin_panel:
+                            self.admin_panel.window.after(0, self.stop_exam_mode)
+                        else:
+                            self.stop_exam_mode()
                 
                 # USB Drive Detection
                 current_usb_drives = self.integrity_manager.get_connected_usb_drives()

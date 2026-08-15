@@ -701,7 +701,11 @@ class AdminPanel:
             ("processes", "🔍 Process Monitor", 
              "Automatically detects and terminates unauthorized processes"),
             ("monitors", "🖥️ Multi-Monitor Blocking", 
-             "Prevents exam mode if more than one monitor is connected")
+             "Prevents exam mode if more than one monitor is connected"),
+            ("clipboard", "📋 Clipboard Protection", 
+             "Continuously clears the clipboard to prevent copy-pasting"),
+            ("vm_blocking", "🛡️ Virtual Machine Blocker", 
+             "Strictly prevents running the exam inside a Virtual Machine")
         ]
         
         for key, title, description in modules:

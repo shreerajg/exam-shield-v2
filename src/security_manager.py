@@ -54,9 +54,21 @@ class SecurityManager:
     def start_exam_mode(self, selective_options=None):
         if self.is_exam_mode:
             return
-        self.is_exam_mode = True
+            
         if selective_options:
             self.selective_blocking.update(selective_options)
+            
+        if self.selective_blocking.get('monitors', False):
+            monitor_count = self.integrity_manager.get_monitor_count()
+            if monitor_count > 1:
+                print(f"❌ Cannot start exam: Multiple monitors detected ({monitor_count})")
+                self.db_manager.log_activity("MULTI_MONITOR_DETECTED", f"Detected {monitor_count} monitors", blocked=True)
+                if self.admin_panel:
+                    import tkinter.messagebox as messagebox
+                    messagebox.showerror("Security Risk", f"Cannot start Exam Mode!\n\nMultiple monitors detected ({monitor_count}).\nPlease disconnect extra monitors and try again.")
+                return
+
+        self.is_exam_mode = True
         print(f"🔒 Starting selective exam mode with options: {selective_options}")
         if self.selective_blocking.get('keyboard', True):
             print("🔤 Activating keyboard blocking..."); self.setup_keyboard_hooks()

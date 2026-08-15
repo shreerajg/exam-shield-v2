@@ -705,7 +705,11 @@ class AdminPanel:
             ("clipboard", "📋 Clipboard Protection", 
              "Continuously clears the clipboard to prevent copy-pasting"),
             ("vm_blocking", "🛡️ Virtual Machine Blocker", 
-             "Strictly prevents running the exam inside a Virtual Machine")
+             "Strictly prevents running the exam inside a Virtual Machine"),
+            ("screen_capture", "📸 Screen Capture Protection", 
+             "Blocks screenshots and screen capture tools"),
+            ("usb_blocking", "🔌 Strict USB Policy", 
+             "Prevents exam if unauthorized USB drives are connected")
         ]
         
         for key, title, description in modules:

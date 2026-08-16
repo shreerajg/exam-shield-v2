@@ -21,6 +21,7 @@ from src.database_manager import DatabaseManager
 from src.security_manager import SecurityManager
 from src.system_tray import SystemTray
 import src.theme as theme
+import patches
 
 # Lazy import of admin panel (to avoid circular imports)
 _AdminPanel = None

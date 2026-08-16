@@ -544,7 +544,7 @@ class WindowManager:
             pass
 
     def get_status(self):
-        """Get window manager status"""
+        "Get window manager status"
         return {
             'active': self.is_active,
             'protected_windows': len(self.protected_windows),

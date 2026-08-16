@@ -289,6 +289,13 @@ import time
                 self.logger.log_activity("MOUSE_BLOCKING_ERROR", f"Error stopping mouse blocking: {str(e)}")
             return False
 
+    def _message_pump(self):
+        """Run a minimal message loop so WH_MOUSE_LL stays alive"""
+        msg = ctypes.wintypes.MSG()
+        while self.is_active and self.hook_id:
+            self.user32.PeekMessageW(ctypes.byref(msg), 0, 0, 0, 1)
+            time.sleep(0.01)
+
     def _install_low_level_hook(self):
         """Install low-level mouse hook using Windows API"""
         try:
@@ -306,11 +313,23 @@ import time
                 0                  # Thread ID (0 = all threads)
             )
             
-            return self.hook_id is not None and self.hook_id != 0
+            ok = self.hook_id is not None and self.hook_id != 0
+            if not ok:
+                err = self.kernel32.GetLastError()
+                if self.logger:
+                    self.logger.log_activity("HOOK_INSTALL_ERROR", f"SetWindowsHookEx failed, GetLastError={err}")
+                print(f"[MouseManager] SetWindowsHookEx failed, GetLastError={err}")
+            else:
+                # Start the message pump thread
+                if not hasattr(self, '_pump_thread') or self._pump_thread is None or not self._pump_thread.is_alive():
+                    self._pump_thread = threading.Thread(target=self._message_pump, daemon=True)
+                    self._pump_thread.start()
+            return ok
             
         except Exception as e:
             if self.logger:
                 self.logger.log_activity("HOOK_INSTALL_ERROR", f"Failed to install hook: {str(e)}")
+            print(f"[MouseManager] Exception during hook install: {e}")
             return False
 
     def _remove_low_level_hook(self):

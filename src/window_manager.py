@@ -534,7 +534,7 @@ class WindowManager:
         return any(keyword in title_lower for keyword in protected_keywords)
 
     def _disable_close_button(self, hwnd):
-        """Disable window close button"""
+        "Disable window close button"
         try:
             menu = win32gui.GetSystemMenu(hwnd, False)
             if menu:

@@ -1,6 +1,0 @@
-# Exam Shield runtime patch modules
-
-import patches.admin_panel_selective_patch
-import patches.security_manager_toggles_patch
-import patches.mouse_manager_hook_diagnostics
-import patches.mouse_manager_pump_patch

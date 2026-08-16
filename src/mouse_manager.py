@@ -451,14 +451,3 @@ import time
             'blocks_side_buttons': self.WM_XBUTTONDOWN in self.blocked_buttons
         }
 
-import win32api
-import win32con
-import win32gui
-from pynput import mouse
-import threading
-import time
-
-class MouseManager:
-    def __init__(self, logger=None):
-        self.logger = logger
-        self.is_active = False

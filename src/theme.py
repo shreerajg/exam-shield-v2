@@ -345,128 +345,394 @@ class ExamShieldTheme:
 
 class AnimationManager:
     """Handle smooth animations and transitions"""
-    
+
+    # ── Easing utilities ────────────────────────────────────────────────────
+
+    @staticmethod
+    def _ease_out_cubic(t):
+        """Cubic ease-out: starts fast, decelerates to stop."""
+        return 1 - (1 - t) ** 3
+
+    @staticmethod
+    def _ease_in_out(t):
+        """Smooth symmetric ease."""
+        return t * t * (3 - 2 * t)
+
+    @staticmethod
+    def _ease_elastic(t):
+        """Elastic overshoot then settle."""
+        if t == 0 or t == 1:
+            return t
+        import math
+        p = 0.3
+        return (2 ** (-10 * t)) * math.sin((t - p / 4) * (2 * math.pi) / p) + 1
+
+    @staticmethod
+    def _hex_to_rgb(h):
+        h = h.lstrip('#')
+        return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
+
+    @staticmethod
+    def _rgb_to_hex(r, g, b):
+        return f'#{int(r):02x}{int(g):02x}{int(b):02x}'
+
     def __init__(self, root):
         self.root = root
         self.animations = {}
-    
+
+    # ── Fade ────────────────────────────────────────────────────────────────
+
     def fade_in(self, widget, duration=300):
-        """Fade in animation"""
-        widget.attributes('-alpha', 0.0)
-        self.animate_alpha(widget, 0.0, 1.0, duration)
-    
-    def fade_out(self, widget, duration=300, callback=None):
-        """Fade out animation"""
-        self.animate_alpha(widget, 1.0, 0.0, duration, callback)
-    
-    def animate_alpha(self, widget, start_alpha, end_alpha, duration, callback=None):
-        """Animate widget alpha"""
-        steps = 30
-        step_time = duration // steps
-        alpha_step = (end_alpha - start_alpha) / steps
-        current_step = 0
-        
-        def step():
-            nonlocal current_step
-            if current_step <= steps:
-                alpha = start_alpha + (alpha_step * current_step)
-                try:
-                    widget.attributes('-alpha', alpha)
-                    current_step += 1
-                    widget.after(step_time, step)
-                except tk.TclError:
-                    pass  # Widget was destroyed
-            elif callback:
-                callback()
-        
-        step()
-    
-    def slide_in(self, widget, direction='left', duration=300):
-        """Slide in animation"""
-        # Implementation for slide animations
-        pass
-        
-    def pulse_text_color(self, canvas, item_id, color1, color2, duration=1500):
-        """Pulse text color between two hex colors on a canvas"""
-        def hex_to_rgb(h):
-            h = h.lstrip('#')
-            return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
-        def rgb_to_hex(r, g, b):
-            return f'#{int(r):02x}{int(g):02x}{int(b):02x}'
-            
+        """Fade-in with ease-out easing."""
         try:
-            c1 = hex_to_rgb(color1)
-            c2 = hex_to_rgb(color2)
-        except Exception:
-            return # fallback if invalid color
-            
+            widget.attributes('-alpha', 0.0)
+        except tk.TclError:
+            return
+        self._animate_alpha(widget, 0.0, 1.0, duration)
+
+    def fade_out(self, widget, duration=300, callback=None):
+        """Fade-out animation."""
+        self._animate_alpha(widget, 1.0, 0.0, duration, callback)
+
+    def _animate_alpha(self, widget, start, end, duration, callback=None):
         steps = 30
-        step_time = duration // steps
-        
-        def animate(forward=True, current_step=0):
-            if current_step <= steps:
-                ratio = current_step / steps
-                if not forward:
-                    ratio = 1 - ratio
+        step_ms = max(1, duration // steps)
+
+        def step(i):
+            if i > steps:
+                if callback:
+                    callback()
+                return
+            t = self._ease_out_cubic(i / steps)
+            alpha = start + (end - start) * t
+            try:
+                widget.attributes('-alpha', alpha)
+                widget.after(step_ms, lambda: step(i + 1))
+            except tk.TclError:
+                pass
+
+        step(0)
+
+    # ── Slide-in ────────────────────────────────────────────────────────────
+
+    def slide_in(self, widget, direction='left', duration=350, distance=60):
+        """Slide a Frame/widget in from direction ('left','right','top','bottom').
+
+        Works by temporarily placing the widget off-screen with place(), animating
+        it to its natural position, then restoring normal geometry management.
+        """
+        widget.update_idletasks()
+        w = widget.winfo_width() or 200
+        h = widget.winfo_height() or 100
+        natural_x = widget.winfo_x()
+        natural_y = widget.winfo_y()
+
+        offsets = {
+            'left':   (-distance, 0),
+            'right':  (distance,  0),
+            'top':    (0, -distance),
+            'bottom': (0,  distance),
+        }
+        dx, dy = offsets.get(direction, (-distance, 0))
+
+        steps = 28
+        step_ms = max(1, duration // steps)
+
+        def step(i):
+            if i > steps:
+                try:
+                    widget.place_forget()
+                except Exception:
+                    pass
+                return
+            t = self._ease_out_cubic(i / steps)
+            cx = natural_x + dx * (1 - t)
+            cy = natural_y + dy * (1 - t)
+            try:
+                widget.place(x=int(cx), y=int(cy), width=w, height=h)
+                widget.after(step_ms, lambda: step(i + 1))
+            except tk.TclError:
+                pass
+
+        step(0)
+
+    # ── Shake (error feedback) ───────────────────────────────────────────────
+
+    def shake(self, widget, intensity=8, cycles=4, duration=320):
+        """Horizontal shake animation – use on login frames on error."""
+        widget.update_idletasks()
+        orig_x = widget.winfo_x()
+        orig_y = widget.winfo_y()
+        w = widget.winfo_width()
+        h = widget.winfo_height()
+
+        steps = cycles * 2
+        step_ms = max(1, duration // steps)
+        offsets = []
+        for i in range(steps):
+            sign = 1 if i % 2 == 0 else -1
+            fade = 1 - i / steps
+            offsets.append(int(sign * intensity * fade))
+        offsets.append(0)  # settle
+
+        def step(i):
+            if i >= len(offsets):
+                try:
+                    widget.place_forget()
+                except Exception:
+                    pass
+                return
+            try:
+                widget.place(x=orig_x + offsets[i], y=orig_y, width=w, height=h)
+                widget.after(step_ms, lambda: step(i + 1))
+            except tk.TclError:
+                pass
+
+        step(0)
+
+    # ── Bounce entrance ─────────────────────────────────────────────────────
+
+    def bounce_in(self, widget, duration=500):
+        """Elastic bounce-in – good for status labels or icons."""
+        widget.update_idletasks()
+        orig_x = widget.winfo_x()
+        orig_y = widget.winfo_y()
+        w = widget.winfo_width()
+        h = widget.winfo_height()
+        drop = 30  # pixels above final position
+
+        steps = 40
+        step_ms = max(1, duration // steps)
+
+        def step(i):
+            if i > steps:
+                try:
+                    widget.place_forget()
+                except Exception:
+                    pass
+                return
+            t = self._ease_elastic(i / steps)
+            cy = orig_y + drop * (1 - t) - drop
+            try:
+                widget.place(x=orig_x, y=int(cy), width=w, height=h)
+                widget.after(step_ms, lambda: step(i + 1))
+            except tk.TclError:
+                pass
+
+        step(0)
+
+    # ── Typewriter text reveal ───────────────────────────────────────────────
+
+    def typewriter(self, label, full_text, char_delay=45):
+        """Reveal *full_text* character-by-character on a tk.Label."""
+        if hasattr(label, '_typewriter_id') and label._typewriter_id:
+            try:
+                label.after_cancel(label._typewriter_id)
+            except Exception:
+                pass
+
+        def reveal(pos):
+            try:
+                label.config(text=full_text[:pos])
+                if pos < len(full_text):
+                    label._typewriter_id = label.after(char_delay, lambda: reveal(pos + 1))
+                else:
+                    label._typewriter_id = None
+            except tk.TclError:
+                pass
+
+        label._typewriter_id = None
+        reveal(0)
+
+    # ── Animated number counter ──────────────────────────────────────────────
+
+    def count_up(self, label, start, end, duration=800, suffix='', prefix=''):
+        """Animate a numeric label from *start* to *end*."""
+        if hasattr(label, '_counter_id') and label._counter_id:
+            try:
+                label.after_cancel(label._counter_id)
+            except Exception:
+                pass
+
+        steps = 40
+        step_ms = max(1, duration // steps)
+
+        def step(i):
+            if i > steps:
+                try:
+                    label.config(text=f'{prefix}{int(end)}{suffix}')
+                except tk.TclError:
+                    pass
+                label._counter_id = None
+                return
+            t = self._ease_out_cubic(i / steps)
+            value = start + (end - start) * t
+            try:
+                label.config(text=f'{prefix}{int(value)}{suffix}')
+                label._counter_id = label.after(step_ms, lambda: step(i + 1))
+            except tk.TclError:
+                pass
+
+        label._counter_id = None
+        step(0)
+
+    # ── Entry focus glow ─────────────────────────────────────────────────────
+
+    def bind_entry_glow(self, entry, normal_color='white', focus_color='#dbeafe'):
+        """Animate background of an Entry on focus/blur."""
+        def _animate_bg(from_c, to_c):
+            try:
+                fc = self._hex_to_rgb(from_c)
+                tc = self._hex_to_rgb(to_c)
+            except Exception:
+                return
+            steps = 12
+            step_ms = 15
+
+            def step(i):
+                if i > steps:
+                    return
+                t = i / steps
+                r = fc[0] + (tc[0] - fc[0]) * t
+                g = fc[1] + (tc[1] - fc[1]) * t
+                b = fc[2] + (tc[2] - fc[2]) * t
+                try:
+                    entry.config(bg=self._rgb_to_hex(r, g, b))
+                    entry.after(step_ms, lambda: step(i + 1))
+                except tk.TclError:
+                    pass
+
+            step(0)
+
+        entry.bind('<FocusIn>',  lambda e: _animate_bg(normal_color, focus_color), add='+')
+        entry.bind('<FocusOut>', lambda e: _animate_bg(focus_color,  normal_color), add='+')
+
+    # ── Canvas / label colour pulse ──────────────────────────────────────────
+
+    def pulse_text_color(self, canvas, item_id, color1, color2, duration=1500):
+        """Pulse text color between two hex colors on a canvas item."""
+        try:
+            c1 = self._hex_to_rgb(color1)
+            c2 = self._hex_to_rgb(color2)
+        except Exception:
+            return
+
+        steps = 30
+        step_ms = max(1, duration // steps)
+
+        def animate(forward=True, i=0):
+            if i <= steps:
+                t = i / steps
+                ratio = t if forward else 1 - t
                 r = c1[0] + (c2[0] - c1[0]) * ratio
                 g = c1[1] + (c2[1] - c1[1]) * ratio
                 b = c1[2] + (c2[2] - c1[2]) * ratio
                 try:
-                    canvas.itemconfig(item_id, fill=rgb_to_hex(r, g, b))
-                    self.root.after(step_time, lambda: animate(forward, current_step + 1))
+                    canvas.itemconfig(item_id, fill=self._rgb_to_hex(r, g, b))
+                    self.root.after(step_ms, lambda: animate(forward, i + 1))
                 except tk.TclError:
-                    pass # Canvas destroyed
+                    pass
             else:
-                self.root.after(step_time, lambda: animate(not forward, 0))
-                
+                self.root.after(step_ms, lambda: animate(not forward, 0))
+
         animate(True, 0)
-        
+
     def pulse_label_color(self, label, color1, color2, duration=1500):
-        """Pulse text color between two hex colors on a standard Label"""
-        def hex_to_rgb(h):
-            h = h.lstrip('#')
-            return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
-        def rgb_to_hex(r, g, b):
-            return f'#{int(r):02x}{int(g):02x}{int(b):02x}'
-            
+        """Pulse text color between two hex colors on a standard Label."""
         try:
-            c1 = hex_to_rgb(color1)
-            c2 = hex_to_rgb(color2)
+            c1 = self._hex_to_rgb(color1)
+            c2 = self._hex_to_rgb(color2)
         except Exception:
-            return 
-            
+            return
+
         steps = 30
-        step_time = duration // steps
-        
+        step_ms = max(1, duration // steps)
+
         if hasattr(label, '_pulse_after_id') and label._pulse_after_id:
             try:
                 label.after_cancel(label._pulse_after_id)
             except Exception:
                 pass
-            
-        def animate(forward=True, current_step=0):
-            if current_step <= steps:
-                ratio = current_step / steps
-                if not forward:
-                    ratio = 1 - ratio
+
+        def animate(forward=True, i=0):
+            if i <= steps:
+                t = i / steps
+                ratio = t if forward else 1 - t
                 r = c1[0] + (c2[0] - c1[0]) * ratio
                 g = c1[1] + (c2[1] - c1[1]) * ratio
                 b = c1[2] + (c2[2] - c1[2]) * ratio
                 try:
-                    label.config(fg=rgb_to_hex(r, g, b))
-                    label._pulse_after_id = label.after(step_time, lambda: animate(forward, current_step + 1))
+                    label.config(fg=self._rgb_to_hex(r, g, b))
+                    label._pulse_after_id = label.after(step_ms, lambda: animate(forward, i + 1))
                 except tk.TclError:
-                    pass 
+                    pass
             else:
-                label._pulse_after_id = label.after(step_time, lambda: animate(not forward, 0))
-                
+                label._pulse_after_id = label.after(step_ms, lambda: animate(not forward, 0))
+
         animate(True, 0)
-    
+
+    # ── Button shimmer hover ─────────────────────────────────────────────────
+
+    def bind_shimmer_hover(self, button, base_color, hover_color):
+        """Smooth colour-transition hover effect on a tk.Button."""
+        try:
+            c1 = self._hex_to_rgb(base_color)
+            c2 = self._hex_to_rgb(hover_color)
+        except Exception:
+            return
+
+        steps = 10
+        step_ms = 12
+        _anim_id = [None]
+
+        def _transition(fc, tc, i):
+            if i > steps:
+                return
+            t = i / steps
+            r = fc[0] + (tc[0] - fc[0]) * t
+            g = fc[1] + (tc[1] - fc[1]) * t
+            b = fc[2] + (tc[2] - fc[2]) * t
+            try:
+                button.config(bg=self._rgb_to_hex(r, g, b))
+                _anim_id[0] = button.after(step_ms, lambda: _transition(fc, tc, i + 1))
+            except tk.TclError:
+                pass
+
+        def on_enter(e):
+            if _anim_id[0]:
+                try:
+                    button.after_cancel(_anim_id[0])
+                except Exception:
+                    pass
+            _transition(c1, c2, 0)
+
+        def on_leave(e):
+            if _anim_id[0]:
+                try:
+                    button.after_cancel(_anim_id[0])
+                except Exception:
+                    pass
+            _transition(c2, c1, 0)
+
+        button.bind('<Enter>', on_enter, add='+')
+        button.bind('<Leave>', on_leave, add='+')
+
+    # ── Button press ripple ──────────────────────────────────────────────────
+
     def button_press_effect(self, button):
-        """Button press visual effect"""
-        original_relief = button.cget('relief')
-        button.config(relief='sunken')
-        button.after(100, lambda: button.config(relief=original_relief))
+        """Quick press animation: brief darken + relief change."""
+        try:
+            orig = button.cget('bg')
+            rgb = self._hex_to_rgb(orig)
+            darker = self._rgb_to_hex(
+                max(0, int(rgb[0] * 0.75)),
+                max(0, int(rgb[1] * 0.75)),
+                max(0, int(rgb[2] * 0.75))
+            )
+            button.config(bg=darker, relief='sunken')
+            button.after(120, lambda: button.config(bg=orig, relief='flat'))
+        except Exception:
+            pass
 
 class ModernComponents:
     """Custom modern UI components"""

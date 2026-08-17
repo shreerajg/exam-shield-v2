@@ -66,10 +66,17 @@ class ExamShield:
         tc = t.colors
         if theme_name == "light":
             self.colors = {
-                'primary': '#1e3d59', 'secondary': '#17223b', 'accent': '#ffc947',
-                'success': '#27ae60', 'danger': '#e74c3c', 'surface': '#f8f9fa',
-                'text_primary': '#2c3e50', 'text_secondary': '#7f8c8d', 'white': '#ffffff',
-                'light_blue': '#ecf4ff', 'gradient_start': '#1e3d59', 'gradient_end': '#2980b9'
+                'primary': '#1565c0',        # clear medium blue
+                'secondary': '#1976d2',      # slightly lighter blue
+                'accent': '#f59e0b',         # warm amber
+                'success': '#16a34a', 'danger': '#dc2626',
+                'surface': '#f0f7ff',        # very light blue-white
+                'text_primary': '#1e293b',   # dark slate (readable)
+                'text_secondary': '#64748b', # slate gray
+                'white': '#ffffff',
+                'light_blue': '#eff6ff',
+                'gradient_start': '#1565c0', # clear blue gradient
+                'gradient_end':   '#42a5f5', # sky blue
             }
         else:
             self.colors = {

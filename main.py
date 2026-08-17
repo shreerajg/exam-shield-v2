@@ -4,7 +4,7 @@ Enhanced Version v2.0 with Advanced Security Features and Theme Support
 """
 
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, ttk
 import sys
 import os
 import hashlib
@@ -53,10 +53,10 @@ class ExamShield:
         self.security_manager = None
         self.system_tray = None
 
+        # Create animation manager before setup_ui so first-load animations work
+        self._anim = theme.AnimationManager(self.root)
         self.setup_ui()
         self.center_window()
-        # Animate window in after centering
-        self._anim = theme.AnimationManager(self.root)
         self._anim.fade_in(self.root, duration=350)
 
     # ── Theme ────────────────────────────────────────────────────────────────
@@ -112,101 +112,123 @@ class ExamShield:
         return canvas
 
     def setup_ui(self):
-        # Header gradient
-        header_canvas = self.create_gradient_frame(self.root, 520, 180)
+        """Build the premium login interface."""
+        c = self.colors
+
+        # ── Hero header ────────────────────────────────────────────────────────
+        header_canvas = self.create_gradient_frame(self.root, 520, 195)
         header_canvas.pack(fill=tk.X)
 
-        shield_icon = header_canvas.create_text(260, 55, text="🛡️", font=("Segoe UI", 40), fill=self.colors['accent'])
-        header_canvas.create_text(260, 110, text="EXAM SHIELD PREMIUM", font=("Segoe UI", 22, "bold"), fill=self.colors['white'])
-        header_canvas.create_text(260, 140, text="v2.0 | Secure Examination System", font=("Segoe UI", 11), fill="#a8c8e8")
-        
-        # Start Pulse Animation
-        anim_manager = theme.AnimationManager(self.root)
-        anim_manager.pulse_text_color(header_canvas, shield_icon, self.colors['accent'], '#ffffff', duration=1500)
+        shield_item = header_canvas.create_text(
+            260, 70, text="🛡️", font=("Segoe UI", 46), fill=c['accent'])
+        header_canvas.create_text(
+            260, 130, text="EXAM SHIELD PREMIUM",
+            font=("Segoe UI", 21, "bold"), fill="#ffffff")
+        header_canvas.create_text(
+            260, 160, text="v2.0  ·  Secure Examination System",
+            font=("Segoe UI", 10), fill="#8ab8d4")
+        self._anim.pulse_text_color(header_canvas, shield_item, c['accent'], '#ffffff', duration=2000)
 
-        # Card container
-        card = tk.Frame(self.root, bg=self.colors['surface'])
-        card.pack(fill=tk.BOTH, expand=True, padx=30, pady=20)
+        # Gold accent strip
+        tk.Frame(self.root, bg=c['accent'], height=3).pack(fill=tk.X)
 
-        # Title
-        tk.Label(card, text="Admin Login", font=("Segoe UI", 16, "bold"),
-                 bg=self.colors['surface'], fg=self.colors['primary']).pack(pady=(0, 5))
-        tk.Label(card, text="Enter your credentials to access the control panel",
-                 font=("Segoe UI", 10), bg=self.colors['surface'],
-                 fg=self.colors['text_secondary']).pack(pady=(0, 20))
+        # ── Login form card ────────────────────────────────────────────────────
+        card = tk.Frame(self.root, bg=c['surface'])
+        card.pack(fill=tk.BOTH, expand=True, padx=38, pady=22)
 
-        # Username
-        tk.Label(card, text="👤 Username", font=("Segoe UI", 10, "bold"),
-                 bg=self.colors['surface'], fg=self.colors['text_primary']).pack(anchor=tk.W)
+        # Section title
+        tk.Label(card, text="Administrator Login",
+                 font=("Segoe UI", 17, "bold"),
+                 bg=c['surface'], fg=c['primary']).pack(anchor=tk.W, pady=(0, 3))
+        tk.Label(card, text="Sign in to access the control center",
+                 font=("Segoe UI", 9),
+                 bg=c['surface'], fg=c['text_secondary']).pack(anchor=tk.W, pady=(0, 22))
+
+        # ─ Username field (underline style) ─
+        tk.Label(card, text="U S E R N A M E", font=("Segoe UI", 8, "bold"),
+                 bg=c['surface'], fg=c['text_secondary']).pack(anchor=tk.W)
         self.username_var = tk.StringVar()
-        username_entry = tk.Entry(card, textvariable=self.username_var, font=("Segoe UI", 12),
-                                  relief=tk.FLAT, bd=5, bg='white', width=30)
-        username_entry.pack(fill=tk.X, pady=(3, 15), ipady=8)
-        self._anim.bind_entry_glow(username_entry, normal_color='white', focus_color='#dbeafe')
+        username_entry = tk.Entry(
+            card, textvariable=self.username_var,
+            font=("Segoe UI", 12), relief=tk.FLAT, bd=0,
+            bg='#eef2f7', fg=c['text_primary'], width=30,
+            insertbackground=c['primary'])
+        username_entry.pack(fill=tk.X, pady=(5, 1), ipady=10)
+        tk.Frame(card, bg=c['primary'], height=2).pack(fill=tk.X, pady=(0, 18))
+        self._anim.bind_entry_glow(username_entry, '#eef2f7', '#dbeafe')
 
-        # Password
-        tk.Label(card, text="🔑 Password", font=("Segoe UI", 10, "bold"),
-                 bg=self.colors['surface'], fg=self.colors['text_primary']).pack(anchor=tk.W)
+        # ─ Password field (underline style) ─
+        tk.Label(card, text="P A S S W O R D", font=("Segoe UI", 8, "bold"),
+                 bg=c['surface'], fg=c['text_secondary']).pack(anchor=tk.W)
         self.password_var = tk.StringVar()
-        password_entry = tk.Entry(card, textvariable=self.password_var, show="*",
-                                  font=("Segoe UI", 12), relief=tk.FLAT, bd=5, bg='white', width=30)
-        password_entry.pack(fill=tk.X, pady=(3, 20), ipady=8)
-        self._anim.bind_entry_glow(password_entry, normal_color='white', focus_color='#dbeafe')
+        password_entry = tk.Entry(
+            card, textvariable=self.password_var, show="●",
+            font=("Segoe UI", 12), relief=tk.FLAT, bd=0,
+            bg='#eef2f7', fg=c['text_primary'], width=30,
+            insertbackground=c['primary'])
+        password_entry.pack(fill=tk.X, pady=(5, 1), ipady=10)
+        tk.Frame(card, bg=c['primary'], height=2).pack(fill=tk.X, pady=(0, 22))
+        self._anim.bind_entry_glow(password_entry, '#eef2f7', '#dbeafe')
 
-        # Login button
-        login_btn = tk.Button(card, text="🔐  LOGIN TO CONTROL CENTER",
-                              command=self.attempt_login,
-                              bg=self.colors['primary'], fg=self.colors['white'],
-                              font=("Segoe UI", 12, "bold"), relief=tk.FLAT,
-                              cursor='hand2', padx=20, pady=12,
-                              activebackground='#17223b', activeforeground='white')
-        login_btn.pack(fill=tk.X, pady=(10, 10))
-        # Animated shimmer hover + press feedback on login button
-        self._anim.bind_shimmer_hover(login_btn, self.colors['primary'], self.colors.get('gradient_start', '#17223b'))
-        login_btn.bind('<ButtonPress-1>', lambda e: self._anim.button_press_effect(login_btn), add='+')
+        # ─ Primary login button ─
+        login_btn = tk.Button(
+            card, text="🔐   SIGN IN  →",
+            command=self.attempt_login,
+            bg=c['primary'], fg=c['white'],
+            font=("Segoe UI", 11, "bold"), relief=tk.FLAT,
+            cursor='hand2', pady=13)
+        login_btn.pack(fill=tk.X, pady=(0, 6))
+        self._anim.bind_shimmer_hover(
+            login_btn, c['primary'], c.get('gradient_start', '#17223b') or '#17223b')
+        login_btn.bind('<ButtonPress-1>',
+                       lambda e: self._anim.button_press_effect(login_btn), add='+')
 
-        # Change password button
-        cp_btn = tk.Button(card, text="🔄 Change Password",
-                  command=self.show_change_password,
-                  bg=self.colors['secondary'] if 'secondary' in self.colors else '#17223b',
-                  fg=self.colors['white'], font=("Segoe UI", 10), relief=tk.FLAT,
-                  cursor='hand2', pady=6)
-        cp_btn.pack(fill=tk.X, pady=(0, 15))
-        self._anim.bind_shimmer_hover(cp_btn,
-                                      self.colors['secondary'] if 'secondary' in self.colors else '#17223b',
-                                      '#2c3e50')
-        # Store card for shake animation reference
-        self._login_card = card
+        # ─ Status message ─
+        self.login_status = tk.Label(
+            card, text="", font=("Segoe UI", 9),
+            bg=c['surface'], fg=c['danger'], wraplength=400)
+        self.login_status.pack(pady=(2, 10))
 
-        # Status label
-        self.login_status = tk.Label(card, text="", font=("Segoe UI", 10),
-                                     bg=self.colors['surface'], fg=self.colors['danger'])
-        self.login_status.pack()
+        # ─ Divider ─
+        tk.Frame(card, bg='#dde3ea', height=1).pack(fill=tk.X, pady=(0, 12))
 
-        # Separator
-        tk.Frame(card, bg=self.colors.get('border', '#dee2e6'), height=1).pack(fill=tk.X, pady=15)
+        # ─ Ghost secondary button ─
+        cp_btn = tk.Button(
+            card, text="🔄  Change Password",
+            command=self.show_change_password,
+            bg=c['surface'], fg=c['text_secondary'],
+            font=("Segoe UI", 9), relief=tk.FLAT, cursor='hand2', pady=6)
+        cp_btn.pack(fill=tk.X, pady=(0, 14))
+        self._anim.bind_shimmer_hover(
+            cp_btn, c['surface'],
+            c.get('light_blue', '#ecf4ff') or '#ecf4ff')
 
-        # Theme selector
-        theme_frame = tk.Frame(card, bg=self.colors['surface'])
-        theme_frame.pack(fill=tk.X)
-        tk.Label(theme_frame, text="Theme:", bg=self.colors['surface'],
-                 fg=self.colors['text_secondary'], font=("Segoe UI", 9)).pack(side=tk.LEFT)
+        # ─ Theme selector ─
+        theme_row = tk.Frame(card, bg=c['surface'])
+        theme_row.pack(fill=tk.X)
+        tk.Label(theme_row, text="🎨  Theme:", bg=c['surface'],
+                 fg=c['text_secondary'], font=("Segoe UI", 9)).pack(side=tk.LEFT)
         if not hasattr(self, 'theme_var'):
             self.theme_var = tk.StringVar(value=self.current_theme)
-        theme_combo = ttk.Combobox(theme_frame, textvariable=self.theme_var,
-                                   values=["light", "dark", "pink"],
-                                   state="readonly", width=10, font=("Segoe UI", 9))
-        theme_combo.pack(side=tk.LEFT, padx=5)
+        theme_combo = ttk.Combobox(
+            theme_row, textvariable=self.theme_var,
+            values=["light", "dark", "pink"],
+            state="readonly", width=10, font=("Segoe UI", 9))
+        theme_combo.pack(side=tk.LEFT, padx=8)
         theme_combo.bind("<<ComboboxSelected>>", self.change_theme)
 
-        # Footer
-        footer = tk.Frame(self.root, bg=self.colors['primary'], height=40)
+        # Store card ref for shake animation
+        self._login_card = card
+
+        # ── Footer ─────────────────────────────────────────────────────────────
+        footer = tk.Frame(self.root, bg=c['primary'], height=38)
         footer.pack(fill=tk.X, side=tk.BOTTOM)
         footer.pack_propagate(False)
-        tk.Label(footer, text="Exam Shield Premium © 2024 | Group A73, A74, A77",
-                 font=("Segoe UI", 8), bg=self.colors['primary'], fg='#7fa8cc').pack(pady=12)
+        tk.Label(footer,
+                 text="Exam Shield Premium © 2024  ·  Group A73, A74, A77",
+                 font=("Segoe UI", 8), bg=c['primary'], fg='#6f9fc0').pack(pady=11)
 
-        # Key bindings
+        # ── Key bindings ─────────────────────────────────────────────────────────
         password_entry.bind("<Return>", lambda e: self.attempt_login())
         username_entry.bind("<Return>", lambda e: password_entry.focus())
         username_entry.focus()

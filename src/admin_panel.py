@@ -320,7 +320,7 @@ class AdminPanel:
         notebook_container.pack(fill=tk.BOTH, expand=True, padx=15, pady=15)
         modules = [('keyboard', '🔤 Keyboard Shortcuts Blocking', 'Block Alt+Tab, Ctrl+Alt+Del, etc.'), ('mouse', '🖱️ Mouse Button Restrictions', 'Block middle, back, forward buttons'), ('internet', '🌐 Internet Access Blocking', 'Complete internet disconnection'), ('windows', '🪟 Window Protection', 'Prevent closing/minimizing windows'), ('processes', '🔍 Process Monitoring', 'Auto-terminate suspicious processes')]
         for key, title, desc in modules:
-            card = tk.Frame(options, bg=self.colors['card'], relief=tk.FLAT, bd=1)
+            card = tk.Frame(options , bg=self.colors['card'], relief=tk.FLAT, bd=1)
             card.pack(fill=tk.X, pady=(0, 10))
             content = tk.Frame(card, bg=self.colors['card'])
             content.pack(fill=tk.X, padx=15, pady=12)
@@ -328,10 +328,10 @@ class AdminPanel:
             self.selective_vars[key] = var
             tk.Checkbutton(content, text=title, variable=var, font=('Segoe UI', 11, 'bold'), bg=self.colors['card'], fg=self.colors['text_primary'], selectcolor=self.colors['card'], activebackground=self.colors['card']).pack(anchor=tk.W)
             tk.Label(content, text=desc, font=('Segoe UI', 9), bg=self.colors['card'], fg=self.colors['text_secondary']).pack(anchor=tk.W, padx=20, pady=(2, 0))
-        btns = tk.Frame(dialog, bg=self.colors['surface'])
+        btns = tk.Frame(dialog , bg=self.colors['surface'])
         btns.pack(fill=tk.X, padx=40, pady=20)
         tk.Button(btns, text='🚀 START SELECTED LOCKDOWN', command=lambda: self.start_selective_lockdown(dialog), bg=self.colors['success'], fg=self.colors['card'], font=('Segoe UI', 11, 'bold'), relief=tk.FLAT, pady=10, cursor='hand2').pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 10))
-        tk.Button(btns, text='❌ CANCEL', command=dialog.destroy, bg=self.colors['danger'], fg=self.colors['card'], font=('Segoe UI', 11, 'bold'), relief=tk.FLAT, pady=10, cursor='hand2').pack(side=tk.RIGHT, fill=tk.X, expand=True, padx=(10, 0))
+        tk.Button(btns, text='❌ CANCEL', command=dialog .destroy, bg=self.colors['danger'], fg=self.colors['card'], font=('Segoe UI', 11, 'bold'), relief=tk.FLAT, pady=10, cursor='hand2').pack(side=tk.RIGHT, fill=tk.X, expand=True, padx=(10, 0))
 
     def start_selective_lockdown(self, dialog):
         """Start lockdown with selected options"""

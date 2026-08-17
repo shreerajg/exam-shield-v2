@@ -32,8 +32,9 @@ class AdminPanel:
         self.security_manager.set_admin_panel(self)
         self.setup_window()
         self.setup_ui()
-        anim = theme.AnimationManager(self.window)
-        anim.fade_in(self.window, duration=400)
+        # Fade-in entrance for the admin panel window
+        self._anim = theme.AnimationManager(self.window)
+        self._anim.fade_in(self.window, duration=400)
         self.start_auto_refresh()
 
     def load_theme(self, theme_name):
@@ -180,6 +181,9 @@ class AdminPanel:
         x = dialog.winfo_screenwidth() // 2 - 250
         y = dialog.winfo_screenheight() // 2 - 300
         dialog.geometry(f'500x600+{x}+{y}')
+        # Fade dialog in
+        anim = theme.AnimationManager(dialog)
+        anim.fade_in(dialog, duration=250)
         header = tk.Frame(dialog, bg=self.colors['primary'], height=60)
         header.pack(fill=tk.X)
         header.pack_propagate(False)
@@ -385,10 +389,15 @@ class AdminPanel:
             controls_grid.columnconfigure(i, weight=1)
 
     def create_premium_button(self, parent, text, command, bg_color, pack_side='left', **kwargs):
-        """Create a premium styled button"""
-        btn = tk.Button(parent, text=text, command=command, bg=bg_color, fg=self.colors['card'], font=('Segoe UI', 10, 'bold'), relief=tk.FLAT, cursor='hand2', padx=15, pady=10, **kwargs)
-        mod_components = theme.ModernComponents(theme.get_theme(self.current_theme))
-        mod_components.bind_hover(btn, bg_color, self.darken_color(bg_color))
+        """Create a premium styled button with animated hover and press feedback."""
+        btn = tk.Button(parent, text=text, command=command, bg=bg_color, fg=self.colors['card'],
+                        font=('Segoe UI', 10, 'bold'), relief=tk.FLAT, cursor='hand2',
+                        padx=15, pady=10, **kwargs)
+        # Compute hover colour via darken
+        hover_color = self.darken_color(bg_color)
+        anim = theme.AnimationManager(btn)
+        anim.bind_shimmer_hover(btn, bg_color, hover_color)
+        btn.bind('<ButtonPress-1>', lambda e: anim.button_press_effect(btn), add='+')
         if not pack_side or pack_side == 'grid':
             pass
         elif pack_side == 'right':
@@ -476,15 +485,15 @@ class AdminPanel:
 
     def refresh_status(self):
         info = self.security_manager.get_system_info() or {}
-        anim_manager = theme.AnimationManager(self.window)
         if self.security_manager.is_exam_mode:
-            self.status_label.config(text='🔒 LOCKDOWN MODE: ACTIVE')
-            anim_manager.pulse_label_color(self.status_label, self.colors['danger'], '#ff8a80', duration=1200)
+            status_text = '🔒 LOCKDOWN MODE: ACTIVE'
+            self._anim.typewriter(self.status_label, status_text, char_delay=30)
+            self._anim.pulse_label_color(self.status_label, self.colors['danger'], '#ff8a80', duration=1200)
         else:
             if hasattr(self.status_label, '_pulse_after_id'):
                 try:
                     self.status_label.after_cancel(self.status_label._pulse_after_id)
-                except:
+                except Exception:
                     pass
             self.status_label.config(text='🔓 LOCKDOWN MODE: INACTIVE', fg=self.colors['success'])
         cpu = info.get('cpu_percent', 0.0)

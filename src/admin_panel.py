@@ -41,9 +41,28 @@ class AdminPanel:
         t = theme.get_theme(theme_name)
         tc = t.colors
         if theme_name == 'light':
-            self.colors = {'primary': '#1e3d59', 'secondary': '#17223b', 'accent': '#ffc947', 'success': '#27ae60', 'warning': '#f39c12', 'danger': '#e74c3c', 'info': '#3498db', 'surface': '#f8f9fa', 'card': '#ffffff', 'text_primary': '#2c3e50', 'text_secondary': '#7f8c8d'}
+            self.colors = {
+                'primary': '#1e3d59', 'secondary': '#17223b', 'accent': '#ffc947',
+                'success': '#27ae60', 'warning': '#f39c12', 'danger': '#e74c3c',
+                'info': '#3498db', 'surface': '#f0f4f8', 'card': '#ffffff',
+                'text_primary': '#2c3e50', 'text_secondary': '#7f8c8d',
+                'border': '#dee2e6', 'light_blue': '#ecf4ff',
+                'light_green': '#e8f5e8', 'light_red': '#ffebee',
+                'light_yellow': '#fff8e1', 'white': '#ffffff',
+            }
         else:
-            self.colors = {'primary': tc['primary'], 'secondary': tc['secondary'], 'accent': tc['warning'], 'success': tc['success'], 'warning': tc['warning'], 'danger': tc['danger'], 'info': tc['info'], 'surface': tc['surface'], 'card': tc['card'], 'text_primary': tc['text_primary'], 'text_secondary': tc['text_secondary']}
+            self.colors = {
+                'primary': tc['primary'], 'secondary': tc.get('secondary', '#17223b'),
+                'accent': tc.get('warning', '#ffc947'), 'success': tc['success'],
+                'warning': tc['warning'], 'danger': tc['danger'], 'info': tc['info'],
+                'surface': tc['surface'], 'card': tc['card'],
+                'text_primary': tc['text_primary'], 'text_secondary': tc['text_secondary'],
+                'border': tc.get('border', '#dee2e6'), 'light_blue': tc.get('light_blue', '#ecf4ff'),
+                'light_green': tc.get('light_green', '#e8f5e8'),
+                'light_red': tc.get('light_red', '#ffebee'),
+                'light_yellow': tc.get('light_yellow', '#fff8e1'),
+                'white': '#ffffff',
+            }
         self.window.configure(bg=self.colors['surface'])
 
     def change_theme(self, event=None):
@@ -71,44 +90,69 @@ class AdminPanel:
         self.refresh_status()
 
     def setup_ui(self):
-        header_frame = tk.Frame(self.window, bg=self.colors['primary'], height=70)
-        header_frame.pack(fill=tk.X)
-        header_frame.pack_propagate(False)
-        header_content = tk.Frame(header_frame, bg=self.colors['primary'])
-        header_content.pack(fill=tk.BOTH, expand=True, padx=20, pady=15)
-        logo_label = tk.Label(header_content, text='🛡️', font=('Segoe UI', 24), bg=self.colors['primary'], fg=self.colors['accent'])
-        logo_label.pack(side=tk.LEFT, padx=(0, 15))
-        title_frame = tk.Frame(header_content, bg=self.colors['primary'])
-        title_frame.pack(side=tk.LEFT, fill=tk.Y)
-        main_title = tk.Label(title_frame, text='EXAM SHIELD PREMIUM', font=('Segoe UI', 18, 'bold'), bg=self.colors['primary'], fg=self.colors['card'])
-        main_title.pack(anchor=tk.W)
-        subtitle = tk.Label(title_frame, text='Administrative Control Center', font=('Segoe UI', 10), bg=self.colors['primary'], fg=self.colors['light_blue'])
-        subtitle.pack(anchor=tk.W)
-        indicators_frame = ttk.Frame(self.security_status_frame)
-        indicators_frame.pack(anchor=tk.W, pady=(2, 0))
-        self.keyboard_status = ttk.Label(indicators_frame, text='⚫ Keyboard', foreground='gray')
-        self.keyboard_status.pack(side=tk.LEFT, padx=(0, 15))
-        self.mouse_status = ttk.Label(indicators_frame, text='⚫ Mouse', foreground='gray')
-        self.mouse_status.pack(side=tk.LEFT, padx=(0, 15))
-        self.network_status = ttk.Label(indicators_frame, text='⚫ Network', foreground='gray')
-        self.network_status.pack(side=tk.LEFT, padx=(0, 15))
-        self.window_status = ttk.Label(indicators_frame, text='⚫ Windows', foreground='gray')
-        self.window_status.pack(side=tk.LEFT, padx=(0, 15))
-        control_buttons_frame = ttk.LabelFrame(control_frame, text='Exam Controls', padding='10')
-        control_buttons_frame.pack(fill=tk.X, padx=10, pady=5)
-        button_frame = ttk.Frame(control_buttons_frame)
-        button_frame.pack(fill=tk.X)
-        self.start_btn = ttk.Button(button_frame, text='🔒 START SELECTIVE LOCKDOWN', command=self.show_selective_lockdown_dialog, style='Accent.TButton')
-        self.start_btn.pack(side=tk.LEFT, padx=(0, 10))
-        self.stop_btn = ttk.Button(button_frame, text='🔓 END LOCKDOWN MODE', command=self.stop_exam_mode, state=tk.DISABLED)
-        self.stop_btn.pack(side=tk.LEFT, padx=(0, 10))
-        self.emergency_btn = ttk.Button(button_frame, text='🚨 EMERGENCY STOP', command=self.emergency_stop)
-        self.emergency_btn.pack(side=tk.RIGHT)
-        self.create_individual_controls(control_frame)
-        threat_frame = ttk.LabelFrame(control_frame, text='Threat Detection', padding='10')
-        threat_frame.pack(fill=tk.X, padx=10, pady=5)
-        self.threat_label = ttk.Label(threat_frame, text='No threats detected', foreground='green')
-        self.threat_label.pack(anchor=tk.W)
+        """Build the admin panel: header bar, gold accent strip, dark nav bar, content area."""
+        c = self.colors
+        nav_bg = c.get('secondary', '#17223b') or '#17223b'
+
+        # ── Header bar ──────────────────────────────────────────────────────────
+        header = tk.Frame(self.window, bg=c['primary'], height=65)
+        header.pack(fill=tk.X)
+        header.pack_propagate(False)
+        hc = tk.Frame(header, bg=c['primary'])
+        hc.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
+
+        tk.Label(hc, text='🛡️', font=('Segoe UI', 22),
+                 bg=c['primary'], fg=c['accent']).pack(side=tk.LEFT, padx=(0, 12))
+        tf = tk.Frame(hc, bg=c['primary'])
+        tf.pack(side=tk.LEFT, fill=tk.Y)
+        tk.Label(tf, text='EXAM SHIELD PREMIUM',
+                 font=('Segoe UI', 16, 'bold'),
+                 bg=c['primary'], fg='#ffffff').pack(anchor=tk.W)
+        tk.Label(tf, text='Administrative Control Center',
+                 font=('Segoe UI', 9),
+                 bg=c['primary'], fg='#7fa8cc').pack(anchor=tk.W)
+
+        # Theme selector on the right
+        tr = tk.Frame(hc, bg=c['primary'])
+        tr.pack(side=tk.RIGHT, fill=tk.Y)
+        tk.Label(tr, text='🎨  Theme:', bg=c['primary'],
+                 fg='#7fa8cc', font=('Segoe UI', 9)).pack(side=tk.LEFT, padx=(0, 6))
+        if not hasattr(self, 'theme_var'):
+            self.theme_var = tk.StringVar(value=self.current_theme)
+        combo = ttk.Combobox(tr, textvariable=self.theme_var,
+                             values=['light', 'dark', 'pink'],
+                             state='readonly', width=8, font=('Segoe UI', 9))
+        combo.pack(side=tk.LEFT)
+        combo.bind('<<ComboboxSelected>>', self.change_theme)
+
+        # Gold accent strip
+        tk.Frame(self.window, bg=c.get('accent', '#ffc947'), height=3).pack(fill=tk.X)
+
+        # ── Navigation bar ─────────────────────────────────────────────────────
+        nav = tk.Frame(self.window, bg=nav_bg, height=44)
+        nav.pack(fill=tk.X)
+        nav.pack_propagate(False)
+        self.tab_buttons = {}
+        for key, label in [
+            ('control',  '🎯   Control Center'),
+            ('monitor',  '📊   Live Monitor'),
+            ('settings', '⚙️   Settings'),
+            ('logs',     '📋   Security Logs'),
+        ]:
+            btn = tk.Button(nav, text=label,
+                            font=('Segoe UI', 10),
+                            bg=nav_bg, fg='#8ab4cc',
+                            relief=tk.FLAT, cursor='hand2',
+                            padx=18, pady=10, bd=0)
+            btn.pack(side=tk.LEFT)
+            self.tab_buttons[key] = btn
+
+        # ── Content area ─────────────────────────────────────────────────────
+        self.tab_content = tk.Frame(self.window, bg=c['surface'])
+        self.tab_content.pack(fill=tk.BOTH, expand=True)
+
+        # Show the control tab first
+        self.switch_tab('control', self.show_control_tab)
 
     def create_control_tab(self):
         frame = ttk.Frame(self.notebook)
@@ -234,25 +278,31 @@ class AdminPanel:
         return frame
 
     def create_card(self, parent, title=None, icon=None):
-        """Create a styled card container"""
-        card_container = tk.Frame(parent, bg=self.colors['surface'])
-        shadow_frame = tk.Frame(card_container, bg='#dee2e6', height=2)
-        shadow_frame.pack(fill=tk.X, pady=(2, 0))
-        card = tk.Frame(card_container, bg=self.colors['card'], relief=tk.FLAT, bd=0)
-        card.pack(fill=tk.BOTH, expand=True, pady=(0, 2))
+        """Create a styled card with a left-accent-pip header (modern look)."""
+        c = self.colors
+        container = tk.Frame(parent, bg=c['surface'])
+        card = tk.Frame(container, bg=c['card'], relief=tk.FLAT, bd=0)
+        card.pack(fill=tk.BOTH, expand=True)
+        # Thin shadow line at bottom
+        tk.Frame(container, bg='#c8cdd4', height=2).pack(fill=tk.X)
         if title:
-            header = tk.Frame(card, bg=self.colors['primary'], height=50)
-            header.pack(fill=tk.X)
-            header.pack_propagate(False)
+            # Header row: left-accent pip + optional icon + title
+            hdr = tk.Frame(card, bg=c['card'])
+            hdr.pack(fill=tk.X, padx=16, pady=(14, 0))
+            # 4px colored accent pip
+            tk.Frame(hdr, bg=c['primary'], width=4,
+                     height=20).pack(side=tk.LEFT, padx=(0, 10))
             if icon:
-                icon_label = tk.Label(header, text=icon, font=('Segoe UI', 16), bg=self.colors['primary'], fg=self.colors['accent'])
-                icon_label.pack(side=tk.LEFT, padx=(15, 10), pady=15)
-            title_label = tk.Label(header, text=title, font=('Segoe UI', 14, 'bold'), bg=self.colors['primary'], fg=self.colors['card'])
-            title_label.pack(side=tk.LEFT, pady=15)
-            content = tk.Frame(card, bg=self.colors['card'])
-            content.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
-            return (card_container, content)
-        return (card_container, card)
+                tk.Label(hdr, text=icon, font=('Segoe UI', 12),
+                         bg=c['card'], fg=c['primary']).pack(side=tk.LEFT, padx=(0, 5))
+            tk.Label(hdr, text=title, font=('Segoe UI', 11, 'bold'),
+                     bg=c['card'], fg=c['primary']).pack(side=tk.LEFT)
+            # Thin separator
+            tk.Frame(card, bg='#e8ecf0', height=1).pack(fill=tk.X, padx=16, pady=(10, 0))
+            content = tk.Frame(card, bg=c['card'])
+            content.pack(fill=tk.BOTH, expand=True, padx=16, pady=12)
+            return (container, content)
+        return (container, card)
 
     def setup_notebook(self, parent):
         """Setup the main tabbed interface with premium styling"""
@@ -318,19 +368,17 @@ class AdminPanel:
         sb.pack(side=tk.RIGHT, fill=tk.Y, padx=(0, 20), pady=20)
 
     def switch_tab(self, tab_key, tab_function):
-        """Switch between tabs with visual feedback"""
-        mod_components = theme.ModernComponents(theme.get_theme(self.current_theme))
+        """Switch tabs and update active nav button style."""
+        nav_bg = self.colors.get('secondary', '#17223b') or '#17223b'
+        active_bg = self.colors['primary']
         for key, btn in self.tab_buttons.items():
-            try:
-                btn.unbind('<Enter>')
-                btn.unbind('<Leave>')
-            except:
-                pass
             if key == tab_key:
-                btn.config(bg=self.colors['primary'], fg=self.colors['card'])
+                btn.config(bg=active_bg, fg='#ffffff', font=('Segoe UI', 10, 'bold'))
             else:
-                btn.config(bg=self.colors['surface'], fg=self.colors['text_primary'])
-                mod_components.bind_hover(btn, self.colors['surface'], self.colors.get('light_blue', '#ecf4ff'))
+                btn.config(bg=nav_bg, fg='#8ab4cc', font=('Segoe UI', 10))
+                # Subtle hover on inactive buttons
+                anim = theme.AnimationManager(btn)
+                anim.bind_shimmer_hover(btn, nav_bg, '#2d4a61')
         for widget in self.tab_content.winfo_children():
             widget.destroy()
         self.current_tab = tab_key
@@ -484,11 +532,23 @@ class AdminPanel:
         self.logs_text.pack(fill=tk.BOTH, expand=True)
 
     def refresh_status(self):
+        """Update status indicators (no-op if widgets have been destroyed)."""
+        # Guard: if the control tab is not visible, widgets may be destroyed
+        if not hasattr(self, 'status_label'):
+            return
+        try:
+            if not self.status_label.winfo_exists():
+                return
+        except Exception:
+            return
         info = self.security_manager.get_system_info() or {}
         if self.security_manager.is_exam_mode:
             status_text = '🔒 LOCKDOWN MODE: ACTIVE'
-            self._anim.typewriter(self.status_label, status_text, char_delay=30)
-            self._anim.pulse_label_color(self.status_label, self.colors['danger'], '#ff8a80', duration=1200)
+            if hasattr(self, '_anim'):
+                self._anim.typewriter(self.status_label, status_text, char_delay=30)
+                self._anim.pulse_label_color(self.status_label, self.colors['danger'], '#ff8a80', duration=1200)
+            else:
+                self.status_label.config(text=status_text, fg=self.colors['danger'])
         else:
             if hasattr(self.status_label, '_pulse_after_id'):
                 try:
@@ -499,11 +559,23 @@ class AdminPanel:
         cpu = info.get('cpu_percent', 0.0)
         mem = info.get('memory_percent', 0.0)
         procs = info.get('active_processes', 0)
-        self.system_info_label.config(text=f'CPU: {cpu:.1f}% | RAM: {mem:.1f}% | Processes: {procs}')
-        self.keyboard_status.config(text='✅ Keyboard' if info.get('hooks_active') else '⚫ Keyboard', fg=self.colors['success'] if info.get('hooks_active') else self.colors['text_secondary'])
-        self.mouse_status.config(text='✅ Mouse' if info.get('mouse_blocking') else '⚫ Mouse', fg=self.colors['success'] if info.get('mouse_blocking') else self.colors['text_secondary'])
-        self.network_status.config(text='✅ Network' if info.get('internet_blocked') else '⚫ Network', fg=self.colors['success'] if info.get('internet_blocked') else self.colors['text_secondary'])
-        self.window_status.config(text='✅ Windows' if info.get('window_protection') else '⚫ Windows', fg=self.colors['success'] if info.get('window_protection') else self.colors['text_secondary'])
+        try:
+            self.system_info_label.config(
+                text=f'CPU: {cpu:.1f}%  |  RAM: {mem:.1f}%  |  Processes: {procs}')
+            self.keyboard_status.config(
+                text='✅ Keyboard' if info.get('hooks_active') else '⚫ Keyboard',
+                fg=self.colors['success'] if info.get('hooks_active') else self.colors['text_secondary'])
+            self.mouse_status.config(
+                text='✅ Mouse' if info.get('mouse_blocking') else '⚫ Mouse',
+                fg=self.colors['success'] if info.get('mouse_blocking') else self.colors['text_secondary'])
+            self.network_status.config(
+                text='✅ Network' if info.get('internet_blocked') else '⚫ Network',
+                fg=self.colors['success'] if info.get('internet_blocked') else self.colors['text_secondary'])
+            self.window_status.config(
+                text='✅ Windows' if info.get('window_protection') else '⚫ Windows',
+                fg=self.colors['success'] if info.get('window_protection') else self.colors['text_secondary'])
+        except Exception:
+            pass  # Widgets destroyed during tab switch
 
     def start_auto_refresh(self):
 

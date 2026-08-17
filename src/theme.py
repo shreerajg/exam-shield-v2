@@ -741,15 +741,9 @@ class ModernComponents:
         self.theme = theme
         
     def bind_hover(self, widget, normal_bg, hover_bg):
-        """Bind modern hover effects to a widget"""
-        def on_enter(e):
-            if widget.cget('state') != 'disabled':
-                widget.config(bg=hover_bg)
-        def on_leave(e):
-            if widget.cget('state') != 'disabled':
-                widget.config(bg=normal_bg)
-        widget.bind('<Enter>', on_enter, add='+')
-        widget.bind('<Leave>', on_leave, add='+')
+        """Bind smooth animated hover colour transition to a widget."""
+        anim = AnimationManager(widget)
+        anim.bind_shimmer_hover(widget, normal_bg, hover_bg)
     
     def create_card(self, parent, title=None, **kwargs):
         """Create a modern card component"""
@@ -770,39 +764,40 @@ class ModernComponents:
         return card_frame
     
     def create_icon_button(self, parent, icon, text, command, style='primary'):
-        """Create modern icon button"""
+        """Create modern icon button with animated hover."""
         colors = {
             'primary': (self.theme.colors['primary'], self.theme.colors['text_inverse']),
             'success': (self.theme.colors['success'], self.theme.colors['text_inverse']),
             'danger': (self.theme.colors['danger'], self.theme.colors['text_inverse']),
             'warning': (self.theme.colors['warning'], self.theme.colors['text_inverse']),
         }
-        
+
         bg_color, fg_color = colors.get(style, colors['primary'])
-        
+        hover_colors = {
+            'primary': self.theme.colors['primary_hover'],
+            'success': self.theme.colors['secondary_dark'],
+            'danger':  '#c0392b',
+            'warning': '#e67e22',
+        }
+        hover_bg = hover_colors.get(style, self.theme.colors['primary_hover'])
+
         button = tk.Button(parent,
-                          text=f"{icon}  {text}",
-                          command=command,
-                          bg=bg_color,
-                          fg=fg_color,
-                          font=self.theme.fonts['body_bold'],
-                          relief='flat',
-                          bd=0,
-                          cursor='hand2',
-                          padx=20,
-                          pady=12)
-        
-        # Add hover effects
-        def on_enter(e):
-            if style == 'primary':
-                button.config(bg=self.theme.colors['primary_hover'])
-        
-        def on_leave(e):
-            button.config(bg=bg_color)
-        
-        button.bind('<Enter>', on_enter)
-        button.bind('<Leave>', on_leave)
-        
+                           text=f"{icon}  {text}",
+                           command=command,
+                           bg=bg_color,
+                           fg=fg_color,
+                           font=self.theme.fonts['body_bold'],
+                           relief='flat',
+                           bd=0,
+                           cursor='hand2',
+                           padx=20,
+                           pady=12)
+
+        anim = AnimationManager(button)
+        anim.bind_shimmer_hover(button, bg_color, hover_bg)
+        # Press feedback
+        button.bind('<ButtonPress-1>', lambda e: anim.button_press_effect(button), add='+')
+
         return button
     
     def create_status_indicator(self, parent, status='inactive'):

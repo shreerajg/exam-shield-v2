@@ -55,6 +55,9 @@ class ExamShield:
 
         self.setup_ui()
         self.center_window()
+        # Animate window in after centering
+        self._anim = theme.AnimationManager(self.root)
+        self._anim.fade_in(self.root, duration=350)
 
     # ── Theme ────────────────────────────────────────────────────────────────
 
@@ -139,6 +142,7 @@ class ExamShield:
         username_entry = tk.Entry(card, textvariable=self.username_var, font=("Segoe UI", 12),
                                   relief=tk.FLAT, bd=5, bg='white', width=30)
         username_entry.pack(fill=tk.X, pady=(3, 15), ipady=8)
+        self._anim.bind_entry_glow(username_entry, normal_color='white', focus_color='#dbeafe')
 
         # Password
         tk.Label(card, text="🔑 Password", font=("Segoe UI", 10, "bold"),
@@ -147,6 +151,7 @@ class ExamShield:
         password_entry = tk.Entry(card, textvariable=self.password_var, show="*",
                                   font=("Segoe UI", 12), relief=tk.FLAT, bd=5, bg='white', width=30)
         password_entry.pack(fill=tk.X, pady=(3, 20), ipady=8)
+        self._anim.bind_entry_glow(password_entry, normal_color='white', focus_color='#dbeafe')
 
         # Login button
         login_btn = tk.Button(card, text="🔐  LOGIN TO CONTROL CENTER",
@@ -156,9 +161,9 @@ class ExamShield:
                               cursor='hand2', padx=20, pady=12,
                               activebackground='#17223b', activeforeground='white')
         login_btn.pack(fill=tk.X, pady=(10, 10))
-        
-        mod_components = theme.ModernComponents(theme.get_theme(self.current_theme))
-        mod_components.bind_hover(login_btn, self.colors['primary'], self.colors.get('gradient_start', '#17223b'))
+        # Animated shimmer hover + press feedback on login button
+        self._anim.bind_shimmer_hover(login_btn, self.colors['primary'], self.colors.get('gradient_start', '#17223b'))
+        login_btn.bind('<ButtonPress-1>', lambda e: self._anim.button_press_effect(login_btn), add='+')
 
         # Change password button
         cp_btn = tk.Button(card, text="🔄 Change Password",
@@ -167,7 +172,11 @@ class ExamShield:
                   fg=self.colors['white'], font=("Segoe UI", 10), relief=tk.FLAT,
                   cursor='hand2', pady=6)
         cp_btn.pack(fill=tk.X, pady=(0, 15))
-        mod_components.bind_hover(cp_btn, self.colors['secondary'] if 'secondary' in self.colors else '#17223b', '#2c3e50')
+        self._anim.bind_shimmer_hover(cp_btn,
+                                      self.colors['secondary'] if 'secondary' in self.colors else '#17223b',
+                                      '#2c3e50')
+        # Store card for shake animation reference
+        self._login_card = card
 
         # Status label
         self.login_status = tk.Label(card, text="", font=("Segoe UI", 10),
@@ -220,6 +229,9 @@ class ExamShield:
         else:
             self.login_status.config(text="❌ Invalid credentials. Please try again.", fg=self.colors['danger'])
             self.password_var.set("")
+            # Shake the login card to signal failure
+            if hasattr(self, '_login_card') and hasattr(self, '_anim'):
+                self._anim.shake(self._login_card, intensity=10, cycles=4, duration=300)
 
     def show_change_password(self):
         dialog = tk.Toplevel(self.root)

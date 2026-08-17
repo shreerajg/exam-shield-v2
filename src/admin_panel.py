@@ -42,13 +42,23 @@ class AdminPanel:
         tc = t.colors
         if theme_name == 'light':
             self.colors = {
-                'primary': '#1e3d59', 'secondary': '#17223b', 'accent': '#ffc947',
-                'success': '#27ae60', 'warning': '#f39c12', 'danger': '#e74c3c',
-                'info': '#3498db', 'surface': '#f0f4f8', 'card': '#ffffff',
-                'text_primary': '#2c3e50', 'text_secondary': '#7f8c8d',
-                'border': '#dee2e6', 'light_blue': '#ecf4ff',
-                'light_green': '#e8f5e8', 'light_red': '#ffebee',
-                'light_yellow': '#fff8e1', 'white': '#ffffff',
+                'primary':        '#1565c0',   # clear medium blue
+                'secondary':      '#f1f5f9',   # very light gray (nav bg — airy, not dark)
+                'accent':         '#f59e0b',   # warm amber
+                'success':        '#16a34a',
+                'warning':        '#f59e0b',
+                'danger':         '#dc2626',
+                'info':           '#0284c7',
+                'surface':        '#f0f7ff',   # light blue-tinted page bg
+                'card':           '#ffffff',
+                'text_primary':   '#1e293b',   # dark slate
+                'text_secondary': '#64748b',   # slate gray
+                'border':         '#dbeafe',
+                'light_blue':     '#eff6ff',
+                'light_green':    '#f0fdf4',
+                'light_red':      '#fef2f2',
+                'light_yellow':   '#fffbeb',
+                'white':          '#ffffff',
             }
         else:
             self.colors = {
@@ -141,7 +151,7 @@ class AdminPanel:
         ]:
             btn = tk.Button(nav, text=label,
                             font=('Segoe UI', 10),
-                            bg=nav_bg, fg='#8ab4cc',
+                            bg=nav_bg, fg='#475569',
                             relief=tk.FLAT, cursor='hand2',
                             padx=18, pady=10, bd=0)
             btn.pack(side=tk.LEFT)
@@ -369,16 +379,16 @@ class AdminPanel:
 
     def switch_tab(self, tab_key, tab_function):
         """Switch tabs and update active nav button style."""
-        nav_bg = self.colors.get('secondary', '#17223b') or '#17223b'
+        nav_bg = self.colors.get('secondary', '#f1f5f9') or '#f1f5f9'
         active_bg = self.colors['primary']
         for key, btn in self.tab_buttons.items():
             if key == tab_key:
                 btn.config(bg=active_bg, fg='#ffffff', font=('Segoe UI', 10, 'bold'))
             else:
-                btn.config(bg=nav_bg, fg='#8ab4cc', font=('Segoe UI', 10))
+                btn.config(bg=nav_bg, fg='#475569', font=('Segoe UI', 10))
                 # Subtle hover on inactive buttons
                 anim = theme.AnimationManager(btn)
-                anim.bind_shimmer_hover(btn, nav_bg, '#2d4a61')
+                anim.bind_shimmer_hover(btn, nav_bg, '#dbeafe')
         for widget in self.tab_content.winfo_children():
             widget.destroy()
         self.current_tab = tab_key

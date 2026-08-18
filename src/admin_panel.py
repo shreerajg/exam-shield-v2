@@ -8,7 +8,6 @@ import threading
 import json
 from datetime import datetime
 import keyboard
-from pynput import mouse
 from src import theme
 
 class AdminPanel:
@@ -143,17 +142,19 @@ class AdminPanel:
         nav.pack(fill=tk.X)
         nav.pack_propagate(False)
         self.tab_buttons = {}
-        for key, label in [
-            ('control',  '🎯   Control Center'),
-            ('monitor',  '📊   Live Monitor'),
-            ('settings', '⚙️   Settings'),
-            ('logs',     '📋   Security Logs'),
-        ]:
+        tab_map = [
+            ('control',  '🎯   Control Center',  self.show_control_tab),
+            ('monitor',  '📊   Live Monitor',     self.show_monitor_tab),
+            ('settings', '⚙️   Settings',         self.show_settings_tab),
+            ('logs',     '📋   Security Logs',    self.show_logs_tab),
+        ]
+        for key, label, handler in tab_map:
             btn = tk.Button(nav, text=label,
                             font=('Segoe UI', 10),
                             bg=nav_bg, fg='#475569',
                             relief=tk.FLAT, cursor='hand2',
                             padx=18, pady=10, bd=0)
+            btn.config(command=lambda k=key, h=handler: self.switch_tab(k, h))
             btn.pack(side=tk.LEFT)
             self.tab_buttons[key] = btn
 
@@ -315,23 +316,8 @@ class AdminPanel:
         return (container, card)
 
     def setup_notebook(self, parent):
-        """Setup the main tabbed interface with premium styling"""
-        notebook_container = tk.Frame(parent, bg=self.colors['surface'])
-        notebook_container.pack(fill=tk.BOTH, expand=True, padx=15, pady=15)
-        modules = [('keyboard', '🔤 Keyboard Shortcuts Blocking', 'Block Alt+Tab, Ctrl+Alt+Del, etc.'), ('mouse', '🖱️ Mouse Button Restrictions', 'Block middle, back, forward buttons'), ('internet', '🌐 Internet Access Blocking', 'Complete internet disconnection'), ('windows', '🪟 Window Protection', 'Prevent closing/minimizing windows'), ('processes', '🔍 Process Monitoring', 'Auto-terminate suspicious processes')]
-        for key, title, desc in modules:
-            card = tk.Frame(options , bg=self.colors['card'], relief=tk.FLAT, bd=1)
-            card.pack(fill=tk.X, pady=(0, 10))
-            content = tk.Frame(card, bg=self.colors['card'])
-            content.pack(fill=tk.X, padx=15, pady=12)
-            var = tk.BooleanVar(value=True)
-            self.selective_vars[key] = var
-            tk.Checkbutton(content, text=title, variable=var, font=('Segoe UI', 11, 'bold'), bg=self.colors['card'], fg=self.colors['text_primary'], selectcolor=self.colors['card'], activebackground=self.colors['card']).pack(anchor=tk.W)
-            tk.Label(content, text=desc, font=('Segoe UI', 9), bg=self.colors['card'], fg=self.colors['text_secondary']).pack(anchor=tk.W, padx=20, pady=(2, 0))
-        btns = tk.Frame(dialog , bg=self.colors['surface'])
-        btns.pack(fill=tk.X, padx=40, pady=20)
-        tk.Button(btns, text='🚀 START SELECTED LOCKDOWN', command=lambda: self.start_selective_lockdown(dialog), bg=self.colors['success'], fg=self.colors['card'], font=('Segoe UI', 11, 'bold'), relief=tk.FLAT, pady=10, cursor='hand2').pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 10))
-        tk.Button(btns, text='❌ CANCEL', command=dialog .destroy, bg=self.colors['danger'], fg=self.colors['card'], font=('Segoe UI', 11, 'bold'), relief=tk.FLAT, pady=10, cursor='hand2').pack(side=tk.RIGHT, fill=tk.X, expand=True, padx=(10, 0))
+        """Legacy stub — navigation is handled by switch_tab now."""
+        pass
 
     def start_selective_lockdown(self, dialog):
         """Start lockdown with selected options"""
@@ -570,25 +556,32 @@ class AdminPanel:
         mem = info.get('memory_percent', 0.0)
         procs = info.get('active_processes', 0)
         try:
-            self.system_info_label.config(
-                text=f'CPU: {cpu:.1f}%  |  RAM: {mem:.1f}%  |  Processes: {procs}')
-            self.keyboard_status.config(
-                text='✅ Keyboard' if info.get('hooks_active') else '⚫ Keyboard',
-                fg=self.colors['success'] if info.get('hooks_active') else self.colors['text_secondary'])
-            self.mouse_status.config(
-                text='✅ Mouse' if info.get('mouse_blocking') else '⚫ Mouse',
-                fg=self.colors['success'] if info.get('mouse_blocking') else self.colors['text_secondary'])
-            self.network_status.config(
-                text='✅ Network' if info.get('internet_blocked') else '⚫ Network',
-                fg=self.colors['success'] if info.get('internet_blocked') else self.colors['text_secondary'])
-            self.window_status.config(
-                text='✅ Windows' if info.get('window_protection') else '⚫ Windows',
-                fg=self.colors['success'] if info.get('window_protection') else self.colors['text_secondary'])
+            if hasattr(self, 'system_info_label') and self.system_info_label.winfo_exists():
+                self.system_info_label.config(
+                    text=f'CPU: {cpu:.1f}%  |  RAM: {mem:.1f}%  |  Processes: {procs}')
         except Exception:
-            pass  # Widgets destroyed during tab switch
+            pass
+        # Update module indicator dots (new tab layout uses module_indicators dict)
+        module_state_map = {
+            'keyboard': info.get('hooks_active', False),
+            'mouse':    info.get('mouse_blocking', False),
+            'network':  info.get('internet_blocked', False),
+            'windows':  info.get('window_protection', False),
+        }
+        if hasattr(self, 'module_indicators'):
+            for key, active in module_state_map.items():
+                indicator = self.module_indicators.get(key)
+                if indicator:
+                    try:
+                        if indicator.winfo_exists():
+                            indicator.config(
+                                text='🟢' if active else '⚫',
+                                fg=self.colors['success'] if active else self.colors['text_secondary'])
+                    except Exception:
+                        pass
 
     def start_auto_refresh(self):
-
+        """Start a background thread that refreshes status every 2 seconds."""
         def loop():
             while True:
                 try:
@@ -597,13 +590,9 @@ class AdminPanel:
                         threading.Event().wait(2)
                     else:
                         break
-                except:
+                except Exception:
                     break
         threading.Thread(target=loop, daemon=True).start()
-        root = tk.Tk()
-        root.withdraw()
-        messagebox.showerror('Startup Error', f'Failed to start application:\\n\\n{str(e)}')
-        root.destroy()
 
     def update_activity_feed(self):
         try:

@@ -131,6 +131,22 @@ class SecurityManager:
         except Exception as e:
             print(f"❌ Integrity check error: {e}")
 
+        if self.selective_blocking.get('usb', False):
+            print('💾 Activating USB / pendrive blocking...')
+            try:
+                # Auto-eject all currently connected drives
+                drives = self.integrity_manager.get_usb_drive_info()
+                for d in drives:
+                    ok, msg = self.integrity_manager.eject_usb_drive(d['letter'])
+                    print(f"  ⏏️ Eject {d['letter']}: {msg}")
+                # Block the USBSTOR driver so new inserts are rejected
+                if self.integrity_manager.disable_usb_storage_registry():
+                    print('✅ USB storage (USBSTOR) disabled via registry')
+                else:
+                    print('⚠️ USB registry block failed — running as Administrator?')
+            except Exception as e:
+                print(f'❌ USB blocking error: {e}')
+
         active_blocks = [k for k, v in self.selective_blocking.items() if v]
         self.db_manager.log_activity("EXAM_MODE_START", f"Selective restrictions: {', '.join(active_blocks)}")
         print(f"🔒 Selective exam mode activated - Active: {', '.join(active_blocks)}")
@@ -156,7 +172,11 @@ class SecurityManager:
                 print("✅ System Policies restored")
             if self.integrity_manager.prevent_system_sleep(False):
                 print("✅ System sleep restored")
-        except Exception as e: print(f"Error restoring System Policies/Sleep: {e}")
+            # Re-enable USB storage if it was blocked by exam mode
+            if self.selective_blocking.get('usb', False):
+                if self.integrity_manager.enable_usb_storage_registry():
+                    print("✅ USB storage (USBSTOR) re-enabled")
+        except Exception as e: print(f"Error restoring System Policies/Sleep/USB: {e}")
         
         self.db_manager.log_activity("EXAM_MODE_STOP", "All security restrictions deactivated")
         print("🔓 Full exam mode deactivated - All restrictions removed")

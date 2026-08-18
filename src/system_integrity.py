@@ -3,6 +3,7 @@ import subprocess
 import os
 import ctypes
 import winreg
+import string
 
 class SystemIntegrityManager:
     def __init__(self, logger):
@@ -139,3 +140,122 @@ class SystemIntegrityManager:
                 self.logger.log_activity("SYSTEM_ERROR", f"Failed to set thread execution state: {e}")
                 return False
         return False
+
+    # ── USB / Pendrive Management ────────────────────────────────────────────
+
+    def eject_usb_drive(self, drive_letter: str) -> tuple:
+        """Safely eject a USB drive (e.g. 'E:').  Returns (success, message)."""
+        drive_letter = drive_letter.rstrip('\\').rstrip('/').upper()
+        if not drive_letter.endswith(':'):
+            drive_letter += ':'
+        try:
+            # Use DeviceIoControl via subprocess shortcut: the 'mountvol' trick
+            # For a proper eject we call the Win32 API via ctypes
+            GENERIC_READ  = 0x80000000
+            GENERIC_WRITE = 0x40000000
+            OPEN_EXISTING = 3
+            FILE_SHARE_READ  = 0x00000001
+            FILE_SHARE_WRITE = 0x00000002
+            IOCTL_STORAGE_EJECT_MEDIA = 0x2D4808
+
+            handle = ctypes.windll.kernel32.CreateFileW(
+                f'\\\\.\\{drive_letter}',
+                GENERIC_READ | GENERIC_WRITE,
+                FILE_SHARE_READ | FILE_SHARE_WRITE,
+                None, OPEN_EXISTING, 0, None
+            )
+            INVALID_HANDLE = ctypes.c_void_p(-1).value
+            if handle == INVALID_HANDLE:
+                err = ctypes.windll.kernel32.GetLastError()
+                return (False, f'Cannot open drive handle (error {err}). Drive may already be ejected.')
+
+            bytes_returned = ctypes.c_ulong(0)
+            result = ctypes.windll.kernel32.DeviceIoControl(
+                handle, IOCTL_STORAGE_EJECT_MEDIA,
+                None, 0, None, 0,
+                ctypes.byref(bytes_returned), None
+            )
+            ctypes.windll.kernel32.CloseHandle(handle)
+
+            if result:
+                self.logger.log_activity('USB_EJECTED', f'Drive {drive_letter} safely ejected')
+                return (True, f'Drive {drive_letter} safely ejected.')
+            else:
+                err = ctypes.windll.kernel32.GetLastError()
+                return (False, f'Eject failed (error {err}). Close any files on the drive first.')
+        except Exception as e:
+            return (False, f'Eject error: {e}')
+
+    def disable_usb_storage_registry(self) -> bool:
+        """Block ALL USB mass-storage devices by setting USBSTOR Start=4 in the registry.
+        Requires Administrator.  Takes effect for newly inserted drives (existing
+        connections are not disconnected — use eject_usb_drive for that)."""
+        try:
+            key_path = r'SYSTEM\CurrentControlSet\Services\USBSTOR'
+            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key_path,
+                                 0, winreg.KEY_SET_VALUE | winreg.KEY_WOW64_64KEY)
+            winreg.SetValueEx(key, 'Start', 0, winreg.REG_DWORD, 4)  # 4 = disabled
+            winreg.CloseKey(key)
+            self.logger.log_activity('USB_BLOCKED', 'USB storage disabled via registry (USBSTOR Start=4)')
+            return True
+        except PermissionError:
+            self.logger.log_activity('USB_BLOCK_ERROR', 'Permission denied — run as Administrator to block USB storage')
+            return False
+        except Exception as e:
+            self.logger.log_activity('USB_BLOCK_ERROR', f'Failed to disable USB storage: {e}')
+            return False
+
+    def enable_usb_storage_registry(self) -> bool:
+        """Re-enable USB mass-storage devices (USBSTOR Start=3)."""
+        try:
+            key_path = r'SYSTEM\CurrentControlSet\Services\USBSTOR'
+            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key_path,
+                                 0, winreg.KEY_SET_VALUE | winreg.KEY_WOW64_64KEY)
+            winreg.SetValueEx(key, 'Start', 0, winreg.REG_DWORD, 3)  # 3 = manual / enabled
+            winreg.CloseKey(key)
+            self.logger.log_activity('USB_UNBLOCKED', 'USB storage re-enabled via registry (USBSTOR Start=3)')
+            return True
+        except PermissionError:
+            self.logger.log_activity('USB_ERROR', 'Permission denied — cannot restore USB storage')
+            return False
+        except Exception as e:
+            self.logger.log_activity('USB_ERROR', f'Failed to enable USB storage: {e}')
+            return False
+
+    def get_usbstor_status(self) -> str:
+        """Return 'blocked', 'enabled', or 'unknown'."""
+        try:
+            key_path = r'SYSTEM\CurrentControlSet\Services\USBSTOR'
+            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key_path,
+                                 0, winreg.KEY_READ | winreg.KEY_WOW64_64KEY)
+            value, _ = winreg.QueryValueEx(key, 'Start')
+            winreg.CloseKey(key)
+            return 'blocked' if value == 4 else 'enabled'
+        except Exception:
+            return 'unknown'
+
+    def get_usb_drive_info(self) -> list:
+        """Return a list of dicts with info about each connected USB drive."""
+        drives = self.get_connected_usb_drives()
+        info = []
+        for drive in drives:
+            root = drive if drive.endswith('\\') else drive + '\\'
+            d = {'letter': drive, 'label': 'Unknown', 'total': 0, 'free': 0}
+            try:
+                vol_name = ctypes.create_unicode_buffer(261)
+                ctypes.windll.kernel32.GetVolumeInformationW(
+                    root, vol_name, 261, None, None, None, None, 0)
+                d['label'] = vol_name.value or 'Unlabeled'
+            except Exception:
+                pass
+            try:
+                free_bytes   = ctypes.c_ulonglong(0)
+                total_bytes  = ctypes.c_ulonglong(0)
+                ctypes.windll.kernel32.GetDiskFreeSpaceExW(
+                    root, None, ctypes.byref(total_bytes), ctypes.byref(free_bytes))
+                d['total'] = total_bytes.value
+                d['free']  = free_bytes.value
+            except Exception:
+                pass
+            info.append(d)
+        return info

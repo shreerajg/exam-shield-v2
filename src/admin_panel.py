@@ -246,7 +246,14 @@ class AdminPanel:
         options = tk.Frame(dialog, bg=self.colors['surface'])
         options.pack(fill=tk.BOTH, expand=True, padx=40, pady=20)
         self.selective_vars = {}
-        modules = [('keyboard', '🔤 Keyboard Shortcuts Blocking', 'Block Alt+Tab, Ctrl+Alt+Del, etc.'), ('mouse', '🖱️ Mouse Button Restrictions', 'Block middle, back, forward buttons'), ('internet', '🌐 Internet Access Blocking', 'Complete internet disconnection'), ('windows', '🪟 Window Protection', 'Prevent closing/minimizing windows'), ('processes', '🔍 Process Monitoring', 'Auto-terminate suspicious processes')]
+        modules = [
+            ('keyboard',  '🔤 Keyboard Shortcuts Blocking',  'Block Alt+Tab, Ctrl+Alt+Del, etc.'),
+            ('mouse',     '🖱️  Mouse Button Restrictions',    'Block middle, back, forward buttons'),
+            ('internet',  '🌐 Internet Access Blocking',      'Complete internet disconnection'),
+            ('windows',   '🪟 Window Protection',             'Prevent closing/minimizing windows'),
+            ('processes', '🔍 Process Monitoring',            'Auto-terminate suspicious processes'),
+            ('usb',       '💾 Pendrive / USB Blocking',       'Eject connected drives & block new inserts'),
+        ]
         for key, title, desc in modules:
             card = tk.Frame(options, bg=self.colors['card'], relief=tk.FLAT, bd=1)
             card.pack(fill=tk.X, pady=(0, 10))
@@ -396,7 +403,13 @@ class AdminPanel:
         modules_card.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=(8, 0))
         modules_grid = tk.Frame(modules_content, bg=self.colors['card'])
         modules_grid.pack(fill=tk.BOTH, expand=True)
-        modules = [('keyboard', 'Keyboard Protection'), ('mouse', 'Mouse Control'), ('network', 'Network Security'), ('windows', 'Window Guardian')]
+        modules = [
+            ('keyboard', 'Keyboard Protection'),
+            ('mouse',    'Mouse Control'),
+            ('network',  'Network Security'),
+            ('windows',  'Window Guardian'),
+            ('usb',      'USB / Pendrive'),
+        ]
         self.module_indicators = {}
         for i, (key, name) in enumerate(modules):
             row = i // 2
@@ -408,6 +421,27 @@ class AdminPanel:
             label = tk.Label(module_frame, text=name, font=('Segoe UI', 10), bg=self.colors['card'], fg=self.colors['text_primary'])
             label.pack(side=tk.LEFT)
             self.module_indicators[key] = indicator
+
+        # ── USB Monitor card ──────────────────────────────────────────────
+        usb_section = tk.Frame(main_frame, bg=self.colors['surface'])
+        usb_section.pack(fill=tk.X, pady=(0, 15))
+        usb_card, usb_content = self.create_card(usb_section, 'Pendrive / USB Monitor', '💾')
+        usb_card.pack(fill=tk.X)
+        usb_top = tk.Frame(usb_content, bg=self.colors['card'])
+        usb_top.pack(fill=tk.X)
+        # Drive list label (updated by refresh)
+        self.usb_drives_label = tk.Label(
+            usb_top, text='Scanning for USB drives…',
+            font=('Segoe UI', 10), bg=self.colors['card'],
+            fg=self.colors['text_secondary'])
+        self.usb_drives_label.pack(side=tk.LEFT, anchor=tk.W)
+        # Registry-block status badge
+        self.usb_block_badge = tk.Label(
+            usb_top, text='',
+            font=('Segoe UI', 9, 'bold'), bg=self.colors['card'])
+        self.usb_block_badge.pack(side=tk.RIGHT, padx=(10, 0))
+        self._refresh_usb_drives_label()
+
         control_section = tk.Frame(main_frame, bg=self.colors['surface'])
         control_section.pack(fill=tk.X, pady=(0, 15))
         control_card, control_content = self.create_card(control_section, 'Lockdown Controls', '🎯')
@@ -423,7 +457,15 @@ class AdminPanel:
         individual_card.pack(fill=tk.BOTH, expand=True)
         controls_grid = tk.Frame(individual_content, bg=self.colors['card'])
         controls_grid.pack(fill=tk.X, pady=10)
-        controls = [('🖱️ Mouse Security', self.show_mouse_controls), ('🌐 Network Control', self.show_network_controls), ('🪟 Window Guardian', self.show_window_controls), ('📊 Live Monitor', lambda: self.switch_tab('monitor', self.show_monitor_tab)), ('⚙️ Settings Panel', lambda: self.switch_tab('settings', self.show_settings_tab)), ('🔄 Refresh Status', self.refresh_status)]
+        controls = [
+            ('🖱️ Mouse Security',    self.show_mouse_controls),
+            ('🌐 Network Control',   self.show_network_controls),
+            ('🪟 Window Guardian',   self.show_window_controls),
+            ('💾 USB / Pendrive',    self.show_usb_controls),
+            ('📊 Live Monitor',      lambda: self.switch_tab('monitor', self.show_monitor_tab)),
+            ('⚙️ Settings Panel',   lambda: self.switch_tab('settings', self.show_settings_tab)),
+            ('🔄 Refresh Status',    self.refresh_status),
+        ]
         for i, (text, command) in enumerate(controls):
             row = i // 3
             col = i % 3
@@ -431,6 +473,243 @@ class AdminPanel:
             btn.grid(row=row, column=col, padx=5, pady=5, sticky='ew')
         for i in range(3):
             controls_grid.columnconfigure(i, weight=1)
+
+    # ── USB helper methods ──────────────────────────────────────────────────
+
+    def _fmt_bytes(self, n):
+        """Human-readable byte size."""
+        for unit in ('B','KB','MB','GB'):
+            if n < 1024:
+                return f'{n:.0f} {unit}'
+            n /= 1024
+        return f'{n:.1f} TB'
+
+    def _refresh_usb_drives_label(self):
+        """Update the USB drives label on the control tab (safe from any thread)."""
+        try:
+            sim = self.security_manager.system_integrity_manager
+            drives = sim.get_usb_drive_info()
+            status = sim.get_usbstor_status()
+            if drives:
+                parts = []
+                for d in drives:
+                    size_txt = f"({self._fmt_bytes(d['total'])})" if d['total'] else ''
+                    parts.append(f"{d['letter']} [{d['label']}] {size_txt}")
+                txt = '🔴 Drives connected: ' + ',  '.join(parts)
+                fg = self.colors['danger']
+            else:
+                txt = '✅ No USB drives connected'
+                fg = self.colors['success']
+            self.usb_drives_label.config(text=txt, fg=fg)
+            # Badge
+            if status == 'blocked':
+                self.usb_block_badge.config(text='🔒 USB Blocked', fg=self.colors['danger'],
+                                             bg=self.colors.get('light_red', '#ffebee'))
+            else:
+                self.usb_block_badge.config(text='🔓 USB Allowed', fg=self.colors['success'],
+                                             bg=self.colors.get('light_green', '#e8f5e8'))
+        except Exception:
+            pass
+
+    def show_usb_controls(self):
+        """Full USB / Pendrive management dialog."""
+        d = tk.Toplevel(self.window)
+        d.title('💾 Pendrive / USB Drive Management')
+        d.geometry('580x560')
+        d.configure(bg=self.colors['surface'])
+        d.transient(self.window)
+        d.grab_set()
+        d.update_idletasks()
+        x = d.winfo_screenwidth()  // 2 - 290
+        y = d.winfo_screenheight() // 2 - 280
+        d.geometry(f'580x560+{x}+{y}')
+        theme.AnimationManager(d).fade_in(d, duration=220)
+
+        # Header
+        hdr = tk.Frame(d, bg=self.colors['primary'], height=62)
+        hdr.pack(fill=tk.X)
+        hdr.pack_propagate(False)
+        tk.Label(hdr, text='💾  Pendrive / USB Drive Security',
+                 font=('Segoe UI', 14, 'bold'),
+                 bg=self.colors['primary'], fg=self.colors['card']).pack(pady=18)
+
+        body = tk.Frame(d, bg=self.colors['surface'])
+        body.pack(fill=tk.BOTH, expand=True, padx=20, pady=15)
+
+        # ── Global USB Block ────────────────────────────────────────────
+        block_card = tk.Frame(body, bg=self.colors['card'], relief=tk.FLAT, bd=0)
+        tk.Frame(block_card, bg='#c8cdd4', height=1).pack(fill=tk.X)
+        block_card.pack(fill=tk.X, pady=(0, 12))
+        bc = tk.Frame(block_card, bg=self.colors['card'])
+        bc.pack(fill=tk.X, padx=15, pady=12)
+
+        # Status row
+        status_row = tk.Frame(bc, bg=self.colors['card'])
+        status_row.pack(fill=tk.X, pady=(0, 8))
+        tk.Label(status_row, text='Registry Block (USBSTOR):',
+                 font=('Segoe UI', 10, 'bold'),
+                 bg=self.colors['card'], fg=self.colors['text_primary']).pack(side=tk.LEFT)
+        usb_status_lbl = tk.Label(status_row, text='',
+                                   font=('Segoe UI', 10, 'bold'), bg=self.colors['card'])
+        usb_status_lbl.pack(side=tk.LEFT, padx=10)
+
+        sim = self.security_manager.system_integrity_manager
+
+        def _update_reg_status():
+            s = sim.get_usbstor_status()
+            if s == 'blocked':
+                usb_status_lbl.config(text='🔴 BLOCKED', fg=self.colors['danger'])
+                block_btn.config(text='🔓 Allow USB Storage',  bg=self.colors['success'])
+                eject_all_btn.config(state=tk.DISABLED)
+            else:
+                usb_status_lbl.config(text='🟢 ALLOWED', fg=self.colors['success'])
+                block_btn.config(text='🔒 Block USB Storage', bg=self.colors['danger'])
+                eject_all_btn.config(state=tk.NORMAL)
+
+        def _toggle_block():
+            s = sim.get_usbstor_status()
+            if s == 'blocked':
+                ok = sim.enable_usb_storage_registry()
+                msg = ('USB storage re-enabled.\n\nNew pendrives can now be inserted.'
+                       if ok else 'Failed to enable USB storage.')
+            else:
+                # First eject all currently connected drives
+                for info in sim.get_usb_drive_info():
+                    sim.eject_usb_drive(info['letter'])
+                ok = sim.disable_usb_storage_registry()
+                msg = ('USB storage BLOCKED.\n\nAll connected drives ejected.\n'
+                       'New pendrives will not work until re-enabled.'
+                       if ok else 'Failed to block USB storage.\n\nAre you running as Administrator?')
+            if ok:
+                messagebox.showinfo('USB Storage', msg, parent=d)
+            else:
+                messagebox.showerror('USB Storage Error', msg, parent=d)
+            _update_reg_status()
+            _populate_drives()
+            self._refresh_usb_drives_label()
+
+        def _eject_all():
+            drives = sim.get_usb_drive_info()
+            if not drives:
+                messagebox.showinfo('USB', 'No USB drives currently connected.', parent=d)
+                return
+            if not messagebox.askyesno('Eject All',
+                f'Safely eject {len(drives)} drive(s)?\n\n' +
+                '\n'.join(f"  {x['letter']}  [{x['label']}]" for x in drives),
+                parent=d):
+                return
+            results = []
+            for info in drives:
+                ok, msg = sim.eject_usb_drive(info['letter'])
+                icon = '✅' if ok else '❌'
+                results.append(f"{icon} {info['letter']}  {msg}")
+            messagebox.showinfo('Eject Results', '\n'.join(results), parent=d)
+            _populate_drives()
+            self._refresh_usb_drives_label()
+
+        btn_row = tk.Frame(bc, bg=self.colors['card'])
+        btn_row.pack(fill=tk.X, pady=(0, 4))
+        block_btn = tk.Button(btn_row, text='', font=('Segoe UI', 10, 'bold'),
+                              fg=self.colors['card'], relief=tk.FLAT, cursor='hand2',
+                              padx=14, pady=8, command=_toggle_block)
+        block_btn.pack(side=tk.LEFT, padx=(0, 10))
+        eject_all_btn = tk.Button(btn_row, text='⏏️ Eject All Drives',
+                                   font=('Segoe UI', 10, 'bold'),
+                                   bg=self.colors['warning'], fg=self.colors['card'],
+                                   relief=tk.FLAT, cursor='hand2', padx=14, pady=8,
+                                   command=_eject_all)
+        eject_all_btn.pack(side=tk.LEFT)
+        _update_reg_status()
+
+        # ── Connected drives list ────────────────────────────────────────
+        drives_card = tk.Frame(body, bg=self.colors['card'], relief=tk.FLAT, bd=0)
+        tk.Frame(drives_card, bg='#c8cdd4', height=1).pack(fill=tk.X)
+        drives_card.pack(fill=tk.BOTH, expand=True)
+        dc = tk.Frame(drives_card, bg=self.colors['card'])
+        dc.pack(fill=tk.BOTH, expand=True, padx=15, pady=12)
+
+        hdr2 = tk.Frame(dc, bg=self.colors['card'])
+        hdr2.pack(fill=tk.X, pady=(0, 8))
+        tk.Label(hdr2, text='Connected USB Drives',
+                 font=('Segoe UI', 10, 'bold'),
+                 bg=self.colors['card'], fg=self.colors['text_primary']).pack(side=tk.LEFT)
+        refresh_btn = tk.Button(hdr2, text='🔄 Refresh', font=('Segoe UI', 9),
+                                 bg=self.colors['info'], fg=self.colors['card'],
+                                 relief=tk.FLAT, cursor='hand2', padx=8, pady=3,
+                                 command=lambda: _populate_drives())
+        refresh_btn.pack(side=tk.RIGHT)
+
+        drives_scroll = tk.Frame(dc, bg=self.colors['card'])
+        drives_scroll.pack(fill=tk.BOTH, expand=True)
+        drives_canvas = tk.Canvas(drives_scroll, bg=self.colors['card'], highlightthickness=0)
+        drives_sb = ttk.Scrollbar(drives_scroll, orient='vertical', command=drives_canvas.yview)
+        drives_inner = tk.Frame(drives_canvas, bg=self.colors['card'])
+        drives_inner.bind('<Configure>', lambda e: drives_canvas.configure(
+            scrollregion=drives_canvas.bbox('all')))
+        drives_canvas.create_window((0, 0), window=drives_inner, anchor='nw')
+        drives_canvas.configure(yscrollcommand=drives_sb.set)
+        drives_canvas.pack(side='left', fill='both', expand=True)
+        drives_sb.pack(side='right', fill='y')
+
+        def _populate_drives():
+            for w in drives_inner.winfo_children():
+                w.destroy()
+            drives = sim.get_usb_drive_info()
+            if not drives:
+                tk.Label(drives_inner, text='  ✅  No USB drives currently connected.',
+                         font=('Segoe UI', 10), bg=self.colors['card'],
+                         fg=self.colors['success']).pack(anchor=tk.W, pady=8, padx=5)
+                return
+            for info in drives:
+                row_f = tk.Frame(drives_inner, bg=self.colors.get('light_blue','#ecf4ff'),
+                                  relief=tk.FLAT, bd=0)
+                row_f.pack(fill=tk.X, pady=(0, 6), padx=2)
+                info_f = tk.Frame(row_f, bg=row_f['bg'])
+                info_f.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=10, pady=8)
+                total_txt = self._fmt_bytes(info['total']) if info['total'] else 'N/A'
+                free_txt  = self._fmt_bytes(info['free'])  if info['free']  else 'N/A'
+                tk.Label(info_f,
+                         text=f"🔌  {info['letter']}   {info['label']}",
+                         font=('Segoe UI', 10, 'bold'),
+                         bg=row_f['bg'], fg=self.colors['text_primary']).pack(anchor=tk.W)
+                tk.Label(info_f,
+                         text=f"  Size: {total_txt}   Free: {free_txt}",
+                         font=('Segoe UI', 9),
+                         bg=row_f['bg'], fg=self.colors['text_secondary']).pack(anchor=tk.W)
+                tk.Button(row_f, text='⏏️ Eject',
+                           font=('Segoe UI', 9, 'bold'),
+                           bg=self.colors['danger'], fg=self.colors['card'],
+                           relief=tk.FLAT, cursor='hand2', padx=10, pady=6,
+                           command=lambda dl=info['letter']: _eject_one(dl)
+                           ).pack(side=tk.RIGHT, padx=10, pady=8)
+
+        def _eject_one(drive_letter):
+            ok, msg = sim.eject_usb_drive(drive_letter)
+            if ok:
+                messagebox.showinfo('Ejected', msg, parent=d)
+            else:
+                messagebox.showerror('Eject Failed', msg, parent=d)
+            _populate_drives()
+            self._refresh_usb_drives_label()
+
+        _populate_drives()
+
+        # ── Auto-refresh drives list every 3 s while dialog is open ─────
+        def _auto_refresh():
+            try:
+                if d.winfo_exists():
+                    _populate_drives()
+                    _update_reg_status()
+                    d.after(3000, _auto_refresh)
+            except Exception:
+                pass
+        d.after(3000, _auto_refresh)
+
+        # Close button
+        tk.Button(body, text='Close', font=('Segoe UI', 10, 'bold'),
+                  bg=self.colors['primary'], fg=self.colors['card'],
+                  relief=tk.FLAT, cursor='hand2', padx=20, pady=8,
+                  command=d.destroy).pack(pady=(10, 0))
 
     def create_premium_button(self, parent, text, command, bg_color, pack_side='left', **kwargs):
         """Create a premium styled button with animated hover and press feedback."""
@@ -504,6 +783,7 @@ class AdminPanel:
         self.create_keyboard_settings(scrollable_frame)
         self.create_mouse_settings(scrollable_frame)
         self.create_network_settings(scrollable_frame)
+        self.create_usb_settings(scrollable_frame)
         self.create_advanced_settings(scrollable_frame)
         canvas.pack(side='left', fill='both', expand=True)
         scrollbar.pack(side='right', fill='y')
@@ -925,6 +1205,116 @@ class AdminPanel:
         self.window_protect_var = tk.BooleanVar(value=True)
         cb3 = tk.Checkbutton(content, text='Window Guardian (prevent switching/closing)', variable=self.window_protect_var, font=('Segoe UI', 10), bg=self.colors['card'], fg=self.colors['text_primary'], selectcolor=self.colors['light_blue'])
         cb3.pack(anchor=tk.W, pady=5)
+
+    def create_usb_settings(self, parent):
+        """Create USB / Pendrive settings section"""
+        card, content = self.create_card(parent, 'Pendrive / USB Settings', '💾')
+        card.pack(fill=tk.X, pady=(0, 15))
+        c = self.colors
+
+        # Registry status row
+        status_row = tk.Frame(content, bg=c['card'])
+        status_row.pack(fill=tk.X, pady=(0, 8))
+        tk.Label(status_row, text='Current USB Storage Status:',
+                 font=('Segoe UI', 10, 'bold'), bg=c['card'],
+                 fg=c['text_primary']).pack(side=tk.LEFT)
+        self._usb_settings_status_lbl = tk.Label(status_row, text='',
+                                                   font=('Segoe UI', 10, 'bold'),
+                                                   bg=c['card'])
+        self._usb_settings_status_lbl.pack(side=tk.LEFT, padx=10)
+
+        # Connected drives info
+        self._usb_settings_drives_lbl = tk.Label(
+            content, text='', font=('Segoe UI', 9),
+            bg=c['card'], fg=c['text_secondary'], justify=tk.LEFT)
+        self._usb_settings_drives_lbl.pack(anchor=tk.W, pady=(0, 10))
+
+        # Options checkboxes
+        self.usb_block_on_start_var = tk.BooleanVar(value=True)
+        tk.Checkbutton(content,
+                       text='Block USB storage when exam starts (disable USBSTOR driver)',
+                       variable=self.usb_block_on_start_var,
+                       font=('Segoe UI', 10), bg=c['card'], fg=c['text_primary'],
+                       selectcolor=c['light_blue']).pack(anchor=tk.W, pady=2)
+
+        self.usb_eject_on_start_var = tk.BooleanVar(value=True)
+        tk.Checkbutton(content,
+                       text='Auto-eject connected pendrives when exam starts',
+                       variable=self.usb_eject_on_start_var,
+                       font=('Segoe UI', 10), bg=c['card'], fg=c['text_primary'],
+                       selectcolor=c['light_blue']).pack(anchor=tk.W, pady=2)
+
+        self.usb_alert_on_insert_var = tk.BooleanVar(value=True)
+        tk.Checkbutton(content,
+                       text='Show alert if USB drive is inserted during exam',
+                       variable=self.usb_alert_on_insert_var,
+                       font=('Segoe UI', 10), bg=c['card'], fg=c['text_primary'],
+                       selectcolor=c['light_blue']).pack(anchor=tk.W, pady=2)
+
+        # Action buttons
+        btn_row = tk.Frame(content, bg=c['card'])
+        btn_row.pack(fill=tk.X, pady=(14, 0))
+        self.create_premium_button(btn_row, '💾 Open USB Manager',
+                                    self.show_usb_controls, c['primary'], 'left')
+        self.create_premium_button(btn_row, '🔒 Block USB Now',
+                                    self._settings_block_usb, c['danger'], 'left')
+        self.create_premium_button(btn_row, '🔓 Allow USB Now',
+                                    self._settings_allow_usb, c['success'], 'left')
+        self.create_premium_button(btn_row, '🔄 Refresh',
+                                    self._refresh_usb_settings_status, c['info'], 'left')
+        self._refresh_usb_settings_status()
+
+    def _refresh_usb_settings_status(self):
+        """Update the status labels in the USB settings card."""
+        try:
+            sim = self.security_manager.system_integrity_manager
+            s = sim.get_usbstor_status()
+            if s == 'blocked':
+                self._usb_settings_status_lbl.config(
+                    text='🔴  BLOCKED', fg=self.colors['danger'])
+            elif s == 'enabled':
+                self._usb_settings_status_lbl.config(
+                    text='🟢  ALLOWED', fg=self.colors['success'])
+            else:
+                self._usb_settings_status_lbl.config(
+                    text='❓  Unknown', fg=self.colors['warning'])
+            drives = sim.get_usb_drive_info()
+            if drives:
+                parts = [f"  🔌 {d['letter']}  {d['label']}  ({self._fmt_bytes(d['total'])})" for d in drives]
+                self._usb_settings_drives_lbl.config(
+                    text='Connected drives:\n' + '\n'.join(parts),
+                    fg=self.colors['danger'])
+            else:
+                self._usb_settings_drives_lbl.config(
+                    text='No USB drives currently connected.',
+                    fg=self.colors['success'])
+        except Exception:
+            pass
+
+    def _settings_block_usb(self):
+        sim = self.security_manager.system_integrity_manager
+        # Eject first
+        for d in sim.get_usb_drive_info():
+            sim.eject_usb_drive(d['letter'])
+        ok = sim.disable_usb_storage_registry()
+        if ok:
+            messagebox.showinfo('USB Blocked',
+                'USB storage has been BLOCKED.\n\nAll connected drives were ejected.')
+        else:
+            messagebox.showerror('Error',
+                'Failed to block USB storage.\nMake sure Exam Shield is running as Administrator.')
+        self._refresh_usb_settings_status()
+        self._refresh_usb_drives_label()
+
+    def _settings_allow_usb(self):
+        sim = self.security_manager.system_integrity_manager
+        ok = sim.enable_usb_storage_registry()
+        if ok:
+            messagebox.showinfo('USB Allowed', 'USB storage has been re-enabled.')
+        else:
+            messagebox.showerror('Error', 'Failed to re-enable USB storage.')
+        self._refresh_usb_settings_status()
+        self._refresh_usb_drives_label()
 
     def apply_mouse_settings(self):
         """Apply mouse settings"""

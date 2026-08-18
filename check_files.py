@@ -1,25 +1,24 @@
 import tokenize, io
 
-for fname in ['src/mouse_manager.py', 'src/system_tray.py']:
-    try:
-        with open(fname, 'rb') as f:
-            content = f.read()
-        # Count triple double quotes
-        count = content.count(b'"""')
-        print(f"{fname}: triple-quotes={count}, even={count%2==0}")
-        # Try tokenizing
-        try:
-            list(tokenize.tokenize(io.BytesIO(content).readline))
-            print(f"  Tokenize OK")
-        except tokenize.TokenError as e:
-            print(f"  TokenError: {e}")
-    except Exception as e:
-        print(f"  Error reading: {e}")
-
-# Also check system_tray lines 1-15 raw
-print("\n--- system_tray.py lines 1-15 raw ---")
-with open('src/system_tray.py', 'rb') as f:
+# Find all triple-quote positions and their line numbers in mouse_manager.py  
+with open('src/mouse_manager.py', 'rb') as f:
     content = f.read()
+
 lines = content.split(b'\n')
-for i, line in enumerate(lines[:15], 1):
-    print(f"{i}: {repr(line)}")
+triple = b'"""'
+pos = 0
+count = 0
+positions = []
+while True:
+    idx = content.find(triple, pos)
+    if idx == -1:
+        break
+    line_num = content[:idx].count(b'\n') + 1
+    positions.append((line_num, idx))
+    pos = idx + 3
+    count += 1
+
+print(f"Total triple-quotes: {count}")
+for i, (ln, p) in enumerate(positions):
+    role = "OPEN" if i%2==0 else "CLOSE"
+    print(f"  #{i+1} {role} at line {ln}: ...{repr(content[p-5:p+20])}...")

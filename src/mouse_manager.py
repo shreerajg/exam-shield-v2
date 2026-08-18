@@ -255,7 +255,7 @@ class MouseManager:
             'blocks_middle_click': self.WM_MBUTTONDOWN in self.blocked_buttons,
             'blocks_side_buttons': self.WM_XBUTTONDOWN in self.blocked_buttons
         }
-"""
+
 
 import win32api
 import win32con

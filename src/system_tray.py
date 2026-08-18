@@ -5,12 +5,6 @@ Enhanced with premium design and improved user experience
 
 import pystray
 from PIL import Image, ImageDraw, ImageFont
-System Tray functionality for Exam Shield Premium
-Enhanced with premium design and improved user experience
-"""
-
-import pystray
-from PIL import Image, ImageDraw, ImageFont
 import threading
 import tkinter as tk
 from tkinter import simpledialog, messagebox

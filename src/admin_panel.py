@@ -16,7 +16,13 @@ class AdminPanel:
         self.db_manager = db_manager
         self.security_manager = security_manager
         self.parent_window = parent_window
-        self.colors = {'primary': '#1e3d59', 'secondary': '#17223b', 'accent': '#ffc947', 'success': '#27ae60', 'warning': '#f39c12', 'danger': '#e74c3c', 'info': '#3498db', 'surface': '#f8f9fa', 'card': '#ffffff', 'text_primary': '#2c3e50', 'text_secondary': '#7f8c8d', 'border': '#dee2e6', 'light_blue': '#ecf4ff', 'light_green': '#e8f5e8', 'light_yellow': '#fff8e1', 'light_red': '#ffebee'}
+        self.colors = {'primary': '#6366f1', 'secondary': '#0d1117', 'accent': '#f59e0b',
+                       'success': '#10b981', 'warning': '#f59e0b', 'danger': '#ef4444',
+                       'info': '#06b6d4', 'surface': '#0d1117', 'card': '#161b22',
+                       'text_primary': '#e6edf3', 'text_secondary': '#8b949e',
+                       'border': '#30363d', 'light_blue': '#1c2330',
+                       'light_green': '#0d2818', 'light_yellow': '#1a1200',
+                       'light_red': '#1a0808'}
         self.detecting_key = False
         self.detecting_mouse = False
         self.detected_key = None
@@ -25,7 +31,7 @@ class AdminPanel:
         self.window.title('Exam Shield Premium - Administrative Control Center')
         self.window.geometry('1200x800')
         self.window.resizable(True, True)
-        self.current_theme = 'light'
+        self.current_theme = 'dark'
         self.load_theme(self.current_theme)
         self.window.configure(bg=self.colors['surface'])
         self.security_manager.set_admin_panel(self)
@@ -41,36 +47,65 @@ class AdminPanel:
         tc = t.colors
         if theme_name == 'light':
             self.colors = {
-                'primary':        '#1565c0',   # clear medium blue
-                'secondary':      '#f1f5f9',   # very light gray (nav bg — airy, not dark)
-                'accent':         '#f59e0b',   # warm amber
-                'success':        '#16a34a',
-                'warning':        '#f59e0b',
+                'primary':        '#1a56db',
+                'secondary':      '#f1f5f9',
+                'accent':         '#f59e0b',
+                'success':        '#059669',
+                'warning':        '#d97706',
                 'danger':         '#dc2626',
                 'info':           '#0284c7',
-                'surface':        '#f0f7ff',   # light blue-tinted page bg
+                'surface':        '#f8faff',
                 'card':           '#ffffff',
-                'text_primary':   '#1e293b',   # dark slate
-                'text_secondary': '#64748b',   # slate gray
-                'border':         '#dbeafe',
-                'light_blue':     '#eff6ff',
+                'text_primary':   '#0f172a',
+                'text_secondary': '#475569',
+                'border':         '#c7d7fe',
+                'light_blue':     '#eef2ff',
                 'light_green':    '#f0fdf4',
                 'light_red':      '#fef2f2',
                 'light_yellow':   '#fffbeb',
                 'white':          '#ffffff',
+                'neon_glow':      '#3b82f6',
+                'nav_bg':         '#1e293b',
+                'gradient_start': '#1a56db',
+                'gradient_end':   '#7c3aed',
             }
-        else:
+        elif theme_name == 'dark':
             self.colors = {
-                'primary': tc['primary'], 'secondary': tc.get('secondary', '#17223b'),
-                'accent': tc.get('warning', '#ffc947'), 'success': tc['success'],
+                'primary':        '#6366f1',
+                'secondary':      '#0d1117',
+                'accent':         '#f59e0b',
+                'success':        '#10b981',
+                'warning':        '#f59e0b',
+                'danger':         '#ef4444',
+                'info':           '#06b6d4',
+                'surface':        '#0d1117',
+                'card':           '#161b22',
+                'text_primary':   '#e6edf3',
+                'text_secondary': '#8b949e',
+                'border':         '#30363d',
+                'light_blue':     '#1c2330',
+                'light_green':    '#0d2818',
+                'light_red':      '#1a0808',
+                'light_yellow':   '#1a1200',
+                'white':          '#e6edf3',
+                'neon_glow':      '#6366f1',
+                'nav_bg':         '#080b12',
+                'gradient_start': '#1e1b4b',
+                'gradient_end':   '#312e81',
+            }
+        else:  # pink
+            self.colors = {
+                'primary': tc['primary'], 'secondary': tc.get('secondary', '#7c3aed'),
+                'accent': tc.get('accent', '#f59e0b'), 'success': tc['success'],
                 'warning': tc['warning'], 'danger': tc['danger'], 'info': tc['info'],
                 'surface': tc['surface'], 'card': tc['card'],
                 'text_primary': tc['text_primary'], 'text_secondary': tc['text_secondary'],
-                'border': tc.get('border', '#dee2e6'), 'light_blue': tc.get('light_blue', '#ecf4ff'),
-                'light_green': tc.get('light_green', '#e8f5e8'),
-                'light_red': tc.get('light_red', '#ffebee'),
-                'light_yellow': tc.get('light_yellow', '#fff8e1'),
-                'white': '#ffffff',
+                'border': tc.get('border', '#fbb6ce'), 'light_blue': tc.get('card_hover', '#fff0f9'),
+                'light_green': '#f0fdf4', 'light_red': '#fef2f2', 'light_yellow': '#fffbeb',
+                'white': '#ffffff', 'neon_glow': tc.get('neon_glow', tc['primary']),
+                'nav_bg': tc.get('sidebar', '#831843'),
+                'gradient_start': tc.get('gradient_start', tc['primary']),
+                'gradient_end': tc.get('gradient_end', tc['secondary']),
             }
         self.window.configure(bg=self.colors['surface'])
 
@@ -79,6 +114,7 @@ class AdminPanel:
         self.load_theme(self.current_theme)
         for widget in self.window.winfo_children():
             widget.destroy()
+        self._anim = theme.AnimationManager(self.window)
         self.setup_ui()
 
     def setup_window(self):
@@ -99,66 +135,89 @@ class AdminPanel:
         self.refresh_status()
 
     def setup_ui(self):
-        """Build the admin panel: header bar, gold accent strip, dark nav bar, content area."""
-        c = self.colors
-        nav_bg = c.get('secondary', '#17223b') or '#17223b'
+        """Build the admin panel: gradient header, neon accent strip, 3D nav tabs, content area."""
+        c  = self.colors
+        nav_bg = c.get('nav_bg', c.get('secondary', '#080b12')) or '#080b12'
+        surf   = c['surface']
 
-        # ── Header bar ──────────────────────────────────────────────────────────
-        header = tk.Frame(self.window, bg=c['primary'], height=65)
-        header.pack(fill=tk.X)
-        header.pack_propagate(False)
-        hc = tk.Frame(header, bg=c['primary'])
-        hc.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
+        # ── Gradient header bar ──────────────────────────────────────────────
+        gs = c.get('gradient_start', c['primary'])
+        ge = c.get('gradient_end',   c.get('secondary', '#312e81'))
+        header_cv = tk.Canvas(self.window, height=65, highlightthickness=0)
+        header_cv.pack(fill=tk.X)
+        r1,g1,b1 = int(gs[1:3],16), int(gs[3:5],16), int(gs[5:7],16)
+        r2,g2,b2 = int(ge[1:3],16), int(ge[3:5],16), int(ge[5:7],16)
+        def _draw_hdr(w=1200):
+            header_cv.delete('gradient')
+            for i in range(w):
+                t = i/w
+                header_cv.create_line(i, 0, i, 65,
+                    fill=f'#{int(r1+(r2-r1)*t):02x}{int(g1+(g2-g1)*t):02x}{int(b1+(b2-b1)*t):02x}',
+                    width=1, tags='gradient')
+        _draw_hdr()
+        header_cv.bind('<Configure>', lambda e: _draw_hdr(e.width))
 
+        hc = tk.Frame(header_cv, bg=gs)
+        header_cv.create_window(0, 0, anchor='nw', window=hc, width=1200, height=65)
+        hc.configure(bg=gs)
         tk.Label(hc, text='🛡️', font=('Segoe UI', 22),
-                 bg=c['primary'], fg=c['accent']).pack(side=tk.LEFT, padx=(0, 12))
-        tf = tk.Frame(hc, bg=c['primary'])
-        tf.pack(side=tk.LEFT, fill=tk.Y)
+                 bg=gs, fg=c['accent']).pack(side=tk.LEFT, padx=(20, 12), pady=10)
+        tf = tk.Frame(hc, bg=gs)
+        tf.pack(side=tk.LEFT, fill=tk.Y, pady=10)
         tk.Label(tf, text='EXAM SHIELD PREMIUM',
-                 font=('Segoe UI', 16, 'bold'),
-                 bg=c['primary'], fg='#ffffff').pack(anchor=tk.W)
+                 font=('Segoe UI', 16, 'bold'), bg=gs, fg='#ffffff').pack(anchor=tk.W)
         tk.Label(tf, text='Administrative Control Center',
-                 font=('Segoe UI', 9),
-                 bg=c['primary'], fg='#7fa8cc').pack(anchor=tk.W)
+                 font=('Segoe UI', 9), bg=gs, fg='#a5b4fc').pack(anchor=tk.W)
 
         # Theme selector on the right
-        tr = tk.Frame(hc, bg=c['primary'])
-        tr.pack(side=tk.RIGHT, fill=tk.Y)
-        tk.Label(tr, text='🎨  Theme:', bg=c['primary'],
-                 fg='#7fa8cc', font=('Segoe UI', 9)).pack(side=tk.LEFT, padx=(0, 6))
+        tr = tk.Frame(hc, bg=gs)
+        tr.pack(side=tk.RIGHT, fill=tk.Y, padx=20)
+        tk.Label(tr, text='🎨  Theme:', bg=gs,
+                 fg='#a5b4fc', font=('Segoe UI', 9)).pack(side=tk.LEFT, padx=(0, 6))
         if not hasattr(self, 'theme_var'):
             self.theme_var = tk.StringVar(value=self.current_theme)
         combo = ttk.Combobox(tr, textvariable=self.theme_var,
-                             values=['light', 'dark', 'pink'],
+                             values=['dark', 'light', 'pink'],
                              state='readonly', width=8, font=('Segoe UI', 9))
         combo.pack(side=tk.LEFT)
         combo.bind('<<ComboboxSelected>>', self.change_theme)
 
-        # Gold accent strip
-        tk.Frame(self.window, bg=c.get('accent', '#ffc947'), height=3).pack(fill=tk.X)
+        # ── Neon accent strip ──────────────────────────────────────────────
+        accent_cv = tk.Canvas(self.window, height=4, highlightthickness=0, bg=surf)
+        accent_cv.pack(fill=tk.X)
+        for i in range(1200):
+            t = i/1200
+            ar1,ag1,ab1 = 0xf5,0x9e,0x0b
+            ar2,ag2,ab2 = 0x63,0x66,0xf1
+            accent_cv.create_line(i, 0, i, 4,
+                fill=f'#{int(ar1+(ar2-ar1)*t):02x}{int(ag1+(ag2-ag1)*t):02x}{int(ab1+(ab2-ab1)*t):02x}',
+                width=1)
 
-        # ── Navigation bar ─────────────────────────────────────────────────────
-        nav = tk.Frame(self.window, bg=nav_bg, height=44)
+        # ── Navigation bar with 3D buttons ────────────────────────────────
+        nav = tk.Frame(self.window, bg=nav_bg, height=56)
         nav.pack(fill=tk.X)
         nav.pack_propagate(False)
         self.tab_buttons = {}
         tab_map = [
-            ('control',  '🎯   Control Center',  self.show_control_tab),
-            ('monitor',  '📊   Live Monitor',     self.show_monitor_tab),
-            ('settings', '⚙️   Settings',         self.show_settings_tab),
-            ('logs',     '📋   Security Logs',    self.show_logs_tab),
+            ('control',  '🎯  Control Center',  self.show_control_tab),
+            ('monitor',  '📊  Live Monitor',     self.show_monitor_tab),
+            ('settings', '⚙️  Settings',         self.show_settings_tab),
+            ('logs',     '📋  Security Logs',    self.show_logs_tab),
         ]
         for key, label, handler in tab_map:
-            btn = tk.Button(nav, text=label,
-                            font=('Segoe UI', 10),
-                            bg=nav_bg, fg='#475569',
-                            relief=tk.FLAT, cursor='hand2',
-                            padx=18, pady=10, bd=0)
-            btn.config(command=lambda k=key, h=handler: self.switch_tab(k, h))
-            btn.pack(side=tk.LEFT)
+            btn = theme.Button3D(
+                nav, text=label,
+                base_color=nav_bg,
+                text_color='#8b949e',
+                width=170, height=38,
+                glow=False,
+            )
+            btn.command = lambda k=key, h=handler: self.switch_tab(k, h)
+            btn.canvas.config(cursor='hand2')
+            btn.pack(side=tk.LEFT, padx=(4, 0), pady=9)
             self.tab_buttons[key] = btn
 
-        # ── Content area ─────────────────────────────────────────────────────
+        # ── Content area ──────────────────────────────────────────────
         self.tab_content = tk.Frame(self.window, bg=c['surface'])
         self.tab_content.pack(fill=tk.BOTH, expand=True)
 
@@ -371,17 +430,29 @@ class AdminPanel:
         sb.pack(side=tk.RIGHT, fill=tk.Y, padx=(0, 20), pady=20)
 
     def switch_tab(self, tab_key, tab_function):
-        """Switch tabs and update active nav button style."""
-        nav_bg = self.colors.get('secondary', '#f1f5f9') or '#f1f5f9'
-        active_bg = self.colors['primary']
+        """Switch tabs and update active nav button style (3D button aware)."""
+        nav_bg     = self.colors.get('nav_bg', self.colors.get('secondary', '#080b12'))
+        active_col = self.colors['primary']
         for key, btn in self.tab_buttons.items():
-            if key == tab_key:
-                btn.config(bg=active_bg, fg='#ffffff', font=('Segoe UI', 10, 'bold'))
+            if isinstance(btn, theme.Button3D):
+                if key == tab_key:
+                    btn.base_color  = active_col
+                    btn.text_color  = '#ffffff'
+                    btn.glow        = True
+                    btn.glow_color  = active_col
+                    btn._draw()
+                else:
+                    btn.base_color  = nav_bg
+                    btn.text_color  = '#8b949e'
+                    btn.glow        = False
+                    btn._draw()
             else:
-                btn.config(bg=nav_bg, fg='#475569', font=('Segoe UI', 10))
-                # Subtle hover on inactive buttons
-                anim = theme.AnimationManager(btn)
-                anim.bind_shimmer_hover(btn, nav_bg, '#dbeafe')
+                if key == tab_key:
+                    btn.config(bg=active_col, fg='#ffffff', font=('Segoe UI', 10, 'bold'))
+                else:
+                    btn.config(bg=nav_bg, fg='#475569', font=('Segoe UI', 10))
+                    anim = theme.AnimationManager(btn)
+                    anim.bind_shimmer_hover(btn, nav_bg, '#30363d')
         for widget in self.tab_content.winfo_children():
             widget.destroy()
         self.current_tab = tab_key

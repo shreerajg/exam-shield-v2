@@ -66,8 +66,8 @@ class AdminPanel:
                 'white':          '#ffffff',
                 'neon_glow':      '#3b82f6',
                 'nav_bg':         '#1e293b',
-                'gradient_start': '#1a56db',
-                'gradient_end':   '#7c3aed',
+                'gradient_start': '#0c1a6e',
+                'gradient_end':   '#2563eb',
             }
         elif theme_name == 'dark':
             self.colors = {
@@ -88,10 +88,10 @@ class AdminPanel:
                 'light_red':      '#1a0808',
                 'light_yellow':   '#1a1200',
                 'white':          '#e6edf3',
-                'neon_glow':      '#6366f1',
+                'neon_glow':      '#3b82f6',
                 'nav_bg':         '#080b12',
-                'gradient_start': '#1e1b4b',
-                'gradient_end':   '#312e81',
+                'gradient_start': '#060d2e',
+                'gradient_end':   '#1d4ed8',
             }
         else:  # pink
             self.colors = {
@@ -187,8 +187,8 @@ class AdminPanel:
         accent_cv.pack(fill=tk.X)
         for i in range(1200):
             t = i/1200
-            ar1,ag1,ab1 = 0xf5,0x9e,0x0b
-            ar2,ag2,ab2 = 0x63,0x66,0xf1
+            ar1,ag1,ab1 = 0x0c,0x1a,0x6e   # deep navy
+            ar2,ag2,ab2 = 0x38,0xbd,0xf8   # sky blue
             accent_cv.create_line(i, 0, i, 4,
                 fill=f'#{int(ar1+(ar2-ar1)*t):02x}{int(ag1+(ag2-ag1)*t):02x}{int(ab1+(ab2-ab1)*t):02x}',
                 width=1)

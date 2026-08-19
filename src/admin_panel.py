@@ -783,21 +783,18 @@ class AdminPanel:
                   command=d.destroy).pack(pady=(10, 0))
 
     def create_premium_button(self, parent, text, command, bg_color, pack_side='left', **kwargs):
-        """Create a premium styled button with animated hover and press feedback."""
-        btn = tk.Button(parent, text=text, command=command, bg=bg_color, fg=self.colors['card'],
-                        font=('Segoe UI', 10, 'bold'), relief=tk.FLAT, cursor='hand2',
-                        padx=15, pady=10, **kwargs)
-        # Compute hover colour via darken
-        hover_color = self.darken_color(bg_color)
-        anim = theme.AnimationManager(btn)
-        anim.bind_shimmer_hover(btn, bg_color, hover_color)
-        btn.bind('<ButtonPress-1>', lambda e: anim.button_press_effect(btn), add='+')
-        if not pack_side or pack_side == 'grid':
-            pass
-        elif pack_side == 'right':
-            btn.pack(side=tk.RIGHT, padx=(10, 0))
+        """Create a premium 3D button with bevel, glow, shadow and press animation."""
+        w = kwargs.get('width', 160)
+        h = kwargs.get('height', 40)
+        btn = theme.Button3D(
+            parent, text=text, command=command,
+            base_color=bg_color, text_color=self.colors.get('white', '#ffffff'),
+            width=w, height=h, glow=True, glow_color=bg_color,
+        )
+        if pack_side == 'right':
+            btn.pack(side=tk.RIGHT, padx=(8, 0))
         elif pack_side == 'left':
-            btn.pack(side=tk.LEFT, padx=(0, 10))
+            btn.pack(side=tk.LEFT, padx=(0, 8))
         return btn
 
     def darken_color(self, color):

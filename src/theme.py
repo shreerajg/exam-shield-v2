@@ -2,14 +2,15 @@ import tkinter as tk
 from tkinter import ttk
 import sys
 import os
+import math
 
 class ExamShieldTheme:
-    """Modern theme system for Exam Shield Pro"""
-    
-    def __init__(self, theme_mode="light"):
+    """Premium 3D theme system for Exam Shield Pro"""
+
+    def __init__(self, theme_mode="dark"):
         self.theme_mode = theme_mode
         self.setup_theme()
-    
+
     def setup_theme(self):
         """Initialize theme configuration"""
         if self.theme_mode == "dark":
@@ -23,189 +24,187 @@ class ExamShieldTheme:
         self.animations = self.get_animation_config()
     
     def get_light_theme(self):
-        """Light theme color palette"""
+        """Premium light theme — deep navy + electric blue + gold"""
         return {
-            # Primary colors
-            'primary': '#2563EB',
-            'primary_light': '#60A5FA',
-            'primary_dark': '#1D4ED8',
-            'primary_hover': '#1E40AF',
-            
-            # Secondary colors
-            'secondary': '#10B981',
-            'secondary_light': '#34D399',
-            'secondary_dark': '#047857',
-            
-            # Status colors
-            'success': '#10B981',
-            'warning': '#F59E0B',
-            'danger': '#EF4444',
-            'info': '#3B82F6',
-            
-            # Neutral colors
-            'white': '#FFFFFF',
-            'gray_50': '#F9FAFB',
-            'gray_100': '#F3F4F6',
-            'gray_200': '#E5E7EB',
-            'gray_300': '#D1D5DB',
-            'gray_400': '#9CA3AF',
-            'gray_500': '#6B7280',
-            'gray_600': '#4B5563',
-            'gray_700': '#374151',
-            'gray_800': '#1F2937',
-            'gray_900': '#111827',
-            
-            # Surface colors
-            'background': '#F8FAFC',
-            'surface': '#FFFFFF',
-            'card': '#FFFFFF',
-            'sidebar': '#1E293B',
-            'sidebar_hover': '#334155',
-            
-            # Text colors
-            'text_primary': '#1E293B',
-            'text_secondary': '#64748B',
-            'text_muted': '#94A3B8',
-            'text_inverse': '#FFFFFF',
-            
-            # Border colors
-            'border': '#E2E8F0',
-            'border_light': '#F1F5F9',
-            'border_focus': '#2563EB',
-            
-            # Shadow colors
-            'shadow': 'rgba(0, 0, 0, 0.1)',
-            'shadow_dark': 'rgba(0, 0, 0, 0.25)',
+            'primary':        '#1a56db',
+            'primary_light':  '#3b82f6',
+            'primary_dark':   '#1e3a8a',
+            'primary_hover':  '#1d4ed8',
+            'secondary':      '#7c3aed',
+            'secondary_light':'#a78bfa',
+            'secondary_dark': '#5b21b6',
+            'accent':         '#f59e0b',
+            'accent_light':   '#fcd34d',
+            'accent_dark':    '#d97706',
+            'success':        '#059669',
+            'success_light':  '#34d399',
+            'warning':        '#d97706',
+            'danger':         '#dc2626',
+            'danger_light':   '#f87171',
+            'info':           '#0284c7',
+            'white':          '#ffffff',
+            'gray_50':        '#f8fafc',
+            'gray_100':       '#f1f5f9',
+            'gray_200':       '#e2e8f0',
+            'gray_300':       '#cbd5e1',
+            'gray_400':       '#94a3b8',
+            'gray_500':       '#64748b',
+            'gray_600':       '#475569',
+            'gray_700':       '#334155',
+            'gray_800':       '#1e293b',
+            'gray_900':       '#0f172a',
+            'background':     '#eef2ff',
+            'surface':        '#f8faff',
+            'card':           '#ffffff',
+            'card_hover':     '#f0f4ff',
+            'sidebar':        '#1e293b',
+            'sidebar_hover':  '#334155',
+            'text_primary':   '#0f172a',
+            'text_secondary': '#475569',
+            'text_muted':     '#94a3b8',
+            'text_inverse':   '#ffffff',
+            'border':         '#c7d7fe',
+            'border_light':   '#e0e7ff',
+            'border_focus':   '#1a56db',
+            'btn_highlight':  '#ffffff',
+            'btn_shadow':     '#0d2f8c',
+            'btn_edge':       '#1442b5',
+            'gradient_start': '#1a56db',
+            'gradient_end':   '#7c3aed',
+            'gradient_mid':   '#2563eb',
+            'shadow':         '#00000015',
+            'shadow_dark':    '#00000040',
+            'neon_glow':      '#3b82f6',
+            'neon_glow2':     '#7c3aed',
         }
     
     def get_dark_theme(self):
-        """Dark theme color palette"""
+        """Premium dark theme — deep space + electric indigo + gold"""
         return {
-            # Primary colors (same as light)
-            'primary': '#3B82F6',
-            'primary_light': '#60A5FA',
-            'primary_dark': '#1D4ED8',
-            'primary_hover': '#2563EB',
-            
-            # Secondary colors
-            'secondary': '#10B981',
-            'secondary_light': '#34D399',
-            'secondary_dark': '#047857',
-            
-            # Status colors
-            'success': '#10B981',
-            'warning': '#F59E0B',
-            'danger': '#EF4444',
-            'info': '#3B82F6',
-            
-            # Neutral colors (inverted)
-            'white': '#FFFFFF',
-            'gray_50': '#18181B',
-            'gray_100': '#27272A',
-            'gray_200': '#3F3F46',
-            'gray_300': '#52525B',
-            'gray_400': '#71717A',
-            'gray_500': '#A1A1AA',
-            'gray_600': '#D4D4D8',
-            'gray_700': '#E4E4E7',
-            'gray_800': '#F4F4F5',
-            'gray_900': '#FAFAFA',
-            
-            # Surface colors
-            'background': '#0F172A',
-            'surface': '#1E293B',
-            'card': '#1E293B',
-            'sidebar': '#0F172A',
-            'sidebar_hover': '#1E293B',
-            
-            # Text colors
-            'text_primary': '#F1F5F9',
-            'text_secondary': '#CBD5E1',
-            'text_muted': '#94A3B8',
-            'text_inverse': '#1E293B',
-            
-            # Border colors
-            'border': '#334155',
-            'border_light': '#475569',
-            'border_focus': '#3B82F6',
-            
-            # Shadow colors
-            'shadow': 'rgba(0, 0, 0, 0.3)',
-            'shadow_dark': 'rgba(0, 0, 0, 0.5)',
+            'primary':        '#6366f1',
+            'primary_light':  '#818cf8',
+            'primary_dark':   '#4338ca',
+            'primary_hover':  '#4f46e5',
+            'secondary':      '#8b5cf6',
+            'secondary_light':'#a78bfa',
+            'secondary_dark': '#6d28d9',
+            'accent':         '#f59e0b',
+            'accent_light':   '#fcd34d',
+            'accent_dark':    '#d97706',
+            'success':        '#10b981',
+            'success_light':  '#34d399',
+            'warning':        '#f59e0b',
+            'danger':         '#ef4444',
+            'danger_light':   '#f87171',
+            'info':           '#06b6d4',
+            'white':          '#ffffff',
+            'gray_50':        '#0d1117',
+            'gray_100':       '#161b22',
+            'gray_200':       '#21262d',
+            'gray_300':       '#30363d',
+            'gray_400':       '#484f58',
+            'gray_500':       '#6e7681',
+            'gray_600':       '#8b949e',
+            'gray_700':       '#b1bac4',
+            'gray_800':       '#c9d1d9',
+            'gray_900':       '#e6edf3',
+            'background':     '#090c14',
+            'surface':        '#0d1117',
+            'card':           '#161b22',
+            'card_hover':     '#1c2330',
+            'sidebar':        '#080b12',
+            'sidebar_hover':  '#0d1117',
+            'text_primary':   '#e6edf3',
+            'text_secondary': '#8b949e',
+            'text_muted':     '#6e7681',
+            'text_inverse':   '#0d1117',
+            'border':         '#30363d',
+            'border_light':   '#21262d',
+            'border_focus':   '#6366f1',
+            'btn_highlight':  '#7b7ffa',
+            'btn_shadow':     '#1e1b4b',
+            'btn_edge':       '#312e81',
+            'gradient_start': '#1e1b4b',
+            'gradient_end':   '#312e81',
+            'gradient_mid':   '#4338ca',
+            'shadow':         '#00000050',
+            'shadow_dark':    '#00000080',
+            'neon_glow':      '#6366f1',
+            'neon_glow2':     '#8b5cf6',
         }
     
     def get_pink_theme(self):
-        """Pink theme color palette"""
+        """Premium pink theme — hot pink + violet + gold"""
         return {
-            # Primary colors
-            'primary': '#EC4899',
-            'primary_light': '#F472B6',
-            'primary_dark': '#BE185D',
-            'primary_hover': '#DB2777',
-            
-            # Secondary colors
-            'secondary': '#8B5CF6',
-            'secondary_light': '#A78BFA',
-            'secondary_dark': '#6D28D9',
-            
-            # Status colors
-            'success': '#10B981',
-            'warning': '#F59E0B',
-            'danger': '#EF4444',
-            'info': '#3B82F6',
-            
-            # Neutral colors
-            'white': '#FFFFFF',
-            'gray_50': '#FDF2F8',
-            'gray_100': '#FCE7F3',
-            'gray_200': '#FBCFE8',
-            'gray_300': '#F9A8D4',
-            'gray_400': '#F472B6',
-            'gray_500': '#EC4899',
-            'gray_600': '#DB2777',
-            'gray_700': '#BE185D',
-            'gray_800': '#9D174D',
-            'gray_900': '#831843',
-            
-            # Surface colors
-            'background': '#FDF2F8',
-            'surface': '#FFFFFF',
-            'card': '#FFFFFF',
-            'sidebar': '#831843',
-            'sidebar_hover': '#9D174D',
-            
-            # Text colors
-            'text_primary': '#831843',
-            'text_secondary': '#DB2777',
-            'text_muted': '#F472B6',
-            'text_inverse': '#FFFFFF',
-            
-            # Border colors
-            'border': '#FBCFE8',
-            'border_light': '#FCE7F3',
-            'border_focus': '#EC4899',
-            
-            # Shadow colors
-            'shadow': 'rgba(236, 72, 153, 0.1)',
-            'shadow_dark': 'rgba(236, 72, 153, 0.25)',
+            'primary':        '#db2777',
+            'primary_light':  '#f472b6',
+            'primary_dark':   '#9d174d',
+            'primary_hover':  '#be185d',
+            'secondary':      '#7c3aed',
+            'secondary_light':'#a78bfa',
+            'secondary_dark': '#5b21b6',
+            'accent':         '#f59e0b',
+            'accent_light':   '#fcd34d',
+            'accent_dark':    '#d97706',
+            'success':        '#059669',
+            'success_light':  '#34d399',
+            'warning':        '#d97706',
+            'danger':         '#dc2626',
+            'danger_light':   '#f87171',
+            'info':           '#0284c7',
+            'white':          '#ffffff',
+            'gray_50':        '#fdf2f8',
+            'gray_100':       '#fce7f3',
+            'gray_200':       '#fbcfe8',
+            'gray_300':       '#f9a8d4',
+            'gray_400':       '#f472b6',
+            'gray_500':       '#ec4899',
+            'gray_600':       '#db2777',
+            'gray_700':       '#be185d',
+            'gray_800':       '#9d174d',
+            'gray_900':       '#831843',
+            'background':     '#fff0f7',
+            'surface':        '#fff5f9',
+            'card':           '#ffffff',
+            'card_hover':     '#fff0f9',
+            'sidebar':        '#831843',
+            'sidebar_hover':  '#9d174d',
+            'text_primary':   '#500724',
+            'text_secondary': '#9d174d',
+            'text_muted':     '#f472b6',
+            'text_inverse':   '#ffffff',
+            'border':         '#fbb6ce',
+            'border_light':   '#fce7f3',
+            'border_focus':   '#db2777',
+            'btn_highlight':  '#ff85c0',
+            'btn_shadow':     '#700d38',
+            'btn_edge':       '#a01050',
+            'gradient_start': '#db2777',
+            'gradient_end':   '#7c3aed',
+            'gradient_mid':   '#c026d3',
+            'shadow':         '#db277720',
+            'shadow_dark':    '#db277750',
+            'neon_glow':      '#ec4899',
+            'neon_glow2':     '#7c3aed',
         }
     
     def get_font_system(self):
         """Professional font system"""
-        # Detect system fonts
-        system_font = self.get_system_font()
-        
+        f = self.get_system_font()
         return {
-            'heading': (system_font, 28, 'bold'),
-            'title': (system_font, 20, 'bold'),
-            'subtitle': (system_font, 16, 'bold'),
-            'body': (system_font, 11, 'normal'),
-            'body_bold': (system_font, 11, 'bold'),
-            'body_large': (system_font, 12, 'normal'),
-            'caption': (system_font, 10, 'normal'),
-            'small': (system_font, 9, 'normal'),
-            'mono': ('Consolas', 10, 'normal'),
-            'mono_small': ('Consolas', 9, 'normal'),
+            'heading':    (f, 28, 'bold'),
+            'title':      (f, 20, 'bold'),
+            'subtitle':   (f, 16, 'bold'),
+            'body':       (f, 11, 'normal'),
+            'body_bold':  (f, 11, 'bold'),
+            'body_large': (f, 13, 'normal'),
+            'caption':    (f, 10, 'normal'),
+            'small':      (f, 9,  'normal'),
+            'mono':       ('Consolas', 10, 'normal'),
+            'mono_small': ('Consolas', 9,  'normal'),
+            'nav':        (f, 10, 'bold'),
+            'btn':        (f, 11, 'bold'),
+            'btn_large':  (f, 13, 'bold'),
         }
     
     def get_system_font(self):
@@ -252,45 +251,23 @@ class ExamShieldTheme:
     
     def configure_button_styles(self, style):
         """Configure button styles"""
-        # Primary button
-        style.configure('Primary.TButton',
-                       background=self.colors['primary'],
-                       foreground=self.colors['text_inverse'],
-                       font=self.fonts['body_bold'],
-                       borderwidth=0,
-                       focuscolor='none',
-                       relief='flat')
-        
-        style.map('Primary.TButton',
-                 background=[('active', self.colors['primary_hover']),
-                           ('pressed', self.colors['primary_dark'])])
-        
-        # Success button
-        style.configure('Success.TButton',
-                       background=self.colors['success'],
-                       foreground=self.colors['text_inverse'],
-                       font=self.fonts['body_bold'],
-                       borderwidth=0,
-                       focuscolor='none',
-                       relief='flat')
-        
-        # Danger button
-        style.configure('Danger.TButton',
-                       background=self.colors['danger'],
-                       foreground=self.colors['text_inverse'],
-                       font=self.fonts['body_bold'],
-                       borderwidth=0,
-                       focuscolor='none',
-                       relief='flat')
-        
-        # Warning button
-        style.configure('Warning.TButton',
-                       background=self.colors['warning'],
-                       foreground=self.colors['text_inverse'],
-                       font=self.fonts['body_bold'],
-                       borderwidth=0,
-                       focuscolor='none',
-                       relief='flat')
+        for name, bg, hover in [
+            ('Primary', self.colors['primary'],  self.colors['primary_hover']),
+            ('Success', self.colors['success'],  self.colors['success_light']),
+            ('Danger',  self.colors['danger'],   self.colors['danger_light']),
+            ('Warning', self.colors['warning'],  self.colors['accent']),
+            ('Accent',  self.colors['accent'],   self.colors['accent_dark']),
+        ]:
+            style.configure(f'{name}.TButton',
+                            background=bg,
+                            foreground=self.colors['text_inverse'],
+                            font=self.fonts['body_bold'],
+                            borderwidth=0,
+                            focuscolor='none',
+                            relief='flat')
+            style.map(f'{name}.TButton',
+                      background=[('active', hover),
+                                  ('pressed', self.colors['primary_dark'])])
     
     def configure_entry_styles(self, style):
         """Configure entry widget styles"""
@@ -830,10 +807,263 @@ class ModernComponents:
 # Theme presets
 THEMES = {
     'light': ExamShieldTheme('light'),
-    'dark': ExamShieldTheme('dark'),
-    'pink': ExamShieldTheme('pink'),
+    'dark':  ExamShieldTheme('dark'),
+    'pink':  ExamShieldTheme('pink'),
 }
 
-def get_theme(theme_name='light'):
+def get_theme(theme_name='dark'):
     """Get theme instance"""
-    return THEMES.get(theme_name, THEMES['light'])
+    return THEMES.get(theme_name, THEMES['dark'])
+
+
+# ============================================================
+#  GRADIENT CANVAS HELPER
+# ============================================================
+
+def create_gradient_canvas(parent, width, height, color1, color2,
+                           direction='vertical'):
+    """Return a Canvas with a smooth two-color gradient."""
+    canvas = tk.Canvas(parent, width=width, height=height, highlightthickness=0)
+    r1,g1,b1 = int(color1[1:3],16), int(color1[3:5],16), int(color1[5:7],16)
+    r2,g2,b2 = int(color2[1:3],16), int(color2[3:5],16), int(color2[5:7],16)
+    if direction == 'vertical':
+        for i in range(height):
+            t = i / height
+            canvas.create_line(0, i, width, i,
+                               fill=f'#{int(r1+(r2-r1)*t):02x}{int(g1+(g2-g1)*t):02x}{int(b1+(b2-b1)*t):02x}',
+                               width=1)
+    else:
+        for i in range(width):
+            t = i / width
+            canvas.create_line(i, 0, i, height,
+                               fill=f'#{int(r1+(r2-r1)*t):02x}{int(g1+(g2-g1)*t):02x}{int(b1+(b2-b1)*t):02x}',
+                               width=1)
+    return canvas
+
+
+# ============================================================
+#  3D BUTTON
+# ============================================================
+
+class Button3D:
+    """
+    Premium 3-D canvas button.
+    Features: gradient face, top-left highlight bevel,
+    bottom-right shadow, glow ring, animated hover/press.
+    """
+
+    def __init__(self, parent, text, command=None,
+                 base_color='#6366f1', text_color='#ffffff',
+                 icon='', width=180, height=44, style='primary',
+                 font=None, glow=False, glow_color=None,
+                 corner_radius=10, theme_colors=None):
+        self.command    = command
+        self.text       = text
+        self.icon       = icon
+        self.base_color = base_color
+        self.text_color = text_color
+        self.width      = width
+        self.height     = height
+        self.style      = style
+        self.font       = font or ('Segoe UI', 11, 'bold')
+        self.glow       = glow
+        self.glow_color = glow_color or base_color
+        self.cr         = corner_radius
+        self.tc         = theme_colors or {}
+        self._pressed   = False
+        self._hovered   = False
+        self._disabled  = False
+        pad = 8
+        self._pad = pad
+        self.canvas = tk.Canvas(
+            parent, width=width+pad*2, height=height+pad*2,
+            bg=parent.cget('bg'), highlightthickness=0, cursor='hand2')
+        self.ox = pad; self.oy = pad
+        self._draw(); self._bind()
+
+    def pack(self, **kw):  self.canvas.pack(**kw)
+    def grid(self, **kw):  self.canvas.grid(**kw)
+    def place(self, **kw): self.canvas.place(**kw)
+
+    @staticmethod
+    def _h2r(h):
+        h = h.lstrip('#')
+        return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
+
+    @staticmethod
+    def _r2h(r, g, b):
+        return f'#{int(max(0,min(255,r))):02x}{int(max(0,min(255,g))):02x}{int(max(0,min(255,b))):02x}'
+
+    def _lighten(self, col, a=40):
+        r,g,b = self._h2r(col); return self._r2h(r+a, g+a, b+a)
+
+    def _darken(self, col, a=40):
+        r,g,b = self._h2r(col); return self._r2h(r-a, g-a, b-a)
+
+    def _mix(self, c1, c2, t):
+        r1,g1,b1 = self._h2r(c1); r2,g2,b2 = self._h2r(c2)
+        return self._r2h(r1+(r2-r1)*t, g1+(g2-g1)*t, b1+(b2-b1)*t)
+
+    def _rrect(self, c, x0, y0, x1, y1, r, **kw):
+        pts = [x0+r,y0, x1-r,y0, x1,y0, x1,y0+r,
+               x1,y1-r, x1,y1, x1-r,y1, x0+r,y1,
+               x0,y1, x0,y1-r, x0,y0+r, x0,y0]
+        return c.create_polygon(pts, smooth=True, **kw)
+
+    def _draw(self):
+        c = self.canvas; c.delete('all')
+        x0, y0 = self.ox, self.oy
+        x1, y1 = x0+self.width, y0+self.height
+        r = self.cr; bc = self.base_color
+        pressed = self._pressed; hovered = self._hovered
+        canvas_bg = c.cget('bg')
+
+        # glow ring
+        if hovered or self.glow:
+            gs = 7 if hovered else 4
+            for s in range(gs, 0, -1):
+                t = (gs-s)/gs
+                col = self._mix(self.glow_color, canvas_bg, 0.5+0.5*t)
+                self._rrect(c, x0-s, y0-s, x1+s, y1+s, r+s, fill=col, outline='')
+
+        # drop shadow
+        if not pressed:
+            for i in range(5, 0, -1):
+                shadow = self._mix(self._darken(bc, 60), canvas_bg, i/5)
+                self._rrect(c, x0+i, y0+i+1, x1+i, y1+i+1, r, fill=shadow, outline='')
+
+        # face gradient
+        if pressed:
+            face_hi = self._darken(bc, 25); face_lo = self._darken(bc, 40); ox,oy = 2,3
+        elif hovered:
+            face_hi = self._lighten(bc, 22); face_lo = self._lighten(bc, 5);  ox,oy = 0,-1
+        else:
+            face_hi = self._lighten(bc, 12); face_lo = self._darken(bc, 12);  ox,oy = 0,0
+
+        self._rrect(c, x0+ox, y0+oy, x1+ox, y1+oy, r, fill=face_hi, outline='')
+        mid_y = y0+oy+int((y1-y0)*0.45)
+        c.create_rectangle(x0+ox, mid_y, x1+ox, y1+oy, fill=face_lo, outline='')
+        self._rrect(c, x0+ox, y0+oy, x1+ox, y1+oy, r, fill='',
+                    outline=self._darken(bc, 35), width=1)
+
+        # highlight bevel
+        if not pressed:
+            hi = self._lighten(bc, 65)
+            c.create_line(x0+ox+r, y0+oy+1, x1+ox-r, y0+oy+1, fill=hi, width=2)
+            c.create_line(x0+ox+1, y0+oy+r, x0+ox+1, y1+oy-r,
+                          fill=self._lighten(bc, 40), width=2)
+
+        # gloss sheen
+        if not pressed:
+            sheen = self._lighten(bc, 50)
+            pts = [x0+ox+r, y0+oy+1, x1+ox-r, y0+oy+1,
+                   x1+ox-r, y0+oy+(y1-y0)//3, x0+ox+r, y0+oy+(y1-y0)//3]
+            c.create_polygon(pts, fill=sheen, outline='', stipple='gray25')
+
+        # text + icon
+        cx = (x0+ox+x1+ox)//2; cy = (y0+oy+y1+oy)//2
+        label = f"{self.icon}  {self.text}" if self.icon else self.text
+        tc = self._darken(self.text_color, 20) if pressed else self.text_color
+        c.create_text(cx+1, cy+1, text=label, font=self.font,
+                      fill=self._darken(bc, 50), anchor='center')
+        c.create_text(cx, cy, text=label, font=self.font, fill=tc, anchor='center')
+
+    def _bind(self):
+        self.canvas.bind('<Enter>',           self._on_enter)
+        self.canvas.bind('<Leave>',           self._on_leave)
+        self.canvas.bind('<ButtonPress-1>',   self._on_press)
+        self.canvas.bind('<ButtonRelease-1>', self._on_release)
+
+    def _on_enter(self, e=None):
+        if self._disabled: return
+        self._hovered = True; self._draw()
+
+    def _on_leave(self, e=None):
+        self._hovered = False; self._pressed = False; self._draw()
+
+    def _on_press(self, e=None):
+        if self._disabled: return
+        self._pressed = True; self._draw()
+
+    def _on_release(self, e=None):
+        if self._disabled: return
+        was = self._pressed
+        self._pressed = False; self._hovered = True; self._draw()
+        if was and self.command:
+            try: self.command()
+            except Exception: pass
+
+    def config(self, **kw):
+        if 'state' in kw:
+            if kw['state'] == 'disabled':
+                self._disabled = True; self.canvas.config(cursor='arrow')
+                self._save_base = self.base_color; self._save_text = self.text_color
+                self.base_color = '#6b7280'; self.text_color = '#d1d5db'; self._draw()
+            else:
+                self._disabled = False; self.canvas.config(cursor='hand2')
+                if hasattr(self, '_save_base'):
+                    self.base_color = self._save_base; self.text_color = self._save_text
+                self._draw()
+        if 'text' in kw: self.text = kw['text']; self._draw()
+        if 'bg'   in kw: self.canvas.config(bg=kw['bg'])
+        if 'base_color' in kw: self.base_color = kw['base_color']; self._draw()
+
+
+# ============================================================
+#  GLASSMORPHISM CARD
+# ============================================================
+
+class GlassCard:
+    """Simulated glassmorphism panel."""
+
+    def __init__(self, parent, width, height,
+                 tint_color='#6366f1', tint_alpha=0.12,
+                 border_color='#ffffff', corner_radius=16, bg_color='#161b22'):
+        self.width = width; self.height = height
+        self.cr = corner_radius; self.bg = bg_color
+        self._canvas = tk.Canvas(parent, width=width, height=height,
+                                 highlightthickness=0, bg=bg_color)
+        self._draw_glass(tint_color, tint_alpha, border_color)
+        self.inner = tk.Frame(self._canvas,
+                              bg=self._mix(bg_color, tint_color, tint_alpha))
+
+    def _h2r(self, h):
+        h = h.lstrip('#')
+        return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
+
+    def _r2h(self, r, g, b):
+        return f'#{int(max(0,min(255,r))):02x}{int(max(0,min(255,g))):02x}{int(max(0,min(255,b))):02x}'
+
+    def _mix(self, base, tint, alpha):
+        r1,g1,b1 = self._h2r(base); r2,g2,b2 = self._h2r(tint)
+        return self._r2h(r1+(r2-r1)*alpha, g1+(g2-g1)*alpha, b1+(b2-b1)*alpha)
+
+    def _rrect(self, x0, y0, x1, y1, r, **kw):
+        pts = [x0+r,y0, x1-r,y0, x1,y0, x1,y0+r,
+               x1,y1-r, x1,y1, x1-r,y1, x0+r,y1,
+               x0,y1, x0,y1-r, x0,y0+r, x0,y0]
+        return self._canvas.create_polygon(pts, smooth=True, **kw)
+
+    def _draw_glass(self, tint, alpha, border):
+        c = self._canvas; w, h = self.width, self.height; r = self.cr; bg = self.bg
+        for i in range(8, 0, -1):
+            col = self._mix(bg, '#000000', 0.05*i)
+            self._rrect(i, i, w+i, h+i, r+i, fill=col, outline='')
+        self._rrect(0, 0, w, h, r, fill=self._mix(bg, tint, alpha), outline='')
+        sheen = self._mix(bg, '#ffffff', 0.10)
+        c.create_polygon([r, 0, w-r, 0, w//2, h//4, r//2, h//4],
+                         smooth=True, fill=sheen, outline='')
+        self._rrect(0, 0, w, h, r,
+                    fill='', outline=self._mix(bg, '#ffffff', 0.22), width=1)
+        self._rrect(1, 1, w-1, h-1, r-1,
+                    fill='', outline=self._mix(bg, tint, 0.4), width=1)
+
+    def pack(self, **kw):  self._canvas.pack(**kw)
+    def grid(self, **kw):  self._canvas.grid(**kw)
+    def place(self, **kw): self._canvas.place(**kw)
+
+    def get_inner(self):
+        pad = self.cr
+        self._canvas.create_window(pad, pad, anchor='nw', window=self.inner,
+                                   width=self.width-pad*2, height=self.height-pad*2)
+        return self.inner

@@ -169,18 +169,29 @@ class AdminPanel:
         tk.Label(tf, text='Administrative Control Center',
                  font=('Segoe UI', 9), bg=gs, fg='#a5b4fc').pack(anchor=tk.W)
 
-        # Theme selector on the right
+        # Theme pill buttons on the right
         tr = tk.Frame(hc, bg=gs)
-        tr.pack(side=tk.RIGHT, fill=tk.Y, padx=20)
-        tk.Label(tr, text='🎨  Theme:', bg=gs,
-                 fg='#a5b4fc', font=('Segoe UI', 9)).pack(side=tk.LEFT, padx=(0, 6))
-        if not hasattr(self, 'theme_var'):
-            self.theme_var = tk.StringVar(value=self.current_theme)
-        combo = ttk.Combobox(tr, textvariable=self.theme_var,
-                             values=['dark', 'light', 'pink'],
-                             state='readonly', width=8, font=('Segoe UI', 9))
-        combo.pack(side=tk.LEFT)
-        combo.bind('<<ComboboxSelected>>', self.change_theme)
+        tr.pack(side=tk.RIGHT, fill=tk.Y, padx=12, pady=10)
+        tk.Label(tr, text='Theme:', bg=gs,
+                 fg='#a5b4fc', font=('Segoe UI', 8)).pack(side=tk.LEFT, padx=(0, 6))
+        admin_theme_specs = [
+            ('dark',  '\ud83c\udf11 Dark',  '#060d2e', '#3b82f6'),
+            ('light', '\u2600\ufe0f Light', '#0c1a6e', '#2563eb'),
+            ('pink',  '\ud83c\udf38 Pink',  '#831843', '#db2777'),
+        ]
+        self._admin_theme_btns = {}
+        for t_name, label, base, glow in admin_theme_specs:
+            active = (t_name == self.current_theme)
+            b = theme.Button3D(
+                tr, text=label,
+                command=lambda n=t_name: self._switch_admin_theme(n),
+                base_color=base,
+                text_color='#ffffff' if active else '#8b949e',
+                width=80, height=32,
+                glow=active, glow_color=glow,
+            )
+            b.pack(side=tk.LEFT, padx=(0, 4))
+            self._admin_theme_btns[t_name] = b
 
         # ── Neon accent strip ──────────────────────────────────────────────
         accent_cv = tk.Canvas(self.window, height=4, highlightthickness=0, bg=surf)

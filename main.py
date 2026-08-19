@@ -302,19 +302,32 @@ class ExamShield:
         )
         cp_btn3d.pack(fill=tk.X)
 
-        # ─ Theme selector ─
-        theme_row = tk.Frame(form, bg=card_bg)
-        theme_row.pack(fill=tk.X)
-        tk.Label(theme_row, text="🎨  Theme:", bg=card_bg,
-                 fg=c['text_secondary'], font=("Segoe UI", 9)).pack(side=tk.LEFT)
-        if not hasattr(self, 'theme_var'):
-            self.theme_var = tk.StringVar(value=self.current_theme)
-        theme_combo = ttk.Combobox(
-            theme_row, textvariable=self.theme_var,
-            values=["dark", "light", "pink"],
-            state="readonly", width=10, font=("Segoe UI", 9))
-        theme_combo.pack(side=tk.LEFT, padx=8)
-        theme_combo.bind("<<ComboboxSelected>>", self.change_theme)
+        # ─ Theme buttons ─
+        tk.Label(form, text="🎨  Choose Theme", font=("Segoe UI", 8, "bold"),
+                 bg=card_bg, fg=c['text_secondary']).pack(anchor=tk.W, pady=(4, 6))
+        theme_btns_frame = tk.Frame(form, bg=card_bg)
+        theme_btns_frame.pack(fill=tk.X, pady=(0, 4))
+
+        theme_specs = [
+            ('dark',  '🌑  Dark',   '#060d2e', '#3b82f6', '#60a5fa'),
+            ('light', '☀️  Light',  '#0c1a6e', '#2563eb', '#93c5fd'),
+            ('pink',  '🌸  Pink',   '#831843', '#db2777', '#f9a8d4'),
+        ]
+        self._theme_btn3d = {}
+        btn_w = 132
+        for t_name, label, base, glow, text_col in theme_specs:
+            active = (t_name == self.current_theme)
+            b = theme.Button3D(
+                theme_btns_frame,
+                text=label,
+                command=lambda n=t_name: self._switch_login_theme(n),
+                base_color=base,
+                text_color=text_col if not active else '#ffffff',
+                width=btn_w, height=36,
+                glow=active, glow_color=glow,
+            )
+            b.pack(side=tk.LEFT, padx=(0, 6))
+            self._theme_btn3d[t_name] = b
 
         # Store card ref for shake animation
         self._login_card = card

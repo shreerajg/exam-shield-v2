@@ -43,10 +43,10 @@ class ExamShield:
 
         self.root = tk.Tk()
         self.root.title("Exam Shield Premium v2.0 - Admin Login")
-        self.root.geometry("520x720")
+        self.root.geometry("520x780")
         self.root.resizable(False, False)
 
-        self.current_theme = "light"
+        self.current_theme = "dark"
         self.load_theme(self.current_theme)
 
         self.db_manager = DatabaseManager()
@@ -66,25 +66,60 @@ class ExamShield:
         tc = t.colors
         if theme_name == "light":
             self.colors = {
-                'primary': '#1565c0',        # clear medium blue
-                'secondary': '#1976d2',      # slightly lighter blue
-                'accent': '#f59e0b',         # warm amber
-                'success': '#16a34a', 'danger': '#dc2626',
-                'surface': '#f0f7ff',        # very light blue-white
-                'text_primary': '#1e293b',   # dark slate (readable)
-                'text_secondary': '#64748b', # slate gray
-                'white': '#ffffff',
-                'light_blue': '#eff6ff',
-                'gradient_start': '#1565c0', # clear blue gradient
-                'gradient_end':   '#42a5f5', # sky blue
+                'primary':        '#1a56db',
+                'secondary':      '#7c3aed',
+                'accent':         '#f59e0b',
+                'success':        '#059669', 'danger': '#dc2626',
+                'surface':        '#f8faff',
+                'card':           '#ffffff',
+                'text_primary':   '#0f172a',
+                'text_secondary': '#475569',
+                'white':          '#ffffff',
+                'light_blue':     '#eef2ff',
+                'border':         '#c7d7fe',
+                'gradient_start': '#1a56db',
+                'gradient_end':   '#7c3aed',
+                'neon_glow':      '#3b82f6',
+                'entry_bg':       '#eef2ff',
+                'entry_focus':    '#dbeafe',
             }
-        else:
+        elif theme_name == "dark":
             self.colors = {
-                'primary': tc['primary'], 'secondary': tc['secondary'], 'accent': tc['warning'],
-                'success': tc['success'], 'danger': tc['danger'], 'surface': tc['surface'],
-                'text_primary': tc['text_primary'], 'text_secondary': tc['text_secondary'],
-                'white': tc['card'], 'light_blue': tc['background'],
-                'gradient_start': tc['primary_dark'], 'gradient_end': tc['primary_light']
+                'primary':        '#6366f1',
+                'secondary':      '#8b5cf6',
+                'accent':         '#f59e0b',
+                'success':        '#10b981', 'danger': '#ef4444',
+                'surface':        '#0d1117',
+                'card':           '#161b22',
+                'text_primary':   '#e6edf3',
+                'text_secondary': '#8b949e',
+                'white':          '#ffffff',
+                'light_blue':     '#1c2330',
+                'border':         '#30363d',
+                'gradient_start': '#1e1b4b',
+                'gradient_end':   '#312e81',
+                'neon_glow':      '#6366f1',
+                'entry_bg':       '#21262d',
+                'entry_focus':    '#30363d',
+            }
+        else:  # pink
+            self.colors = {
+                'primary':        '#db2777',
+                'secondary':      '#7c3aed',
+                'accent':         '#f59e0b',
+                'success':        '#059669', 'danger': '#dc2626',
+                'surface':        '#fff5f9',
+                'card':           '#ffffff',
+                'text_primary':   '#500724',
+                'text_secondary': '#9d174d',
+                'white':          '#ffffff',
+                'light_blue':     '#fce7f3',
+                'border':         '#fbb6ce',
+                'gradient_start': '#db2777',
+                'gradient_end':   '#7c3aed',
+                'neon_glow':      '#ec4899',
+                'entry_bg':       '#fce7f3',
+                'entry_focus':    '#fbcfe8',
             }
         if hasattr(self, 'root'):
             self.root.configure(bg=self.colors['surface'])
@@ -94,15 +129,17 @@ class ExamShield:
         self.load_theme(self.current_theme)
         for widget in self.root.winfo_children():
             widget.destroy()
+        # Re-create animation manager with new root bg
+        self._anim = theme.AnimationManager(self.root)
         self.setup_ui()
 
     # ── UI Setup ─────────────────────────────────────────────────────────────
 
     def center_window(self):
         self.root.update_idletasks()
-        x = (self.root.winfo_screenwidth() // 2) - 260
-        y = (self.root.winfo_screenheight() // 2) - 360
-        self.root.geometry(f"520x720+{x}+{y}")
+        x = (self.root.winfo_screenwidth()  // 2) - 260
+        y = (self.root.winfo_screenheight() // 2) - 390
+        self.root.geometry(f"520x780+{x}+{y}")
 
     def create_gradient_frame(self, parent, width, height):
         canvas = tk.Canvas(parent, width=width, height=height, highlightthickness=0)
@@ -119,107 +156,162 @@ class ExamShield:
         return canvas
 
     def setup_ui(self):
-        """Build the premium login interface."""
+        """Build the premium 3D login interface."""
         c = self.colors
+        surf = c['surface']
+        self.root.configure(bg=surf)
 
-        # ── Hero header ────────────────────────────────────────────────────────
-        header_canvas = self.create_gradient_frame(self.root, 520, 195)
+        # ── Hero header: deep-space gradient ──────────────────────────────────
+        header_canvas = self.create_gradient_frame(self.root, 520, 210)
         header_canvas.pack(fill=tk.X)
 
+        # Floating particles / dots for depth
+        for (px, py, ps) in [(60,30,3),(440,80,2),(100,160,2),(460,40,4),(200,190,2),(380,170,3)]:
+            header_canvas.create_oval(px-ps, py-ps, px+ps, py+ps,
+                                      fill='#ffffff22', outline='')
+
+        # Shield icon with glow halo
+        header_canvas.create_oval(225, 28, 295, 98,
+                                  fill='', outline=c['accent'], width=2)
         shield_item = header_canvas.create_text(
-            260, 70, text="🛡️", font=("Segoe UI", 46), fill=c['accent'])
+            260, 63, text="🛡️", font=("Segoe UI", 38), fill=c['accent'])
         header_canvas.create_text(
-            260, 130, text="EXAM SHIELD PREMIUM",
-            font=("Segoe UI", 21, "bold"), fill="#ffffff")
+            260, 138, text="EXAM SHIELD PREMIUM",
+            font=("Segoe UI", 20, "bold"), fill="#ffffff")
         header_canvas.create_text(
-            260, 160, text="v2.0  ·  Secure Examination System",
-            font=("Segoe UI", 10), fill="#8ab8d4")
-        self._anim.pulse_text_color(header_canvas, shield_item, c['accent'], '#ffffff', duration=2000)
+            260, 165, text="v2.0  ·  Secure Examination System",
+            font=("Segoe UI", 10), fill="#a5b4fc")
+        header_canvas.create_text(
+            260, 188, text="━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+            font=("Segoe UI", 7), fill="#4338ca")
 
-        # Gold accent strip
-        tk.Frame(self.root, bg=c['accent'], height=3).pack(fill=tk.X)
+        self._anim.pulse_text_color(header_canvas, shield_item, c['accent'], '#ffffff', duration=2200)
 
-        # ── Login form card ────────────────────────────────────────────────────
-        card = tk.Frame(self.root, bg=c['surface'])
-        card.pack(fill=tk.BOTH, expand=True, padx=38, pady=22)
+        # Gold + neon accent strip
+        accent_bar = tk.Canvas(self.root, height=4, highlightthickness=0, bg=surf)
+        accent_bar.pack(fill=tk.X)
+        for i in range(520):
+            t = i / 520
+            r1,g1,b1 = 0xf5,0x9e,0x0b
+            r2,g2,b2 = 0x63,0x66,0xf1
+            accent_bar.create_line(i, 0, i, 4,
+                fill=f'#{int(r1+(r2-r1)*t):02x}{int(g1+(g2-g1)*t):02x}{int(b1+(b2-b1)*t):02x}',
+                width=1)
 
-        # Section title
-        tk.Label(card, text="Administrator Login",
+        # ── Login form card ───────────────────────────────────────────────────
+        card_bg = c['card']
+        card = tk.Frame(self.root, bg=card_bg,
+                        highlightbackground=c['border'],
+                        highlightthickness=1)
+        card.pack(fill=tk.BOTH, expand=True, padx=32, pady=18)
+
+        # Card header row
+        card_hdr = tk.Frame(card, bg=card_bg)
+        card_hdr.pack(fill=tk.X, padx=22, pady=(20, 0))
+        tk.Frame(card_hdr, bg=c['primary'], width=5, height=28).pack(side=tk.LEFT)
+        hdr_text = tk.Frame(card_hdr, bg=card_bg)
+        hdr_text.pack(side=tk.LEFT, padx=10)
+        tk.Label(hdr_text, text="Administrator Login",
                  font=("Segoe UI", 17, "bold"),
-                 bg=c['surface'], fg=c['primary']).pack(anchor=tk.W, pady=(0, 3))
-        tk.Label(card, text="Sign in to access the control center",
+                 bg=card_bg, fg=c['primary']).pack(anchor=tk.W)
+        tk.Label(hdr_text, text="Sign in to access the control center",
                  font=("Segoe UI", 9),
-                 bg=c['surface'], fg=c['text_secondary']).pack(anchor=tk.W, pady=(0, 22))
+                 bg=card_bg, fg=c['text_secondary']).pack(anchor=tk.W)
 
-        # ─ Username field (underline style) ─
-        tk.Label(card, text="U S E R N A M E", font=("Segoe UI", 8, "bold"),
-                 bg=c['surface'], fg=c['text_secondary']).pack(anchor=tk.W)
+        # Separator
+        sep_canvas = tk.Canvas(card, height=2, highlightthickness=0, bg=card_bg)
+        sep_canvas.pack(fill=tk.X, padx=22, pady=(14, 18))
+        for i in range(456):
+            t = i/456
+            r1,g1,b1 = 0x63,0x66,0xf1
+            r2,g2,b2 = 0x8b,0x5c,0xf6
+            sep_canvas.create_line(i, 0, i, 2,
+                fill=f'#{int(r1+(r2-r1)*t):02x}{int(g1+(g2-g1)*t):02x}{int(b1+(b2-b1)*t):02x}',
+                width=1)
+
+        form = tk.Frame(card, bg=card_bg)
+        form.pack(fill=tk.BOTH, expand=True, padx=22)
+
+        # ─ Username ─
+        tk.Label(form, text="U S E R N A M E", font=("Segoe UI", 8, "bold"),
+                 bg=card_bg, fg=c['text_secondary']).pack(anchor=tk.W)
         self.username_var = tk.StringVar()
         username_entry = tk.Entry(
-            card, textvariable=self.username_var,
+            form, textvariable=self.username_var,
             font=("Segoe UI", 12), relief=tk.FLAT, bd=0,
-            bg='#eef2f7', fg=c['text_primary'], width=30,
+            bg=c.get('entry_bg', '#eef2f7'), fg=c['text_primary'], width=30,
             insertbackground=c['primary'])
-        username_entry.pack(fill=tk.X, pady=(5, 1), ipady=10)
-        tk.Frame(card, bg=c['primary'], height=2).pack(fill=tk.X, pady=(0, 18))
-        self._anim.bind_entry_glow(username_entry, '#eef2f7', '#dbeafe')
+        username_entry.pack(fill=tk.X, pady=(5, 1), ipady=11)
+        tk.Frame(form, bg=c['primary'], height=2).pack(fill=tk.X, pady=(0, 18))
+        self._anim.bind_entry_glow(username_entry,
+                                   c.get('entry_bg', '#eef2f7'),
+                                   c.get('entry_focus', '#dbeafe'))
 
-        # ─ Password field (underline style) ─
-        tk.Label(card, text="P A S S W O R D", font=("Segoe UI", 8, "bold"),
-                 bg=c['surface'], fg=c['text_secondary']).pack(anchor=tk.W)
+        # ─ Password ─
+        tk.Label(form, text="P A S S W O R D", font=("Segoe UI", 8, "bold"),
+                 bg=card_bg, fg=c['text_secondary']).pack(anchor=tk.W)
         self.password_var = tk.StringVar()
         password_entry = tk.Entry(
-            card, textvariable=self.password_var, show="●",
+            form, textvariable=self.password_var, show="●",
             font=("Segoe UI", 12), relief=tk.FLAT, bd=0,
-            bg='#eef2f7', fg=c['text_primary'], width=30,
+            bg=c.get('entry_bg', '#eef2f7'), fg=c['text_primary'], width=30,
             insertbackground=c['primary'])
-        password_entry.pack(fill=tk.X, pady=(5, 1), ipady=10)
-        tk.Frame(card, bg=c['primary'], height=2).pack(fill=tk.X, pady=(0, 22))
-        self._anim.bind_entry_glow(password_entry, '#eef2f7', '#dbeafe')
+        password_entry.pack(fill=tk.X, pady=(5, 1), ipady=11)
+        tk.Frame(form, bg=c['primary'], height=2).pack(fill=tk.X, pady=(0, 22))
+        self._anim.bind_entry_glow(password_entry,
+                                   c.get('entry_bg', '#eef2f7'),
+                                   c.get('entry_focus', '#dbeafe'))
 
-        # ─ Primary login button ─
-        login_btn = tk.Button(
-            card, text="🔐   SIGN IN  →",
+        # ─ 3D Sign In Button ─
+        btn_frame = tk.Frame(form, bg=card_bg)
+        btn_frame.pack(fill=tk.X, pady=(0, 6))
+        self._login_btn3d = theme.Button3D(
+            btn_frame,
+            text="SIGN IN",
+            icon="🔐",
             command=self.attempt_login,
-            bg=c['primary'], fg=c['white'],
-            font=("Segoe UI", 11, "bold"), relief=tk.FLAT,
-            cursor='hand2', pady=13)
-        login_btn.pack(fill=tk.X, pady=(0, 6))
-        self._anim.bind_shimmer_hover(
-            login_btn, c['primary'], c.get('gradient_start', '#17223b') or '#17223b')
-        login_btn.bind('<ButtonPress-1>',
-                       lambda e: self._anim.button_press_effect(login_btn), add='+')
+            base_color=c['primary'],
+            text_color='#ffffff',
+            width=432, height=46,
+            glow=True,
+            glow_color=c.get('neon_glow', c['primary']),
+        )
+        self._login_btn3d.pack(fill=tk.X)
 
         # ─ Status message ─
         self.login_status = tk.Label(
-            card, text="", font=("Segoe UI", 9),
-            bg=c['surface'], fg=c['danger'], wraplength=400)
+            form, text="", font=("Segoe UI", 9),
+            bg=card_bg, fg=c['danger'], wraplength=400)
         self.login_status.pack(pady=(2, 10))
 
         # ─ Divider ─
-        tk.Frame(card, bg='#dde3ea', height=1).pack(fill=tk.X, pady=(0, 12))
+        tk.Frame(form, bg=c['border'], height=1).pack(fill=tk.X, pady=(0, 12))
 
-        # ─ Ghost secondary button ─
-        cp_btn = tk.Button(
-            card, text="🔄  Change Password",
+        # ─ Change Password (ghost 3D button) ─
+        ghost_frame = tk.Frame(form, bg=card_bg)
+        ghost_frame.pack(fill=tk.X, pady=(0, 14))
+        cp_btn3d = theme.Button3D(
+            ghost_frame,
+            text="Change Password",
+            icon="🔄",
             command=self.show_change_password,
-            bg=c['surface'], fg=c['text_secondary'],
-            font=("Segoe UI", 9), relief=tk.FLAT, cursor='hand2', pady=6)
-        cp_btn.pack(fill=tk.X, pady=(0, 14))
-        self._anim.bind_shimmer_hover(
-            cp_btn, c['surface'],
-            c.get('light_blue', '#ecf4ff') or '#ecf4ff')
+            base_color=c.get('entry_bg', '#e2e8f0'),
+            text_color=c['text_secondary'],
+            width=432, height=38,
+            glow=False,
+        )
+        cp_btn3d.pack(fill=tk.X)
 
         # ─ Theme selector ─
-        theme_row = tk.Frame(card, bg=c['surface'])
+        theme_row = tk.Frame(form, bg=card_bg)
         theme_row.pack(fill=tk.X)
-        tk.Label(theme_row, text="🎨  Theme:", bg=c['surface'],
+        tk.Label(theme_row, text="🎨  Theme:", bg=card_bg,
                  fg=c['text_secondary'], font=("Segoe UI", 9)).pack(side=tk.LEFT)
         if not hasattr(self, 'theme_var'):
             self.theme_var = tk.StringVar(value=self.current_theme)
         theme_combo = ttk.Combobox(
             theme_row, textvariable=self.theme_var,
-            values=["light", "dark", "pink"],
+            values=["dark", "light", "pink"],
             state="readonly", width=10, font=("Segoe UI", 9))
         theme_combo.pack(side=tk.LEFT, padx=8)
         theme_combo.bind("<<ComboboxSelected>>", self.change_theme)
@@ -227,15 +319,23 @@ class ExamShield:
         # Store card ref for shake animation
         self._login_card = card
 
-        # ── Footer ─────────────────────────────────────────────────────────────
-        footer = tk.Frame(self.root, bg=c['primary'], height=38)
-        footer.pack(fill=tk.X, side=tk.BOTTOM)
-        footer.pack_propagate(False)
-        tk.Label(footer,
-                 text="Exam Shield Premium © 2024  ·  Group A73, A74, A77",
-                 font=("Segoe UI", 8), bg=c['primary'], fg='#6f9fc0').pack(pady=11)
+        # ── Footer with gradient ──────────────────────────────────────────────
+        footer_canvas = tk.Canvas(self.root, height=40, highlightthickness=0)
+        footer_canvas.pack(fill=tk.X, side=tk.BOTTOM)
+        gs = c['gradient_start']; ge = c['gradient_end']
+        r1,g1,b1 = int(gs[1:3],16), int(gs[3:5],16), int(gs[5:7],16)
+        r2,g2,b2 = int(ge[1:3],16), int(ge[3:5],16), int(ge[5:7],16)
+        for i in range(520):
+            t = i/520
+            footer_canvas.create_line(i, 0, i, 40,
+                fill=f'#{int(r1+(r2-r1)*t):02x}{int(g1+(g2-g1)*t):02x}{int(b1+(b2-b1)*t):02x}',
+                width=1)
+        footer_canvas.create_text(
+            260, 20,
+            text="Exam Shield Premium © 2024  ·  Group A73, A74, A77",
+            font=("Segoe UI", 8), fill='#a5b4fc')
 
-        # ── Key bindings ─────────────────────────────────────────────────────────
+        # ── Key bindings ──────────────────────────────────────────────────────
         password_entry.bind("<Return>", lambda e: self.attempt_login())
         username_entry.bind("<Return>", lambda e: password_entry.focus())
         username_entry.focus()

@@ -69,13 +69,13 @@ class ExamShieldTheme:
             'btn_highlight':  '#ffffff',
             'btn_shadow':     '#0d2f8c',
             'btn_edge':       '#1442b5',
-            'gradient_start': '#1a56db',
-            'gradient_end':   '#7c3aed',
-            'gradient_mid':   '#2563eb',
-            'shadow':         '#00000015',
-            'shadow_dark':    '#00000040',
+            'gradient_start': '#0c1a6e',
+            'gradient_end':   '#2563eb',
+            'gradient_mid':   '#1d4ed8',
+            'shadow':         '#0c1a6e20',
+            'shadow_dark':    '#0c1a6e50',
             'neon_glow':      '#3b82f6',
-            'neon_glow2':     '#7c3aed',
+            'neon_glow2':     '#60a5fa',
         }
     
     def get_dark_theme(self):
@@ -124,13 +124,13 @@ class ExamShieldTheme:
             'btn_highlight':  '#7b7ffa',
             'btn_shadow':     '#1e1b4b',
             'btn_edge':       '#312e81',
-            'gradient_start': '#1e1b4b',
-            'gradient_end':   '#312e81',
-            'gradient_mid':   '#4338ca',
+            'gradient_start': '#060d2e',
+            'gradient_end':   '#1d4ed8',
+            'gradient_mid':   '#1e40af',
             'shadow':         '#00000050',
             'shadow_dark':    '#00000080',
-            'neon_glow':      '#6366f1',
-            'neon_glow2':     '#8b5cf6',
+            'neon_glow':      '#3b82f6',
+            'neon_glow2':     '#60a5fa',
         }
     
     def get_pink_theme(self):
@@ -179,13 +179,13 @@ class ExamShieldTheme:
             'btn_highlight':  '#ff85c0',
             'btn_shadow':     '#700d38',
             'btn_edge':       '#a01050',
-            'gradient_start': '#db2777',
-            'gradient_end':   '#7c3aed',
-            'gradient_mid':   '#c026d3',
-            'shadow':         '#db277720',
-            'shadow_dark':    '#db277750',
+            'gradient_start': '#0c1a6e',
+            'gradient_end':   '#2563eb',
+            'gradient_mid':   '#1d4ed8',
+            'shadow':         '#0c1a6e20',
+            'shadow_dark':    '#0c1a6e50',
             'neon_glow':      '#ec4899',
-            'neon_glow2':     '#7c3aed',
+            'neon_glow2':     '#3b82f6',
         }
     
     def get_font_system(self):

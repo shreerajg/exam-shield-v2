@@ -125,11 +125,20 @@ class ExamShield:
             self.root.configure(bg=self.colors['surface'])
 
     def change_theme(self, event=None):
-        self.current_theme = self.theme_var.get()
+        self.current_theme = self.theme_var.get() if hasattr(self, 'theme_var') else self.current_theme
         self.load_theme(self.current_theme)
         for widget in self.root.winfo_children():
             widget.destroy()
         # Re-create animation manager with new root bg
+        self._anim = theme.AnimationManager(self.root)
+        self.setup_ui()
+
+    def _switch_login_theme(self, theme_name):
+        """Switch theme via the colored theme pill buttons."""
+        self.current_theme = theme_name
+        self.load_theme(theme_name)
+        for widget in self.root.winfo_children():
+            widget.destroy()
         self._anim = theme.AnimationManager(self.root)
         self.setup_ui()
 

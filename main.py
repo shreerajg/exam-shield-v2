@@ -77,8 +77,8 @@ class ExamShield:
                 'white':          '#ffffff',
                 'light_blue':     '#eef2ff',
                 'border':         '#c7d7fe',
-                'gradient_start': '#1a56db',
-                'gradient_end':   '#7c3aed',
+                'gradient_start': '#0c1a6e',
+                'gradient_end':   '#2563eb',
                 'neon_glow':      '#3b82f6',
                 'entry_bg':       '#eef2ff',
                 'entry_focus':    '#dbeafe',
@@ -96,9 +96,9 @@ class ExamShield:
                 'white':          '#ffffff',
                 'light_blue':     '#1c2330',
                 'border':         '#30363d',
-                'gradient_start': '#1e1b4b',
-                'gradient_end':   '#312e81',
-                'neon_glow':      '#6366f1',
+                'gradient_start': '#060d2e',
+                'gradient_end':   '#1d4ed8',
+                'neon_glow':      '#3b82f6',
                 'entry_bg':       '#21262d',
                 'entry_focus':    '#30363d',
             }
@@ -115,8 +115,8 @@ class ExamShield:
                 'white':          '#ffffff',
                 'light_blue':     '#fce7f3',
                 'border':         '#fbb6ce',
-                'gradient_start': '#db2777',
-                'gradient_end':   '#7c3aed',
+                'gradient_start': '#0c1a6e',
+                'gradient_end':   '#2563eb',
                 'neon_glow':      '#ec4899',
                 'entry_bg':       '#fce7f3',
                 'entry_focus':    '#fbcfe8',
@@ -192,8 +192,8 @@ class ExamShield:
         accent_bar.pack(fill=tk.X)
         for i in range(520):
             t = i / 520
-            r1,g1,b1 = 0xf5,0x9e,0x0b
-            r2,g2,b2 = 0x63,0x66,0xf1
+            r1,g1,b1 = 0x0c,0x1a,0x6e   # deep navy
+            r2,g2,b2 = 0x38,0xbd,0xf8   # sky blue
             accent_bar.create_line(i, 0, i, 4,
                 fill=f'#{int(r1+(r2-r1)*t):02x}{int(g1+(g2-g1)*t):02x}{int(b1+(b2-b1)*t):02x}',
                 width=1)
@@ -223,8 +223,8 @@ class ExamShield:
         sep_canvas.pack(fill=tk.X, padx=22, pady=(14, 18))
         for i in range(456):
             t = i/456
-            r1,g1,b1 = 0x63,0x66,0xf1
-            r2,g2,b2 = 0x8b,0x5c,0xf6
+            r1,g1,b1 = 0x0c,0x1a,0x6e   # deep navy
+            r2,g2,b2 = 0x25,0x63,0xeb   # electric blue
             sep_canvas.create_line(i, 0, i, 2,
                 fill=f'#{int(r1+(r2-r1)*t):02x}{int(g1+(g2-g1)*t):02x}{int(b1+(b2-b1)*t):02x}',
                 width=1)
